@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://crazykakarotto.github.io</id>
+    <id>https://CrazyKakarotto.github.io</id>
     <title>Gridea</title>
-    <updated>2021-04-06T03:05:14.720Z</updated>
+    <updated>2021-11-05T03:08:27.288Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://crazykakarotto.github.io"/>
-    <link rel="self" href="https://crazykakarotto.github.io/atom.xml"/>
+    <link rel="alternate" href="https://CrazyKakarotto.github.io"/>
+    <link rel="self" href="https://CrazyKakarotto.github.io/atom.xml"/>
     <subtitle>温故而知新</subtitle>
-    <logo>https://crazykakarotto.github.io/images/avatar.png</logo>
-    <icon>https://crazykakarotto.github.io/favicon.ico</icon>
+    <logo>https://CrazyKakarotto.github.io/images/avatar.png</logo>
+    <icon>https://CrazyKakarotto.github.io/favicon.ico</icon>
     <rights>All rights reserved 2021, Gridea</rights>
     <entry>
         <title type="html"><![CDATA[我是测试]]></title>
-        <id>https://crazykakarotto.github.io/post/wo-shi-ce-shi/</id>
-        <link href="https://crazykakarotto.github.io/post/wo-shi-ce-shi/">
+        <id>https://CrazyKakarotto.github.io/post/wo-shi-ce-shi/</id>
+        <link href="https://CrazyKakarotto.github.io/post/wo-shi-ce-shi/">
         </link>
         <updated>2021-04-06T03:01:44.000Z</updated>
         <content type="html"><![CDATA[<p>开始写作</p>
@@ -21,8 +21,8 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[如何自定义commit规范]]></title>
-        <id>https://crazykakarotto.github.io/post/hello-gridea/</id>
-        <link href="https://crazykakarotto.github.io/post/hello-gridea/">
+        <id>https://CrazyKakarotto.github.io/post/hello-gridea/</id>
+        <link href="https://CrazyKakarotto.github.io/post/hello-gridea/">
         </link>
         <updated>2018-12-11T16:00:00.000Z</updated>
         <content type="html"><![CDATA[<p>👏  欢迎来到我的博客！</p>
