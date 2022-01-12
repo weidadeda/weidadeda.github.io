@@ -2,14 +2,36 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://weidadeda.github.io</id>
     <title>Gridea</title>
-    <updated>2021-11-05T07:47:36.796Z</updated>
+    <updated>2022-01-12T03:13:10.850Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://weidadeda.github.io"/>
     <link rel="self" href="https://weidadeda.github.io/atom.xml"/>
     <subtitle>温故而知新</subtitle>
     <logo>https://weidadeda.github.io/images/avatar.png</logo>
     <icon>https://weidadeda.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2021, Gridea</rights>
+    <rights>All rights reserved 2022, Gridea</rights>
+    <entry>
+        <title type="html"><![CDATA[shell $? 获取函数返回值或者上一个命令的退出状态]]></title>
+        <id>https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai</id>
+        <link href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai">
+        </link>
+        <updated>2022-01-12T03:03:58.000Z</updated>
+        <content type="html"><![CDATA[<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>?</mo><mi mathvariant="normal">是</mi><mi mathvariant="normal">上</mi><mi mathvariant="normal">一</mi><mi mathvariant="normal">个</mi><mi mathvariant="normal">程</mi><mi mathvariant="normal">序</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">是</mi><mi mathvariant="normal">否</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">标</mi><mi mathvariant="normal">志</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">如</mi><mi mathvariant="normal">果</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">则</mi></mrow><annotation encoding="application/x-tex">? 是上一个程序执行是否成功的标志，如果执行成功则</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mclose">?</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">上</span><span class="mord cjk_fallback">一</span><span class="mord cjk_fallback">个</span><span class="mord cjk_fallback">程</span><span class="mord cjk_fallback">序</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">否</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">标</span><span class="mord cjk_fallback">志</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">如</span><span class="mord cjk_fallback">果</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">则</span></span></span></span>? 为0，否则 不为0。<br>
+比如判断一个node服务是该启动还是该重启，则可以执行pm2 info ***<br>
+<img src="https://weidadeda.github.io/post-images/1641956978962.jpg" alt="" loading="lazy"></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[shell $?]]></title>
+        <id>https://weidadeda.github.io/post/shell-dollar</id>
+        <link href="https://weidadeda.github.io/post/shell-dollar">
+        </link>
+        <updated>2022-01-12T03:03:58.000Z</updated>
+        <content type="html"><![CDATA[<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>?</mo><mi mathvariant="normal">是</mi><mi mathvariant="normal">上</mi><mi mathvariant="normal">一</mi><mi mathvariant="normal">个</mi><mi mathvariant="normal">程</mi><mi mathvariant="normal">序</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">是</mi><mi mathvariant="normal">否</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">标</mi><mi mathvariant="normal">志</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">如</mi><mi mathvariant="normal">果</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">则</mi></mrow><annotation encoding="application/x-tex">? 是上一个程序执行是否成功的标志，如果执行成功则</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mclose">?</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">上</span><span class="mord cjk_fallback">一</span><span class="mord cjk_fallback">个</span><span class="mord cjk_fallback">程</span><span class="mord cjk_fallback">序</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">否</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">标</span><span class="mord cjk_fallback">志</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">如</span><span class="mord cjk_fallback">果</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">则</span></span></span></span>? 为0，否则 不为0。<br>
+比如判断一个node服务是该启动还是该重启，则可以执行pm2 info ***<br>
+<img src="https://weidadeda.github.io/post-images/1641956978962.jpg" alt="" loading="lazy"></p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[我是测试]]></title>
         <id>https://weidadeda.github.io/post/wo-shi-ce-shi</id>
@@ -25,9 +47,7 @@
         <link href="https://weidadeda.github.io/post/about">
         </link>
         <updated>2019-01-25T11:09:48.000Z</updated>
-        <content type="html"><![CDATA[<blockquote>
-<p>欢迎来到我的小站呀，很高兴遇见你嘿嘿！🤝</p>
-</blockquote>
+        <content type="html"><![CDATA[<p><img src="https://weidadeda.github.io/post-images/1640761677993.gif" alt="" loading="lazy">&gt; 欢迎来到我的小站呀，很高兴遇见你嘿嘿！🤝</p>
 <h2 id="关于本站">🏠 关于本站</h2>
 <h2 id="博主是谁">👨‍💻 博主是谁</h2>
 <h2 id="兴趣爱好">⛹ 兴趣爱好</h2>

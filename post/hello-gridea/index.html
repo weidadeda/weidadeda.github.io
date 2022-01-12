@@ -1,93 +1,265 @@
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<head>
+  <meta charset="UTF-8" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="keywords" content="">
+<meta name="description" content="温故而知新">
+<meta name="theme-color" content="">
 <title>如何自定义commit规范 | Gridea</title>
-<meta name="description" content="温故而知新" />
-<link rel="shortcut icon" href="https://weidadeda.github.io/favicon.ico?v=1636098300319">
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
-<link rel="stylesheet" href="https://weidadeda.github.io/styles/main.css">
+<link rel="shortcut icon" href="/favicon.ico?v=1641957185728">
+<link rel="stylesheet" href="/styles/main.css">
+<link rel="stylesheet" href="/media/css/pisces.css">
 
-<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+<link rel="stylesheet" href="/media/fonts/font-awesome.css">
+<link
+  href="//fonts.googleapis.com/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Rosario:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext"
+  rel="stylesheet" type="text/css">
+
+<link href="/media/hljs/styles/github.css"
+  rel="stylesheet">
+
+<script src="/media/hljs/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.0/velocity.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.0/velocity.ui.min.js"></script>
+
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 
 
-  </head>
-  <body>
-    <div class="main">
-      <div class="main-content">
-        <div class="site-header">
-  <a href="https://weidadeda.github.io">
-  <img class="avatar" src="https://weidadeda.github.io/images/avatar.png?v=1636098300319" alt="">
-  </a>
-  <h1 class="site-title">
-    Gridea
-  </h1>
-  <p class="site-description">
-    温故而知新
-  </p>
-  <div class="menu-container">
-    
-      
-        <a href="/" class="menu">
-          首页
-        </a>
-      
-    
-      
-        <a href="/archives" class="menu">
-          归档
-        </a>
-      
-    
-      
-        <a href="https://crazykakarotto.github.io/post/wo-shi-ce-shi" class="menu">
-          关于
-        </a>
-      
-    
-  </div>
-  <div class="social-container">
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-  </div>
-</div>
+  <meta name="description" content="如何自定义commit规范" />
+  <meta name="keywords" content="Gridea" />
+</head>
 
-        <div class="post-detail">
-          <article class="post">
-            <h2 class="post-title">
-              如何自定义commit规范
-            </h2>
-            <div class="post-info">
-              <span>
-                2018-12-12
-              </span>
-              <span>
-                2 min read
-              </span>
+<body>
+  <div class="head-top-line"></div>
+  <div class="header-box">
+    
+<div class="pisces">
+  <header class="header  ">
+    <div class="blog-header box-shadow-wrapper bg-color " id="header">
+      <div class="nav-toggle" id="nav_toggle">
+        <div class="toggle-box">
+          <div class="line line-top"></div>
+          <div class="line line-center"></div>
+          <div class="line line-bottom"></div>
+        </div>
+      </div>
+      <div class="site-meta">       
+        <div class="site-title">
+          
+            <a href="/" class="brand">
+              <span>Gridea</span>
+            </a>  
+          
+        </div>
+        
+      </div>
+      <nav class="site-nav" id="site_nav">
+        <ul id="nav_ul">
+          
+            
+            
+            <li class="nav-item ">
               
-                <a href="https://weidadeda.github.io/tag/6_e4XZYZA" class="post-tag">
-                  # Gridea
+              
+                <a href="/" target="_self">
+                  <i class="fa fa-home"></i> 首页
                 </a>
               
-            </div>
+            </li>
+          
             
-              <img class="post-feature-image" src="https://weidadeda.github.io/post-images/hello-gridea.png" alt="">
             
-            <div class="post-content-wrapper">
-              <div class="post-content">
-                <p>👏  欢迎来到我的博客！</p>
+            <li class="nav-item ">
+              
+              
+                <a href="/archives/" target="_self">
+                  <i class="fa fa-archive"></i> 归档
+                </a>
+              
+            </li>
+          
+            
+            
+            <li class="nav-item ">
+              
+              
+                <a href="https://weidadeda.github.io/post/about/" target="_blank">
+                  <i class="fa fa-globe"></i> 关于
+                </a>
+              
+            </li>
+          
+          
+        </ul>
+      </nav>
+    </div>
+  </header>
+</div>
+
+<script type="text/javascript"> 
+ 
+  let showNav = true;
+
+  let navToggle = document.querySelector('#nav_toggle'),
+  siteNav = document.querySelector('#site_nav');
+  
+  function navClick() {
+    let sideBar = document.querySelector('.sidebar');
+    let navUl = document.querySelector('#nav_ul');
+    navToggle.classList.toggle('nav-toggle-active');
+    siteNav.classList.toggle('nav-menu-active');
+    if (siteNav.classList.contains('nav-menu-active')) {
+      siteNav.style = "height: " + (navUl.children.length * 42) +"px !important";
+    } else {
+      siteNav.style = "";
+    }
+  }
+
+  navToggle.addEventListener('click',navClick);  
+</script>
+  </div>
+  <div class="main-continer">
+    
+    <div
+      class="section-layout pisces ">
+      <div class="section-layout-wrapper">
+        
+
+<div class="sidebar">
+  
+    <div class="sidebar-box box-shadow-wrapper bg-color right-motion" id="sidebar">
+      
+      <div class="sidebar-body pisces" id="sidebar_body">
+        
+      </div>
+    </div>
+  
+</div>
+<script>
+  const SIDEBAR_TITLE_ACTIVE = 'sidebar-title-active';
+  const SIDEBAR_BODY_ACTIVE = 'sidebar-body-active';
+  const SLIDE_UP_IN = 'slide-up-in';
+
+  let sidebar = document.querySelector('#sidebar'),
+  tocSideBar = document.querySelector('#tocSideBar'),
+  metaSideBar = document.querySelector('#metaSideBar'),
+  postToc = document.querySelector('#post_toc'),
+  postSiteMeta = document.querySelector('#post_side_meta'),
+  sidebarTitle = document.querySelector('.sidebar-title'),
+  sidebarBody = document.querySelector('#sidebar_body');
+
+  tocSideBar && tocSideBar.addEventListener('click', (e) => {
+    toggleSidebar(e);
+  });
+
+  metaSideBar && metaSideBar.addEventListener('click', (e) => {
+    toggleSidebar(e);
+  });
+
+  function toggleSidebar(e) {
+    let currentTitle = document.querySelector("."+SIDEBAR_TITLE_ACTIVE);
+    if (currentTitle == e.srcElement) {
+      return ;
+    }
+    let current, showElement, hideElement;
+    if (e.srcElement == metaSideBar) {
+      showElement = postSiteMeta;
+      hideElement = postToc;
+    } else if (e.srcElement == tocSideBar){
+      showElement = postToc;
+      hideElement = postSiteMeta;
+    }
+    currentTitle.classList.remove(SIDEBAR_TITLE_ACTIVE);
+    e.srcElement.classList.add(SIDEBAR_TITLE_ACTIVE);
+
+    window.Velocity(hideElement, 'stop');
+    window.Velocity(hideElement, 'transition.slideUpOut', {
+      display: 'none',
+      duration: 200,
+      complete: function () {
+        window.Velocity(showElement, 'transition.slideDownIn', {
+          duration: 200
+        });
+      }
+    })
+    hideElement.classList.remove(SIDEBAR_BODY_ACTIVE);
+    showElement.classList.add(SIDEBAR_BODY_ACTIVE);
+  }
+
+  postToc && postToc.addEventListener('transitionend', function() {
+    this.classList.remove(SLIDE_UP_IN);
+  });
+
+  if (sidebarBody) {
+    if (sidebarBody.classList.contains('pisces') || sidebarBody.classList.contains('gemini')) {
+      let hasFix = false;
+      let scrollEl = document.querySelector('.main-continer');
+      let limitTop = document.querySelector('#nav_ul').children.length * 42 + 162;
+      window.addEventListener('scroll', function(e) {
+        if (document.scrollingElement.scrollTop >= limitTop) {
+          if (!hasFix) {
+            sidebar.classList.add('sidebar-fixed');
+            hasFix = true;
+          }
+        } else {
+          if (hasFix) {
+            sidebar.classList.remove('sidebar-fixed');
+            hasFix = false;
+          }
+        }
+      });
+    }
+  }
+  
+</script>
+        <div class="section-box box-shadow-wrapper">
+          <div class="section bg-color post post-page">
+            <header class="post-header">
+  <h1 class="post-title">
+    <a class="post-title-link" href="https://weidadeda.github.io/post/hello-gridea">
+      如何自定义commit规范
+    </a>
+  </h1>
+  <div class="post-meta">
+    
+    <span class="meta-item pc-show">
+      <i class="fa fa-calendar-o"></i>
+      <span>发布于</span>
+      <span>2018-12-12</span>
+      <span class="post-meta-divider pc-show">|</span>
+    </span>
+    
+    <span class="meta-item">
+      <i class="fa fa-folder-o"></i>
+      <span class="pc-show">分类于</span>
+      
+      
+      <a href="https://weidadeda.github.io/tag/6_e4XZYZA">
+        <span>Gridea</span>
+      </a>
+      
+      
+    </span>
+    <span class="post-meta-divider">|</span>
+    
+    <span class="meta-item">
+      <i class="fa fa-clock-o"></i>
+      <span>2分钟</span>
+    </span>
+    <span class="meta-item">
+      <span class="post-meta-divider">|</span>
+      <i class="fa fa-file-word-o"></i>
+      <span>237<span class="pc-show">字数</span></span>
+    </span>
+    
+  </div>
+</header>
+            <div class="post-body next-md-body" id="post_body">
+              <p>👏  欢迎来到我的博客！</p>
 <p><a href="https://github.com/getgridea/gridea">Github</a><br>
 <a href="https://gridea.dev/">Gridea 主页</a><br>
 <a href="http://fehey.com/">示例网站</a></p>
@@ -124,25 +296,49 @@ if (!commitRE.test(msg)) {
 </code></pre>
 <p>另一种是也可以使用git-cz通过交互的方式生成更专业的commit</p>
 
-              </div>
-              <div class="toc-container">
-                
-              </div>
             </div>
-          </article>
-        </div>
-
-        
-
-        
-          
-            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+            <div class="post-footer">
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>本文作者：</strong>
+      
+    </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://weidadeda.github.io/post/hello-gridea" title="如何自定义commit规范">https://weidadeda.github.io/post/hello-gridea</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong>
+      本博客所有文章除特别声明外，均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i> BY-NC-SA</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+  <div class="tags">
+    
+      <a href="https://weidadeda.github.io/tag/6_e4XZYZA"># Gridea</a>
+    
+  </div>
+  <div class="nav">
+    <div class="nav-prev">
+      
+        <i class="fa fa-chevron-left"></i>
+        <a class="nav-pc-next" title="关于" href="https://weidadeda.github.io/post/about">关于</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title="关于" href="https://weidadeda.github.io/post/about">上一篇</a>
+      
+    </div>
+    <div class="nav-next">
+      
+    </div>
+  </div>
+</div>
+            
+  
+    
+      <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
 <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
 
 <div id="gitalk-container"></div>
 
 <script>
-
   var gitalk = new Gitalk({
     clientID: '',
     clientSecret: '',
@@ -152,63 +348,426 @@ if (!commitRE.test(msg)) {
     id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
     distractionFreeMode: false  // Facebook-like distraction free mode
   })
-
   gitalk.render('gitalk-container')
-
 </script>
+    
+    
+  
 
-          
-
-          
-        
-
-        <div class="site-footer">
-  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
-  <a class="rss" href="https://weidadeda.github.io/atom.xml" target="_blank">RSS</a>
-</div>
-
-<script>
-  hljs.initHighlightingOnLoad()
-
-  let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
-
-  // This should probably be throttled.
-  // Especially because it triggers during smooth scrolling.
-  // https://lodash.com/docs/4.17.10#throttle
-  // You could do like...
-  // window.addEventListener("scroll", () => {
-  //    _.throttle(doThatStuff, 100);
-  // });
-  // Only not doing it here to keep this Pen dependency-free.
-
-  window.addEventListener("scroll", event => {
-    let fromTop = window.scrollY;
-
-    mainNavLinks.forEach((link, index) => {
-      let section = document.getElementById(decodeURI(link.hash).substring(1));
-      let nextSection = null
-      if (mainNavLinks[index + 1]) {
-        nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
-      }
-      if (section.offsetTop <= fromTop) {
-        if (nextSection) {
-          if (nextSection.offsetTop > fromTop) {
-            link.classList.add("current");
-          } else {
-            link.classList.remove("current");    
-          }
-        } else {
-          link.classList.add("current");
-        }
-      } else {
-        link.classList.remove("current");
-      }
-    });
-  });
-
-</script>
-
+          </div>
+        </div>
       </div>
     </div>
-  </body>
+    <div class="footer-box">
+  <footer class="footer">
+    <div class="copyright">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | © 2019-2020 Theme By <a href="https://github.com/hsxyhao/gridea-theme-next" target="_blank">HsxyHao</a>
+    </div>
+    <div class="poweredby">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+  </footer>
+  
+  
+  <div class="pisces back-to-top" id="back_to_top">
+    <i class="fa fa-arrow-up"></i>
+    
+    <span class="scrollpercent">
+      <span id="back_to_top_text">0</span>%
+    </span>
+    
+  </div>
+  
+    <div class="bg-img">
+      <img src="" />
+    </div>
+  
+  
+  
+    
+
+  
+</div>
+<script>
+
+  let sideBarOpen = 'sidebar-open';
+  let body = document.body;
+  let back2Top = document.querySelector('#back_to_top'),
+  back2TopText = document.querySelector('#back_to_top_text'),
+  drawerBox = document.querySelector('#drawer_box'),
+  rightSideBar = document.querySelector('.sidebar'),
+  viewport = document.querySelector('body');
+
+  function scrollAnimation(currentY, targetY) {
+   
+    let needScrollTop = targetY - currentY
+    let _currentY = currentY
+    setTimeout(() => {
+      const dist = Math.ceil(needScrollTop / 10)
+      _currentY += dist
+      window.scrollTo(_currentY, currentY)
+      if (needScrollTop > 10 || needScrollTop < -10) {
+        scrollAnimation(_currentY, targetY)
+      } else {
+        window.scrollTo(_currentY, targetY)
+      }
+    }, 1)
+  }
+
+  back2Top.addEventListener("click", function(e) {
+    scrollAnimation(document.scrollingElement.scrollTop, 0);
+    e.stopPropagation();
+    return false;
+  });
+  
+  window.addEventListener('scroll', function(e) {
+    let percent = document.scrollingElement.scrollTop / (document.scrollingElement.scrollHeight - document.scrollingElement.clientHeight) * 100;
+    if (percent > 1 && !back2Top.classList.contains('back-top-active')) {
+      back2Top.classList.add('back-top-active');
+    }
+    if (percent == 0) {
+      back2Top.classList.remove('back-top-active');
+    }
+    if (back2TopText) {
+      back2TopText.textContent = Math.floor(percent);
+    }
+  });
+
+  
+  let hasCacu = false;
+  window.onresize = function() {
+    if (window.width > 991) {
+      calcuHeight();
+    } else {
+      hasCacu = false;
+    }
+  }
+
+  function calcuHeight() {
+    // 动态调整站点概览高度
+    if (!hasCacu && back2Top.classList.contains('pisces') || back2Top.classList.contains('gemini')) {
+      let sideBar = document.querySelector('.sidebar');
+      let navUl = document.querySelector('#site_nav');
+      sideBar.style = 'margin-top:' + (navUl.offsetHeight + navUl.offsetTop + 15) + 'px;';
+      hasCacu = true;
+    }
+  }
+  calcuHeight();
+  
+  let open = false, MOTION_TIME = 300, RIGHT_MOVE_DIS = '320px';
+
+  if (drawerBox) {
+    let rightMotions = document.querySelectorAll('.right-motion');
+    let right = drawerBox.classList.contains('right');
+
+    let transitionDir = right ? "transition.slideRightIn" : "transition.slideLeftIn";
+
+    let openProp, closeProp;
+    if (right) {
+      openProp = {
+        paddingRight: RIGHT_MOVE_DIS 
+      };
+      closeProp = {
+        paddingRight: '0px'
+      };
+    } else {
+      openProp = {
+        paddingLeft: RIGHT_MOVE_DIS 
+      };
+      closeProp = {
+        paddingLeft: '0px'
+      };
+    }
+
+    drawerBox.onclick = function() {
+      open = !open;
+      window.Velocity(rightSideBar, 'stop');
+      window.Velocity(viewport, 'stop');
+      window.Velocity(rightMotions, 'stop');
+      if (open) {
+        window.Velocity(rightSideBar, {
+          width: RIGHT_MOVE_DIS
+        }, {
+          duration: MOTION_TIME,
+          begin: function() {
+            window.Velocity(rightMotions, transitionDir,{ });
+          }
+        })
+        window.Velocity(viewport, openProp,{
+          duration: MOTION_TIME
+        });
+      } else {
+        window.Velocity(rightSideBar, {
+          width: '0px'
+        }, {
+          duration: MOTION_TIME,
+          begin: function() {
+            window.Velocity(rightMotions, {
+              opacity: 0
+            });
+          }
+        })
+        window.Velocity(viewport, closeProp ,{
+          duration: MOTION_TIME
+        });
+      }
+      for (let i = 0; i < drawerBox.children.length; i++) {
+        drawerBox.children[i].classList.toggle('muse-line');
+      }
+      drawerBox.classList.toggle(sideBarOpen);
+    }
+  }
+
+  // 链接跳转
+  let newWindow = ''
+  if (newWindow === 'true') {
+    let links = document.querySelectorAll('.post-body a')
+    links.forEach(item => {
+      if (!item.classList.contains('btn')) {
+        item.setAttribute("target","_blank");
+      }
+    })
+  }
+  // 代码高亮
+  hljs.initHighlightingOnLoad();
+
+</script>
+    <div class="light-box" id="light_box"></div>
+<script>
+  let imgs = document.querySelectorAll('.post-body img');
+  let lightBox = document.querySelector('#light_box');
+  lightBox.addEventListener('mousedown', (e) => {
+    e.preventDefault()
+  })
+  lightBox.addEventListener('mousewheel', (e) => {
+    e.preventDefault()
+  })
+  let width = window.innerWidth * 0.8;
+  lightBox.onclick = () => {
+    let img = lightBox.querySelector('img');
+    lightBox.style = '';
+    img && img.remove();
+  }
+  imgs.forEach(item => {
+    item.onclick = function (e) {
+      let lightImg = document.createElement('img');
+      lightImg.src = this.src;
+      lightBox.style = `height: 100%; opacity: 1; background-color: rgba(0, 0, 0, 0.5);cursor: zoom-out;`;
+      lightImg.style = `width: ${width}px; border: 1px solid #fff; border-radius: 2px;`;
+      lightImg.onclick = function () {
+        lightBox.style = '';
+        this.remove();
+      }
+      lightBox.append(lightImg);
+    }
+  })
+</script>
+  </div>
+</body>
+<input hidden id="copy" />
+<script>
+  //拿来主义(真香)^_^，Clipboard 实现摘自掘金 https://juejin.im/post/5aefeb6e6fb9a07aa43c20af
+  window.Clipboard = (function (window, document, navigator) {
+    var textArea,
+      copy;
+
+    // 判断是不是ios端
+    function isOS() {
+      return navigator.userAgent.match(/ipad|iphone/i);
+    }
+    //创建文本元素
+    function createTextArea(text) {
+      textArea = document.createElement('textArea');
+      textArea.value = text;
+      textArea.style.width = 0;
+      textArea.style.height = 0;
+      textArea.clientHeight = 0;
+      textArea.clientWidth = 0;
+      document.body.appendChild(textArea);
+    }
+    //选择内容
+    function selectText() {
+      var range,
+        selection;
+
+      if (isOS()) {
+        range = document.createRange();
+        range.selectNodeContents(textArea);
+        selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        textArea.setSelectionRange(0, 999999);
+      } else {
+        textArea.select();
+      }
+    }
+
+    //复制到剪贴板
+    function copyToClipboard() {
+      try {
+        document.execCommand("Copy")
+      } catch (err) {
+        alert("复制错误！请手动复制！")
+      }
+      document.body.removeChild(textArea);
+    }
+
+    copy = function (text) {
+      createTextArea(text);
+      selectText();
+      copyToClipboard();
+    };
+
+    return {
+      copy: copy
+    };
+  })(window, document, navigator);
+
+  function copyCode(e) {
+    if (e.srcElement.tagName === 'SPAN' && e.srcElement.classList.contains('copy-code')) {
+      let code = e.currentTarget.querySelector('code');
+      var text = code.innerText;
+      if (e.srcElement.textContent === '复制成功') {
+        console.log('复制操作频率过高');
+        return;
+      }
+      e.srcElement.textContent = '复制成功';
+      (function (elem) {
+        setTimeout(() => {
+          if (elem.textContent === '复制成功') {
+            elem.textContent = '复制代码'
+          }
+        }, 1000);
+      })(e.srcElement)
+      Clipboard.copy(text);
+    }
+  }
+
+  let pres = document.querySelectorAll('pre');
+  pres.forEach(pre => {
+    let code = pre.querySelector('code');
+    let copyElem = document.createElement('span');
+    copyElem.classList.add('copy-code');
+    copyElem.textContent = '复制代码';
+    pre.appendChild(copyElem);
+    pre.onclick = copyCode
+  })
+</script>
+<script src="/media/js/motion.js"></script>
+
+<script src="https://cdn.jsdelivr.net/gh/cferdinandi/smooth-scroll/dist/smooth-scroll.polyfills.min.js"></script>
+<script>
+  var scroll = new SmoothScroll('a[href*="#"]', {
+    speed: 500
+  });
+</script>
+
+<!-- <div class="search-mask" id="search_mask">
+  <div class="search-box">
+    <div class="search-title">
+      <i class="fa fa-search"></i>
+      <div class="input-box">
+        <input type="text" placeholder="搜索">
+      </div>
+      <i class="fa fa-times-circle"></i>
+    </div>
+    <div class="result">
+      
+      <div class="item">
+        <a class="result-title" href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai"" data-c="
+          &lt;p&gt;&lt;span class=&#34;katex&#34;&gt;&lt;span class=&#34;katex-mathml&#34;&gt;&lt;math&gt;&lt;semantics&gt;&lt;mrow&gt;&lt;mo&gt;?&lt;/mo&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;是&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;上&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;一&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;个&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;程&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;序&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;执&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;行&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;是&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;否&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;成&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;功&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;的&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;标&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;志&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;，&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;如&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;果&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;执&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;行&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;成&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;功&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;则&lt;/mi&gt;&lt;/mrow&gt;&lt;annotation encoding=&#34;application/x-tex&#34;&gt;? 是上一个程序执行是否成功的标志，如果执行成功则&lt;/annotation&gt;&lt;/semantics&gt;&lt;/math&gt;&lt;/span&gt;&lt;span class=&#34;katex-html&#34; aria-hidden=&#34;true&#34;&gt;&lt;span class=&#34;base&#34;&gt;&lt;span class=&#34;strut&#34; style=&#34;height:0.69444em;vertical-align:0em;&#34;&gt;&lt;/span&gt;&lt;span class=&#34;mclose&#34;&gt;?&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;是&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;上&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;一&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;个&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;程&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;序&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;执&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;行&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;是&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;否&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;成&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;功&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;的&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;标&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;志&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;，&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;如&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;果&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;执&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;行&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;成&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;功&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;则&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;? 为0，否则 不为0。&lt;br&gt;
+比如判断一个node服务是该启动还是该重启，则可以执行pm2 info ***&lt;br&gt;
+&lt;img src=&#34;https://weidadeda.github.io/post-images/1641956978962.jpg&#34; alt=&#34;&#34; loading=&#34;lazy&#34;&gt;&lt;/p&gt;
+">shell $? 获取函数返回值或者上一个命令的退出状态</a>
+      </div>
+      
+      <div class="item">
+        <a class="result-title" href="https://weidadeda.github.io/post/shell-dollar"" data-c="
+          &lt;p&gt;&lt;span class=&#34;katex&#34;&gt;&lt;span class=&#34;katex-mathml&#34;&gt;&lt;math&gt;&lt;semantics&gt;&lt;mrow&gt;&lt;mo&gt;?&lt;/mo&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;是&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;上&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;一&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;个&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;程&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;序&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;执&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;行&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;是&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;否&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;成&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;功&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;的&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;标&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;志&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;，&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;如&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;果&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;执&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;行&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;成&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;功&lt;/mi&gt;&lt;mi mathvariant=&#34;normal&#34;&gt;则&lt;/mi&gt;&lt;/mrow&gt;&lt;annotation encoding=&#34;application/x-tex&#34;&gt;? 是上一个程序执行是否成功的标志，如果执行成功则&lt;/annotation&gt;&lt;/semantics&gt;&lt;/math&gt;&lt;/span&gt;&lt;span class=&#34;katex-html&#34; aria-hidden=&#34;true&#34;&gt;&lt;span class=&#34;base&#34;&gt;&lt;span class=&#34;strut&#34; style=&#34;height:0.69444em;vertical-align:0em;&#34;&gt;&lt;/span&gt;&lt;span class=&#34;mclose&#34;&gt;?&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;是&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;上&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;一&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;个&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;程&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;序&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;执&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;行&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;是&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;否&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;成&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;功&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;的&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;标&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;志&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;，&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;如&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;果&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;执&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;行&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;成&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;功&lt;/span&gt;&lt;span class=&#34;mord cjk_fallback&#34;&gt;则&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;? 为0，否则 不为0。&lt;br&gt;
+比如判断一个node服务是该启动还是该重启，则可以执行pm2 info ***&lt;br&gt;
+&lt;img src=&#34;https://weidadeda.github.io/post-images/1641956978962.jpg&#34; alt=&#34;&#34; loading=&#34;lazy&#34;&gt;&lt;/p&gt;
+">shell $?</a>
+      </div>
+      
+      <div class="item">
+        <a class="result-title" href="https://weidadeda.github.io/post/wo-shi-ce-shi"" data-c="
+          &lt;p&gt;开始写作&lt;/p&gt;
+">我是测试</a>
+      </div>
+      
+      <div class="item">
+        <a class="result-title" href="https://weidadeda.github.io/post/about"" data-c="
+          &lt;p&gt;&lt;img src=&#34;https://weidadeda.github.io/post-images/1640761677993.gif&#34; alt=&#34;&#34; loading=&#34;lazy&#34;&gt;&amp;gt; 欢迎来到我的小站呀，很高兴遇见你嘿嘿！🤝&lt;/p&gt;
+&lt;h2 id=&#34;关于本站&#34;&gt;🏠 关于本站&lt;/h2&gt;
+&lt;h2 id=&#34;博主是谁&#34;&gt;👨‍💻 博主是谁&lt;/h2&gt;
+&lt;h2 id=&#34;兴趣爱好&#34;&gt;⛹ 兴趣爱好&lt;/h2&gt;
+&lt;h2 id=&#34;联系我呀&#34;&gt;📬 联系我呀&lt;/h2&gt;
+&lt;p&gt;https://www.cnblogs.com/lovesong/p/10847433.html&lt;/p&gt;
+">关于</a>
+      </div>
+      
+      <div class="item">
+        <a class="result-title" href="https://weidadeda.github.io/post/hello-gridea"" data-c="
+          &lt;p&gt;👏  欢迎来到我的博客！&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/getgridea/gridea&#34;&gt;Github&lt;/a&gt;&lt;br&gt;
+&lt;a href=&#34;https://gridea.dev/&#34;&gt;Gridea 主页&lt;/a&gt;&lt;br&gt;
+&lt;a href=&#34;http://fehey.com/&#34;&gt;示例网站&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;强制commit规范有两种，一种是在package项目中的gitHooks选项下的&amp;quot;commit-msg&amp;quot;设置自己的commit规则脚本。比如我要强制commit内容为feat:加空格xxx或者fix:加空格xxx，如果不符合给出相应提示，则我应该这么写：&lt;br&gt;
+&lt;img src=&#34;https://note.youdao.com/yws/public/resource/d60e09a825bba46e1719f2dc06a2f7e3/xmlnote/302F691AA217499EA4DC783EA5E361B8/3538&#34; alt=&#34;&#34; loading=&#34;lazy&#34;&gt;&lt;br&gt;
+verify-commit-msg.js中代码：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;const chalk = require(&amp;quot;chalk&amp;quot;);
+const msgPath = process.env.GIT_PARAMS;
+const msg = require(&amp;quot;fs&amp;quot;)
+  .readFileSync(msgPath, &amp;quot;utf-8&amp;quot;)
+  .trim();
+
+const commitRE = /^(revert: )?(feat|fix|polish|docs|style|refactor|perf|test|workflow|ci|chore|types|build|Merge)(\(.+\))?: .{1,50}|Merge /;
+
+if (!commitRE.test(msg)) {
+  console.error(
+    `  ${chalk.bgRed.white(&amp;quot; ERROR &amp;quot;)} ${chalk.red(
+      `invalid commit message format.`
+    )}\n\n` +
+      chalk.red(
+        `  Proper commit message format is required for automated changelog generation. Examples:\n\n`
+      ) +
+      `    ${chalk.green(`feat: add &#39;comments&#39; option`)}\n` +
+      `    ${chalk.green(`fix: handle events on blur (close #28)`)}\n\n` +
+      chalk.red(
+        `  You can also use ${chalk.cyan(
+          `yarn commit`
+        )} to interactively generate a commit message.\n`
+      )
+  );
+  process.exit(1);
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;另一种是也可以使用git-cz通过交互的方式生成更专业的commit&lt;/p&gt;
+">如何自定义commit规范</a>
+      </div>
+      
+    </div>
+  </div>
+</div>
+<script>
+  // var escape = "[{&#34;content&#34;:&#34;&lt;p&gt;&lt;span class=\&#34;katex\&#34;&gt;&lt;span class=\&#34;katex-mathml\&#34;&gt;&lt;math&gt;&lt;semantics&gt;&lt;mrow&gt;&lt;mo&gt;?&lt;/mo&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;是&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;上&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;一&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;个&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;程&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;序&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;执&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;行&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;是&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;否&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;成&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;功&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;的&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;标&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;志&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;，&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;如&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;果&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;执&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;行&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;成&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;功&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;则&lt;/mi&gt;&lt;/mrow&gt;&lt;annotation encoding=\&#34;application/x-tex\&#34;&gt;? 是上一个程序执行是否成功的标志，如果执行成功则&lt;/annotation&gt;&lt;/semantics&gt;&lt;/math&gt;&lt;/span&gt;&lt;span class=\&#34;katex-html\&#34; aria-hidden=\&#34;true\&#34;&gt;&lt;span class=\&#34;base\&#34;&gt;&lt;span class=\&#34;strut\&#34; style=\&#34;height:0.69444em;vertical-align:0em;\&#34;&gt;&lt;/span&gt;&lt;span class=\&#34;mclose\&#34;&gt;?&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;是&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;上&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;一&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;个&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;程&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;序&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;执&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;行&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;是&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;否&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;成&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;功&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;的&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;标&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;志&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;，&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;如&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;果&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;执&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;行&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;成&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;功&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;则&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;? 为0，否则 不为0。&lt;br&gt;\n比如判断一个node服务是该启动还是该重启，则可以执行pm2 info ***&lt;br&gt;\n&lt;img src=\&#34;https://weidadeda.github.io/post-images/1641956978962.jpg\&#34; alt=\&#34;\&#34; loading=\&#34;lazy\&#34;&gt;&lt;/p&gt;\n&#34;,&#34;fileName&#34;:&#34;shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai&#34;,&#34;abstract&#34;:&#34;&#34;,&#34;title&#34;:&#34;shell $? 获取函数返回值或者上一个命令的退出状态&#34;,&#34;tags&#34;:[],&#34;date&#34;:&#34;2022-01-12 11:03:58&#34;,&#34;dateFormat&#34;:&#34;2022-01-12&#34;,&#34;feature&#34;:&#34;&#34;,&#34;link&#34;:&#34;https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai&#34;,&#34;hideInList&#34;:false,&#34;isTop&#34;:false,&#34;stats&#34;:{&#34;text&#34;:&#34;1 min read&#34;,&#34;time&#34;:20000,&#34;words&#34;:98,&#34;minutes&#34;:1},&#34;description&#34;:&#34;?是上一个程序执行是否成功的标志，如果执行成功则? 是上一个程序执行是否成功的标志，如果执行成功则?是上一个程序执行是否成功的标志，如果执行成功则? 为0，否则 不为0。\n比如判断一个node服务是该启动还是该重启，则可以执行pm2 inf...&#34;,&#34;toc&#34;:&#34;&#34;},{&#34;content&#34;:&#34;&lt;p&gt;&lt;span class=\&#34;katex\&#34;&gt;&lt;span class=\&#34;katex-mathml\&#34;&gt;&lt;math&gt;&lt;semantics&gt;&lt;mrow&gt;&lt;mo&gt;?&lt;/mo&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;是&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;上&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;一&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;个&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;程&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;序&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;执&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;行&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;是&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;否&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;成&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;功&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;的&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;标&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;志&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;，&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;如&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;果&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;执&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;行&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;成&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;功&lt;/mi&gt;&lt;mi mathvariant=\&#34;normal\&#34;&gt;则&lt;/mi&gt;&lt;/mrow&gt;&lt;annotation encoding=\&#34;application/x-tex\&#34;&gt;? 是上一个程序执行是否成功的标志，如果执行成功则&lt;/annotation&gt;&lt;/semantics&gt;&lt;/math&gt;&lt;/span&gt;&lt;span class=\&#34;katex-html\&#34; aria-hidden=\&#34;true\&#34;&gt;&lt;span class=\&#34;base\&#34;&gt;&lt;span class=\&#34;strut\&#34; style=\&#34;height:0.69444em;vertical-align:0em;\&#34;&gt;&lt;/span&gt;&lt;span class=\&#34;mclose\&#34;&gt;?&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;是&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;上&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;一&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;个&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;程&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;序&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;执&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;行&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;是&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;否&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;成&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;功&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;的&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;标&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;志&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;，&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;如&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;果&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;执&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;行&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;成&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;功&lt;/span&gt;&lt;span class=\&#34;mord cjk_fallback\&#34;&gt;则&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;? 为0，否则 不为0。&lt;br&gt;\n比如判断一个node服务是该启动还是该重启，则可以执行pm2 info ***&lt;br&gt;\n&lt;img src=\&#34;https://weidadeda.github.io/post-images/1641956978962.jpg\&#34; alt=\&#34;\&#34; loading=\&#34;lazy\&#34;&gt;&lt;/p&gt;\n&#34;,&#34;fileName&#34;:&#34;shell-dollar&#34;,&#34;abstract&#34;:&#34;&#34;,&#34;title&#34;:&#34;shell $?&#34;,&#34;tags&#34;:[],&#34;date&#34;:&#34;2022-01-12 11:03:58&#34;,&#34;dateFormat&#34;:&#34;2022-01-12&#34;,&#34;feature&#34;:&#34;&#34;,&#34;link&#34;:&#34;https://weidadeda.github.io/post/shell-dollar&#34;,&#34;hideInList&#34;:false,&#34;isTop&#34;:false,&#34;stats&#34;:{&#34;text&#34;:&#34;1 min read&#34;,&#34;time&#34;:20000,&#34;words&#34;:98,&#34;minutes&#34;:1},&#34;description&#34;:&#34;?是上一个程序执行是否成功的标志，如果执行成功则? 是上一个程序执行是否成功的标志，如果执行成功则?是上一个程序执行是否成功的标志，如果执行成功则? 为0，否则 不为0。\n比如判断一个node服务是该启动还是该重启，则可以执行pm2 inf...&#34;,&#34;toc&#34;:&#34;&#34;},{&#34;content&#34;:&#34;&lt;p&gt;开始写作&lt;/p&gt;\n&#34;,&#34;fileName&#34;:&#34;wo-shi-ce-shi&#34;,&#34;abstract&#34;:&#34;&#34;,&#34;title&#34;:&#34;我是测试&#34;,&#34;tags&#34;:[],&#34;date&#34;:&#34;2021-04-06 11:01:44&#34;,&#34;dateFormat&#34;:&#34;2021-04-06&#34;,&#34;feature&#34;:&#34;&#34;,&#34;link&#34;:&#34;https://weidadeda.github.io/post/wo-shi-ce-shi&#34;,&#34;hideInList&#34;:false,&#34;isTop&#34;:false,&#34;stats&#34;:{&#34;text&#34;:&#34;1 min read&#34;,&#34;time&#34;:0,&#34;words&#34;:4,&#34;minutes&#34;:1},&#34;description&#34;:&#34;开始写作\n&#34;,&#34;toc&#34;:&#34;&#34;},{&#34;content&#34;:&#34;&lt;p&gt;&lt;img src=\&#34;https://weidadeda.github.io/post-images/1640761677993.gif\&#34; alt=\&#34;\&#34; loading=\&#34;lazy\&#34;&gt;&amp;gt; 欢迎来到我的小站呀，很高兴遇见你嘿嘿！🤝&lt;/p&gt;\n&lt;h2 id=\&#34;关于本站\&#34;&gt;🏠 关于本站&lt;/h2&gt;\n&lt;h2 id=\&#34;博主是谁\&#34;&gt;👨‍💻 博主是谁&lt;/h2&gt;\n&lt;h2 id=\&#34;兴趣爱好\&#34;&gt;⛹ 兴趣爱好&lt;/h2&gt;\n&lt;h2 id=\&#34;联系我呀\&#34;&gt;📬 联系我呀&lt;/h2&gt;\n&lt;p&gt;https://www.cnblogs.com/lovesong/p/10847433.html&lt;/p&gt;\n&#34;,&#34;fileName&#34;:&#34;about&#34;,&#34;abstract&#34;:&#34;&#34;,&#34;title&#34;:&#34;关于&#34;,&#34;tags&#34;:[],&#34;date&#34;:&#34;2019-01-25 19:09:48&#34;,&#34;dateFormat&#34;:&#34;2019-01-25&#34;,&#34;feature&#34;:&#34;&#34;,&#34;link&#34;:&#34;https://weidadeda.github.io/post/about&#34;,&#34;hideInList&#34;:false,&#34;isTop&#34;:false,&#34;stats&#34;:{&#34;text&#34;:&#34;1 min read&#34;,&#34;time&#34;:9000,&#34;words&#34;:42,&#34;minutes&#34;:1},&#34;description&#34;:&#34;&amp;gt; 欢迎来到我的小站呀，很高兴遇见你嘿嘿！🤝\n🏠 关于本站\n👨‍💻 博主是谁\n⛹ 兴趣爱好\n📬 联系我呀\nhttps://www.cnblogs.com/lovesong/p/10847433.html\n...&#34;,&#34;toc&#34;:&#34;&lt;ul class=\&#34;markdownIt-TOC\&#34;&gt;\n&lt;li&gt;\n&lt;ul&gt;\n&lt;li&gt;&lt;a href=\&#34;#%E5%85%B3%E4%BA%8E%E6%9C%AC%E7%AB%99\&#34;&gt;🏠 关于本站&lt;/a&gt;&lt;/li&gt;\n&lt;li&gt;&lt;a href=\&#34;#%E5%8D%9A%E4%B8%BB%E6%98%AF%E8%B0%81\&#34;&gt;👨‍💻 博主是谁&lt;/a&gt;&lt;/li&gt;\n&lt;li&gt;&lt;a href=\&#34;#%E5%85%B4%E8%B6%A3%E7%88%B1%E5%A5%BD\&#34;&gt;⛹ 兴趣爱好&lt;/a&gt;&lt;/li&gt;\n&lt;li&gt;&lt;a href=\&#34;#%E8%81%94%E7%B3%BB%E6%88%91%E5%91%80\&#34;&gt;📬 联系我呀&lt;/a&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;/li&gt;\n&lt;/ul&gt;\n&#34;},{&#34;content&#34;:&#34;&lt;p&gt;👏  欢迎来到我的博客！&lt;/p&gt;\n&lt;p&gt;&lt;a href=\&#34;https://github.com/getgridea/gridea\&#34;&gt;Github&lt;/a&gt;&lt;br&gt;\n&lt;a href=\&#34;https://gridea.dev/\&#34;&gt;Gridea 主页&lt;/a&gt;&lt;br&gt;\n&lt;a href=\&#34;http://fehey.com/\&#34;&gt;示例网站&lt;/a&gt;&lt;/p&gt;\n&lt;p&gt;强制commit规范有两种，一种是在package项目中的gitHooks选项下的&amp;quot;commit-msg&amp;quot;设置自己的commit规则脚本。比如我要强制commit内容为feat:加空格xxx或者fix:加空格xxx，如果不符合给出相应提示，则我应该这么写：&lt;br&gt;\n&lt;img src=\&#34;https://note.youdao.com/yws/public/resource/d60e09a825bba46e1719f2dc06a2f7e3/xmlnote/302F691AA217499EA4DC783EA5E361B8/3538\&#34; alt=\&#34;\&#34; loading=\&#34;lazy\&#34;&gt;&lt;br&gt;\nverify-commit-msg.js中代码：&lt;/p&gt;\n&lt;pre&gt;&lt;code&gt;const chalk = require(&amp;quot;chalk&amp;quot;);\nconst msgPath = process.env.GIT_PARAMS;\nconst msg = require(&amp;quot;fs&amp;quot;)\n  .readFileSync(msgPath, &amp;quot;utf-8&amp;quot;)\n  .trim();\n\nconst commitRE = /^(revert: )?(feat|fix|polish|docs|style|refactor|perf|test|workflow|ci|chore|types|build|Merge)(\\(.+\\))?: .{1,50}|Merge /;\n\nif (!commitRE.test(msg)) {\n  console.error(\n    `  ${chalk.bgRed.white(&amp;quot; ERROR &amp;quot;)} ${chalk.red(\n      `invalid commit message format.`\n    )}\\n\\n` +\n      chalk.red(\n        `  Proper commit message format is required for automated changelog generation. Examples:\\n\\n`\n      ) +\n      `    ${chalk.green(`feat: add &#39;comments&#39; option`)}\\n` +\n      `    ${chalk.green(`fix: handle events on blur (close #28)`)}\\n\\n` +\n      chalk.red(\n        `  You can also use ${chalk.cyan(\n          `yarn commit`\n        )} to interactively generate a commit message.\\n`\n      )\n  );\n  process.exit(1);\n}\n\n&lt;/code&gt;&lt;/pre&gt;\n&lt;p&gt;另一种是也可以使用git-cz通过交互的方式生成更专业的commit&lt;/p&gt;\n&#34;,&#34;fileName&#34;:&#34;hello-gridea&#34;,&#34;abstract&#34;:&#34;&#34;,&#34;title&#34;:&#34;如何自定义commit规范&#34;,&#34;tags&#34;:[{&#34;name&#34;:&#34;Gridea&#34;,&#34;slug&#34;:&#34;6_e4XZYZA&#34;,&#34;used&#34;:true,&#34;link&#34;:&#34;https://weidadeda.github.io/tag/6_e4XZYZA&#34;}],&#34;date&#34;:&#34;2018-12-12 00:00:00&#34;,&#34;dateFormat&#34;:&#34;2018-12-12&#34;,&#34;feature&#34;:&#34;https://weidadeda.github.io/post-images/hello-gridea.png&#34;,&#34;link&#34;:&#34;https://weidadeda.github.io/post/hello-gridea&#34;,&#34;hideInList&#34;:false,&#34;isTop&#34;:false,&#34;stats&#34;:{&#34;text&#34;:&#34;2 min read&#34;,&#34;time&#34;:71000,&#34;words&#34;:237,&#34;minutes&#34;:2},&#34;description&#34;:&#34;👏  欢迎来到我的博客！\nGithub\nGridea 主页\n示例网站\n强制commit规范有两种，一种是在package项目中的gitHooks选项下的&amp;quot;commit-msg&amp;quot;设置自己的commit规则脚本。比如我要强...&#34;,&#34;toc&#34;:&#34;&#34;}]";
+  // var json = escape.substr(1, escape.length - 2);
+  // var datas = json.split(',');
+  // for (let i=0; i < datas.length; i++) {
+  //   let item = datas[i];
+  //   let attrs = item.split('34;:&#34')
+  //   debugger
+  //   console.log(datas[i])
+  // }
+  let escapeMap = new Map();
+  escapeMap.set('&#34;', '"');
+  escapeMap.set('&gt;', '>');
+  escapeMap.set('&#39;', "'");
+  escapeMap.set('&lt;', '<');
+  escapeMap.set('&quot;', '"');
+  escapeMap.set('&amp;', '&');
+</script> -->
+
+
 </html>
