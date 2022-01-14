@@ -8,7 +8,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>shell $? 获取函数返回值或者上一个命令的退出状态 | Gridea</title>
+<title>Docker attach 命令 | Gridea</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1642156623955">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -29,7 +29,7 @@
 
 
 
-  <meta name="description" content="shell $? 获取函数返回值或者上一个命令的退出状态" />
+  <meta name="description" content="Docker attach 命令" />
   <meta name="keywords" content="" />
 </head>
 
@@ -286,8 +286,8 @@
           <div class="section bg-color post post-page">
             <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai">
-      shell $? 获取函数返回值或者上一个命令的退出状态
+    <a class="post-title-link" href="https://weidadeda.github.io/post/docker-attach-ming-ling">
+      Docker attach 命令
     </a>
   </h1>
   <div class="post-meta">
@@ -306,15 +306,18 @@
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>98<span class="pc-show">字数</span></span>
+      <span>194<span class="pc-show">字数</span></span>
     </span>
     
   </div>
 </header>
             <div class="post-body next-md-body" id="post_body">
-              <p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>?</mo><mi mathvariant="normal">是</mi><mi mathvariant="normal">上</mi><mi mathvariant="normal">一</mi><mi mathvariant="normal">个</mi><mi mathvariant="normal">程</mi><mi mathvariant="normal">序</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">是</mi><mi mathvariant="normal">否</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">标</mi><mi mathvariant="normal">志</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">如</mi><mi mathvariant="normal">果</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">则</mi></mrow><annotation encoding="application/x-tex">? 是上一个程序执行是否成功的标志，如果执行成功则</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mclose">?</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">上</span><span class="mord cjk_fallback">一</span><span class="mord cjk_fallback">个</span><span class="mord cjk_fallback">程</span><span class="mord cjk_fallback">序</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">否</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">标</span><span class="mord cjk_fallback">志</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">如</span><span class="mord cjk_fallback">果</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">则</span></span></span></span>? 为0，否则 不为0。<br>
-比如判断一个node服务是该启动还是该重启，则可以执行pm2 info ***<br>
-<img src="https://weidadeda.github.io/post-images/1641956978962.jpg" alt="" loading="lazy"></p>
+              <p>docker attach :连接到正在运行中的容器。<br>
+要attach上去的容器必须正在运行，可以同时连接上同一个container来共享屏幕（与screen命令的attach类似）。</p>
+<p>官方文档中说attach后可以通过CTRL-C来detach，但实际上经过我的测试，如果container当前在运行bash，CTRL-C自然是当前行的输入，没有退出；如果container当前正在前台运行进程，如输出nginx的access.log日志，CTRL-C不仅会导致退出容器，而且还stop了😨</p>
+<!-- more -->
+<p>。这不是我们想要的，detach的意思按理应该是脱离容器终端，但容器依然运行。好在attach是可以带上--sig-proxy=false来确保CTRL-D或CTRL-C不会关闭容器。<br>
+runoob@runoob:~$ docker attach --sig-proxy=false mynginx</p>
 
             </div>
             <div class="post-footer">
@@ -325,7 +328,7 @@
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai" title="shell $? 获取函数返回值或者上一个命令的退出状态">https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai</a>
+      <a href="https://weidadeda.github.io/post/docker-attach-ming-ling" title="Docker attach 命令">https://weidadeda.github.io/post/docker-attach-ming-ling</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -339,14 +342,14 @@
     <div class="nav-prev">
       
         <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="Docker attach 命令" href="https://weidadeda.github.io/post/docker-attach-ming-ling">Docker attach 命令</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="Docker attach 命令" href="https://weidadeda.github.io/post/docker-attach-ming-ling">上一篇</a>
+        <a class="nav-pc-next" title="nuxt 服务端渲染和预渲染的区别" href="https://weidadeda.github.io/post/nuxt-fu-wu-duan-xuan-ran-he-yu-xuan-ran-de-qu-bie">nuxt 服务端渲染和预渲染的区别</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title="nuxt 服务端渲染和预渲染的区别" href="https://weidadeda.github.io/post/nuxt-fu-wu-duan-xuan-ran-he-yu-xuan-ran-de-qu-bie">上一篇</a>
       
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="mysql 时间戳格式化函数from_unixtime" href="https://weidadeda.github.io/post/wo-shi-ce-shi">mysql 时间戳格式化函数from_unixtime</a>
-        <a class="nav-mobile-next" title="mysql 时间戳格式化函数from_unixtime" href="https://weidadeda.github.io/post/wo-shi-ce-shi">下一篇</a>
+        <a class="nav-pc-next" title="shell $? 获取函数返回值或者上一个命令的退出状态" href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai">shell $? 获取函数返回值或者上一个命令的退出状态</a>
+        <a class="nav-mobile-next" title="shell $? 获取函数返回值或者上一个命令的退出状态" href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>

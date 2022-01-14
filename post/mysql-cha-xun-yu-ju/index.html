@@ -8,7 +8,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>shell $? 获取函数返回值或者上一个命令的退出状态 | Gridea</title>
+<title>mysql查询语句 | Gridea</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1642156623955">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -29,7 +29,7 @@
 
 
 
-  <meta name="description" content="shell $? 获取函数返回值或者上一个命令的退出状态" />
+  <meta name="description" content="mysql查询语句" />
   <meta name="keywords" content="" />
 </head>
 
@@ -161,7 +161,8 @@
       <div class="sidebar-body gemini" id="sidebar_body">
         
           
-            
+            <div class="post-side-meta" id="post_side_meta">
+              
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="/images/avatar.png"/>
@@ -199,6 +200,204 @@
 
 
 </div>
+            </div>
+            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+              <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto"
+    id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#1%E6%9F%A5%E8%AF%A2%E8%AE%B0%E5%BD%95">1.查询记录</a></li>
+<li><a href="#2%E6%9F%A5%E8%AF%A2%E4%B8%8D%E9%87%8D%E5%A4%8D%E7%9A%84%E8%AE%B0%E5%BD%95">2.查询不重复的记录</a></li>
+<li><a href="#3%E6%9D%A1%E4%BB%B6%E6%9F%A5%E8%AF%A2">3.条件查询</a></li>
+<li><a href="#4%E6%8E%92%E5%BA%8F%E5%92%8C%E9%99%90%E5%88%B6">4.排序和限制</a></li>
+<li><a href="#5%E8%81%9A%E5%90%88">5.聚合</a></li>
+<li><a href="#6%E4%B8%BA%E8%A1%A8%E5%92%8C%E5%AD%97%E6%AE%B5%E5%8F%96%E5%88%AB%E5%90%8D">6.为表和字段取别名</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+</div>
+
+<script>
+
+  let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1;
+  let active = 'active-show', activeClass = 'active-current';
+  let tocWrapper = document.querySelector('#toc_wrapper');
+  let tocContent = tocWrapper.children[0];
+  let autoNumber = tocWrapper && tocWrapper.classList.contains('auto-number');
+
+  function addTocNumber(elem, deep) {
+    if (!elem) {
+      return;
+    }
+    let prop = elem.__proto__;
+
+    if (prop === HTMLUListElement.prototype) {
+      for (let i = 0; i < elem.children.length; i++) {
+        addTocNumber(elem.children[i], deep + (i + 1) + '.');
+      }
+    } else if (prop === HTMLLIElement.prototype) {
+      // 保存li元素
+      if (elem.children[0].__proto__ === HTMLAnchorElement.prototype) {
+        lList.push(elem);
+      }
+      for (let i = 0; i < elem.children.length; i++) {
+        let cur = elem.children[i];
+        if (cur.__proto__ === HTMLAnchorElement.prototype) {
+          if (autoNumber) {
+            cur.text = deep + ' ' + cur.text;
+          }
+        } else if (cur.__proto__ === HTMLUListElement.prototype) {
+          addTocNumber(cur, deep);
+        }
+      }
+    }
+  }
+
+  function removeParentActiveClass() {
+    let parents = tocContent.querySelectorAll('.' + active)
+    parents.forEach(function (elem) {
+      elem.classList.remove(active);
+    });
+  }
+
+  function addActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.add(activeClass);
+    }
+  }
+
+  function removeActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.remove(activeClass);
+    }
+  }
+
+  function addActiveLiElemment(elem, parent) {
+    if (!elem || elem === parent) {
+      return;
+    } else {
+      if (elem.__proto__ === HTMLLIElement.prototype) {
+        elem.classList.add(active);
+      }
+      addActiveLiElemment(elem.parentElement, parent);
+    }
+  }
+
+  function showToc() {
+    if (tocWrapper) {
+      postBody = document.querySelector('#post_body');
+      for (let i = 0; i < postBody.children.length; i++) {
+        if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+          hList.push(postBody.children[i]);
+        }
+      }
+      if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+      } else if (tocWrapper.classList.contains('no_compress')) {
+        tocContent.classList.add('expanded');
+      } else {
+        if (hList.length > 10) {
+          active = 'active-hidden'
+          tocContent.classList.add('closed');
+        } else {
+          tocContent.classList.add('expanded');
+        }
+      }
+    }
+  }
+
+  (function () {
+    // 处理不是从#一级标题开始目录
+    if (tocContent.children.length === 1 && tocContent.children[0].__proto__ === HTMLLIElement.prototype) {
+      let con = tocContent.children[0].children[0];
+      tocContent.innerHTML = con.innerHTML;
+    }
+    let markdownItTOC = document.querySelector('.markdownIt-TOC');
+    let innerHeight = window.innerHeight;
+    markdownItTOC.style = `max-height: ${innerHeight - 80 > 0 ? innerHeight - 80 : innerHeight}px`
+    addTocNumber(tocContent, '');
+  })();
+
+  document.addEventListener('scroll', function (e) {
+    if (lList.length <= 0) {
+      return;
+    }
+    let scrollTop = document.scrollingElement.scrollTop + 10;
+    let dir;
+
+    if (lastTop - scrollTop > 0) {
+      dir = 'up';
+    } else {
+      dir = 'down';
+    }
+
+    lastTop = scrollTop;
+    if (scrollTop <= 0) {
+      if (lastIndex >= 0 && lastIndex < hList.length) {
+        lList[lastIndex].classList.remove(activeClass);
+      }
+      return;
+    }
+
+    let current = 0, hasFind = false;
+    for (let i = 0; i < hList.length; i++) {
+      if (hList[i].offsetTop > scrollTop) {
+        current = i;
+        hasFind = true;
+        break;
+      }
+    }
+    if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+      current = hList.length - 1;
+    } else {
+      current--;
+    }
+    if (dir === 'down') {
+      if (current > lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex)
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    } else {
+      if (current < lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex);
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    }
+  });
+
+
+  window.addEventListener('load', function () {
+    showToc();
+    document.querySelector('#sidebar').style = 'display: block;';
+    tocWrapper.classList.add('toc-active');
+    setTimeout(function () {
+      if ("createEvent" in document) {
+        let evt = document.createEvent("HTMLEvents");
+        evt.initEvent("scroll", false, true);
+        document.dispatchEvent(evt);
+      }
+      else {
+        document.fireEvent("scroll");
+      }
+    }, 500)
+  })
+
+</script>
+            </div>
           
         
       </div>
@@ -286,8 +485,8 @@
           <div class="section bg-color post post-page">
             <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai">
-      shell $? 获取函数返回值或者上一个命令的退出状态
+    <a class="post-title-link" href="https://weidadeda.github.io/post/mysql-cha-xun-yu-ju">
+      mysql查询语句
     </a>
   </h1>
   <div class="post-meta">
@@ -295,26 +494,108 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2022-01-12</span>
+      <span>2022-01-14</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>1分钟</span>
+      <span>4分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>98<span class="pc-show">字数</span></span>
+      <span>918<span class="pc-show">字数</span></span>
     </span>
     
   </div>
 </header>
             <div class="post-body next-md-body" id="post_body">
-              <p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>?</mo><mi mathvariant="normal">是</mi><mi mathvariant="normal">上</mi><mi mathvariant="normal">一</mi><mi mathvariant="normal">个</mi><mi mathvariant="normal">程</mi><mi mathvariant="normal">序</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">是</mi><mi mathvariant="normal">否</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">标</mi><mi mathvariant="normal">志</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">如</mi><mi mathvariant="normal">果</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">则</mi></mrow><annotation encoding="application/x-tex">? 是上一个程序执行是否成功的标志，如果执行成功则</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mclose">?</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">上</span><span class="mord cjk_fallback">一</span><span class="mord cjk_fallback">个</span><span class="mord cjk_fallback">程</span><span class="mord cjk_fallback">序</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">否</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">标</span><span class="mord cjk_fallback">志</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">如</span><span class="mord cjk_fallback">果</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">则</span></span></span></span>? 为0，否则 不为0。<br>
-比如判断一个node服务是该启动还是该重启，则可以执行pm2 info ***<br>
-<img src="https://weidadeda.github.io/post-images/1641956978962.jpg" alt="" loading="lazy"></p>
+              <p><a href="https://www.mysqlzh.com/doc/124.html">mysql中文文档</a></p>
+<h3 id="1查询记录">1.查询记录</h3>
+<pre><code>select*from 表名 [where 条件];
+
+eg:select*from students;//查询 students 表中所有记录，所有字段的值都显示出来
+
+select field1,field2,...fieldn... from 表名 [where 条件];
+
+eg:select id,name,age from students;//查询 students 表中所有记录, 只显示出 id，name，age三个字段的值
+</code></pre>
+<p>1.“*”表示将所有的字段都显示出来</p>
+<p>2.用逗号分割，列出需要显示的字段</p>
+<h3 id="2查询不重复的记录">2.查询不重复的记录</h3>
+<pre><code>select distinct 字段 from 表名;
+
+eg: select distinct name from students;//查询名字不相同的学生;
+　　select distinct name,age from students;//查询名字和年龄同时不同的学生
+　　
+　　1.distinct必须放在最开头
+　　2.distinct只能使用需要去重的字段进行操作。  ----也就是说我sidtinct了name,age两个字段，我后面想根据id进行排序，是不可以的，因为只能name,age两个字段进行操作.
+　　3.distinct去重多个字段时，含义是：几个字段 同时重复 时才会被 过滤。
+</code></pre>
+<h3 id="3条件查询">3.条件查询</h3>
+<pre><code>select 字段 from 表名 where 条件;
+
+eg:select * from student where sex='男' and age&gt;20; //查询性别是男，并且年龄大于20岁的人。
+
+where后面的条件可以用&gt;、&lt;、&gt;=、&lt;=、!=等多种比较运算符，多个条件之间可以用or、and等逻辑运算符
+</code></pre>
+<h3 id="4排序和限制">4.排序和限制</h3>
+<pre><code>排序
+select * from 表名 [where 条件] [ order by  field1 [desc/asc],field2 [desc/asc]... ];
+
+eg:select *from student order by age desc;//查询学生表并按年龄降序排列。
+
+1.desc 降序排列，asc 升序排列
+2.order by 后面可以跟多个不同的排序字段，每个排序字段都可以有不同的排序顺序。
+3.如果排序字段的值一样，则相同的字段按照第二个排序字段进行排序。
+4.如果只有一个排序字段，则字段相同的记录将会无序排列。
+</code></pre>
+<pre><code>限制
+select ... [limit 起始偏移量,行数];
+
+eg:select * from student order by mark desc limit 5;//取出成绩前五名的学生(省略了起始偏移量，此时默认为0)
+
+1.默认情况下，起始偏移量为0，只写记录行数就可以。
+</code></pre>
+<h3 id="5聚合">5.聚合</h3>
+<pre><code>select 字段 fun_name from 表名 [where 条件] [group by field1,field2...] [with rollup] [having 条件];
+
+eg:
+
+1.fun_name 表示要做的聚合操作，也就是说聚合函数，常用的有 : sum(求和)、count(*)(记录数)、max(最大值)、min(最小值)。
+2.group by关键字 表示要进行分类聚合的字段。比如要按照部门分类统计员工数量，部门就应该写在group by 后面。
+3.with rollup 是可选语法，表明是否对分类聚合后的结果进行再汇总
+4.having 关键字表示对分类后的结果再进行条件过滤。
+</code></pre>
+<p>公司员工表A如下 (编号，姓，名，薪水) ：<br>
+<img src="https://weidadeda.github.io/post-images/1642143111386.png" alt="" loading="lazy"></p>
+<pre><code>统计总人数
+select count(1) from A;
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://weidadeda.github.io/post-images/1642143169839.png" alt="" loading="lazy"></figure>
+<pre><code>统计各个姓的人数
+select xing,count(1) from A group by xing;
+</code></pre>
+<figure data-type="image" tabindex="2"><img src="https://weidadeda.github.io/post-images/1642143194061.png" alt="" loading="lazy"></figure>
+<pre><code>既要统计各个姓的人数，又统计总人数
+select xing,count(1) from A group by xing with rollup;
+</code></pre>
+<figure data-type="image" tabindex="3"><img src="https://weidadeda.github.io/post-images/1642143250933.png" alt="" loading="lazy"></figure>
+<pre><code>统计人数大4的姓
+select xing,count(1) from A group by xing having count(1)&gt;4;
+</code></pre>
+<figure data-type="image" tabindex="4"><img src="https://weidadeda.github.io/post-images/1642143298558.png" alt="" loading="lazy"></figure>
+<pre><code>统计薪水总额，最低薪资，最高薪资
+select count(1),min(salary),max(salary) from A;
+</code></pre>
+<figure data-type="image" tabindex="5"><img src="https://weidadeda.github.io/post-images/1642143319528.png" alt="" loading="lazy"></figure>
+<h3 id="6为表和字段取别名">6.为表和字段取别名</h3>
+<p>在查询数据时，可以为表和字段取别名，这个别名可以代替指定的表和字段。如果表名很长，用起来不方便，则可以用一个别名来代替，语法如下：(as关键字可省略)</p>
+<pre><code>select * from 表名 [as] 别名  （为表取别名）
+</code></pre>
+<pre><code>SELECT 字段名 [AS] 别名[,字段名 [AS] 别名,……] FROM 表名; (为字段取别名)
+</code></pre>
 
             </div>
             <div class="post-footer">
@@ -325,7 +606,7 @@
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai" title="shell $? 获取函数返回值或者上一个命令的退出状态">https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai</a>
+      <a href="https://weidadeda.github.io/post/mysql-cha-xun-yu-ju" title="mysql查询语句">https://weidadeda.github.io/post/mysql-cha-xun-yu-ju</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -339,14 +620,14 @@
     <div class="nav-prev">
       
         <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="Docker attach 命令" href="https://weidadeda.github.io/post/docker-attach-ming-ling">Docker attach 命令</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="Docker attach 命令" href="https://weidadeda.github.io/post/docker-attach-ming-ling">上一篇</a>
+        <a class="nav-pc-next" title="前端使用Nacos" href="https://weidadeda.github.io/post/sequelize">前端使用Nacos</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title="前端使用Nacos" href="https://weidadeda.github.io/post/sequelize">上一篇</a>
       
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="mysql 时间戳格式化函数from_unixtime" href="https://weidadeda.github.io/post/wo-shi-ce-shi">mysql 时间戳格式化函数from_unixtime</a>
-        <a class="nav-mobile-next" title="mysql 时间戳格式化函数from_unixtime" href="https://weidadeda.github.io/post/wo-shi-ce-shi">下一篇</a>
+        <a class="nav-pc-next" title="docker的安装与使用" href="https://weidadeda.github.io/post/docker-de-an-zhuang-yu-shi-yong">docker的安装与使用</a>
+        <a class="nav-mobile-next" title="docker的安装与使用" href="https://weidadeda.github.io/post/docker-de-an-zhuang-yu-shi-yong">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>

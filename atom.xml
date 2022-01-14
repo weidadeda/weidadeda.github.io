@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://weidadeda.github.io</id>
     <title>Gridea</title>
-    <updated>2022-01-12T03:18:19.884Z</updated>
+    <updated>2022-01-14T10:37:15.420Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://weidadeda.github.io"/>
     <link rel="self" href="https://weidadeda.github.io/atom.xml"/>
@@ -10,6 +10,536 @@
     <logo>https://weidadeda.github.io/images/avatar.png</logo>
     <icon>https://weidadeda.github.io/favicon.ico</icon>
     <rights>All rights reserved 2022, Gridea</rights>
+    <entry>
+        <title type="html"><![CDATA[Sequelize node连接数据库的ORM]]></title>
+        <id>https://weidadeda.github.io/post/sequelize-node-lian-jie-shu-ju-ku-de-orm</id>
+        <link href="https://weidadeda.github.io/post/sequelize-node-lian-jie-shu-ju-ku-de-orm">
+        </link>
+        <updated>2022-01-14T07:36:06.000Z</updated>
+        <content type="html"><![CDATA[<p><a href="https://www.sequelize.com.cn/">Sequelize 中文文档</a><br>
+可以先看文档，文档很全，它的语句帮我们做了很多处理，而且很精简，让我们不用死记硬背sql语句，也不用去库里建表。</p>
+<h3 id="连接数据库">连接数据库</h3>
+<pre><code>连接到数据库
+要连接到数据库,必须创建一个 Sequelize 实例. 这可以通过将连接参数分别传递到 Sequelize 构造函数或通过传递一个连接 URI 来完成：
+
+const { Sequelize } = require('sequelize');
+
+// 方法 1: 传递一个连接 URI
+const sequelize = new Sequelize('sqlite::memory:') // Sqlite 示例
+const sequelize = new Sequelize('postgres://user:pass@example.com:5432/dbname') // Postgres 示例
+
+// 方法 2: 分别传递参数 (sqlite)
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: 'path/to/database.sqlite'
+});
+
+// 方法 3: 分别传递参数 (其它数据库)
+const sequelize = new Sequelize('database', 'username', 'password', {
+  host: 'localhost',
+  dialect: /* 选择 'mysql' | 'mariadb' | 'postgres' | 'mssql' 其一 */
+});
+</code></pre>
+<h3 id="定义模型-定义表结构">定义模型 （定义表结构）</h3>
+<pre><code>module.exports = function(sequelize, DataTypes) {
+  return sequelize.define(
+    'project',
+    {
+      id: {
+        type: DataTypes.INTEGER(11),
+        allowNull: false,
+        primaryKey: true,
+        autoIncrement: true
+      },
+      name: { type: DataTypes.STRING(255), allowNull: true },
+      title: { type: DataTypes.STRING(255), allowNull: true },
+      report_fix_id: { type: DataTypes.STRING(1000), allowNull: true },
+      fix_url: { type: DataTypes.STRING(2000), allowNull: true },
+      ignore_key: {
+        type: DataTypes.STRING(2000),
+        allowNull: true,
+        comment: '简化打印对象中比较大的对象'
+      },
+      env: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        comment: '哪些环境能上报日志'
+      },
+      report_interval: {
+        type: DataTypes.INTEGER(11),
+        allowNull: true,
+        comment: '上报时间间隔'
+      },
+      ctime: {
+        type: DataTypes.INTEGER(10),
+        allowNull: true,
+        get() {
+          return moment
+            .unix(this.getDataValue('ctime'))
+            .format('YYYY/MM/DD HH:mm:ss')
+        }
+      },
+      del: { type: DataTypes.INTEGER(1), allowNull: true, defaultValue: '0' }
+    },
+    {
+      tableName: 'project'
+    }
+  )
+}
+</code></pre>
+<h3 id="模型同步-真正从数据库创建">模型同步 （真正从数据库创建）</h3>
+<p>定义模型时,你要告诉 Sequelize 有关数据库中表的一些信息. 但是,如果该表实际上不存在于数据库中怎么办？ 如果存在,但具有不同的列,较少的列或任何其他差异,该怎么办？</p>
+<p>这就是模型同步的来源.可以通过调用一个异步函数(返回一个Promise)model.sync(options). 通过此调用,Sequelize 将自动对数据库执行 SQL 查询. 请注意,这仅更改数据库中的表,而不更改 JavaScript 端的模型.</p>
+<p>User.sync() - 如果表不存在,则创建该表(如果已经存在,则不执行任何操作)</p>
+<h4 id="usersync-force-true-将创建表如果表已经存在则将其首先删除-这个不要用也最好别试">User.sync({ force: true }) - 将创建表,如果表已经存在,则将其首先删除 （这个不要用，也最好别试）</h4>
+<p>User.sync({ alter: true }) - 这将检查数据库中表的当前状态(它具有哪些列,它们的数据类型等),然后在表中进行必要的更改以使其与模型匹配.</p>
+<pre><code>sequelize
+  .authenticate()
+  .then(() =&gt; {
+    console.log('数据库连接成功'.green)
+    // sequelize.sync({ alter: true })
+  })
+  .catch(err =&gt; {
+    console.log('数据库连接失败'.red)
+  })
+</code></pre>
+<h3 id="创建实例修改内容insert">创建实例（修改内容INSERT）</h3>
+<p>尽管模型是一个类,但是你不应直接使用 new 运算符来创建实例. 相反,应该使用 build 方法：</p>
+<pre><code>const jane = User.build({ name: &quot;Jane&quot; });
+console.log(jane instanceof User); // true
+console.log(jane.name); // &quot;Jane&quot;
+</code></pre>
+<p>但是,以上代码根本无法与数据库通信(请注意,它甚至不是异步的)！ 这是因为 build 方法仅创建一个对象,该对象 表示 可以 映射到数据库的数据. 为了将这个实例真正保存(即持久保存)在数据库中,应使用 save 方法：</p>
+<pre><code>await jane.save();
+console.log('Jane 已保存到数据库!');
+</code></pre>
+<p>请注意,从上面代码段中的 await 用法来看,save 是一种异步方法. 实际上,几乎每个 Sequelize 方法都是异步的. build 是极少数例外之一.</p>
+<p>非常有用的捷径: create 方法<br>
+Sequelize提供了 create 方法,该方法将上述的 build 方法和 save 方法合并为一个方法：</p>
+<pre><code>const jane = await User.create({ name: &quot;Jane&quot; });
+// Jane 现在存在于数据库中！
+console.log(jane instanceof User); // true
+console.log(jane.name); // &quot;Jane&quot;
+</code></pre>
+<h3 id="简单-select-查询">简单 SELECT 查询</h3>
+<p>你可以使用 findAll 方法从数据库中读取整个表：</p>
+<pre><code>// 查询所有用户
+const users = await User.findAll();
+console.log(users.every(user =&gt; user instanceof User)); // true
+console.log(&quot;All users:&quot;, JSON.stringify(users, null, 2));
+</code></pre>
+<p>相当于sql语句</p>
+<pre><code>SELECT * FROM ...
+</code></pre>
+<p>嗯，写一些建表与查询的流程，照着官网抄也没什么意思。使用这个我们可以很轻松的操作数据库，使我们写node接口的时候效率翻倍～</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[前端使用Nacos]]></title>
+        <id>https://weidadeda.github.io/post/sequelize</id>
+        <link href="https://weidadeda.github.io/post/sequelize">
+        </link>
+        <updated>2022-01-14T07:36:06.000Z</updated>
+        <content type="html"><![CDATA[<p>官网介绍：一个更易于构建云原生应用的动态服务发现、配置管理和服务管理平台。<br>
+<a href="https://nacos.io/zh-cn/docs/what-is-nacos.html">Nacos中文文档</a></p>
+<blockquote>
+<p>概览<br>
+欢迎来到 Nacos 的世界！<br>
+Nacos 致力于帮助您发现、配置和管理微服务。Nacos 提供了一组简单易用的特性集，帮助您快速实现动态服务发现、服务配置、服务元数据及流量管理。<br>
+Nacos 帮助您更敏捷和容易地构建、交付和管理微服务平台。 Nacos 是构建以“服务”为中心的现代应用架构 (例如微服务范式、云原生范式) 的服务基础设施。</p>
+</blockquote>
+<p>这个东西主要用于微服务，但我作为一个前端，只用了它的配置管理功能，虽然有点大材小用，但确实方便,而且还可以通过网页去直接查看数据结构。</p>
+<p>假设前端要搞一个平台，但是并没有后端支持，那么权限管理以及一些必要的数据获取该怎么做呢，我们想到的肯定是node起服务，然后写接口，然后连接数据库。从而实现数据的增删改查。</p>
+<p>但有一种更简单的方式，就是在服务器的docker中下载一个nacos,把数据放到nacos中管理，这样数据依然在我们的服务器上，并且不需要我们自己去写接口，nacos提供了openApi，我们直接调用接口就可以，是不是很方便呢。下面开始安装：</p>
+<h3 id="nacos-docker-快速开始">Nacos Docker 快速开始</h3>
+<p>操作步骤<br>
+Clone 项目</p>
+<pre><code>git clone https://github.com/nacos-group/nacos-docker.git
+cd nacos-docker
+</code></pre>
+<p>单机模式 Derby</p>
+<pre><code>docker-compose -f example/standalone-derby.yaml up
+</code></pre>
+<p>单机模式 MySQL</p>
+<p>如果希望使用MySQL5.7</p>
+<pre><code>docker-compose -f example/standalone-mysql-5.7.yaml up
+</code></pre>
+<p>如果希望使用MySQL8</p>
+<pre><code>docker-compose -f example/standalone-mysql-8.yaml up
+</code></pre>
+<p>集群模式</p>
+<pre><code>docker-compose -f example/cluster-hostname.yaml up 
+</code></pre>
+<p>服务注册</p>
+<p>curl -X POST 'http://127.0.0.1:8848/nacos/v1/ns/instance?serviceName=nacos.naming.serviceName&amp;ip=20.18.7.10&amp;port=8080'<br>
+服务发现</p>
+<p>curl -X GET 'http://127.0.0.1:8848/nacos/v1/ns/instance/list?serviceName=nacos.naming.serviceName'<br>
+发布配置</p>
+<p>curl -X POST &quot;http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=nacos.cfg.dataId&amp;group=test&amp;content=helloWorld&quot;<br>
+获取配置</p>
+<p>curl -X GET &quot;http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=nacos.cfg.dataId&amp;group=test&quot;<br>
+Nacos 控制台</p>
+<p>link：http://127.0.0.1:8848/nacos/（因为是在服务器上，所以可以直接使用对应的域名或者ip来访问）</p>
+<h3 id="注意这里要用openapi提供的字段信息多了tenant字段-有哪里不明白的可以看下开头的官方文档哈">注意，这里要用openApi提供的字段信息，多了tenant字段。有哪里不明白的可以看下开头的官方文档哈。</h3>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[mysql查询语句]]></title>
+        <id>https://weidadeda.github.io/post/mysql-cha-xun-yu-ju</id>
+        <link href="https://weidadeda.github.io/post/mysql-cha-xun-yu-ju">
+        </link>
+        <updated>2022-01-14T06:46:38.000Z</updated>
+        <content type="html"><![CDATA[<p><a href="https://www.mysqlzh.com/doc/124.html">mysql中文文档</a></p>
+<h3 id="1查询记录">1.查询记录</h3>
+<pre><code>select*from 表名 [where 条件];
+
+eg:select*from students;//查询 students 表中所有记录，所有字段的值都显示出来
+
+select field1,field2,...fieldn... from 表名 [where 条件];
+
+eg:select id,name,age from students;//查询 students 表中所有记录, 只显示出 id，name，age三个字段的值
+</code></pre>
+<p>1.“*”表示将所有的字段都显示出来</p>
+<p>2.用逗号分割，列出需要显示的字段</p>
+<h3 id="2查询不重复的记录">2.查询不重复的记录</h3>
+<pre><code>select distinct 字段 from 表名;
+
+eg: select distinct name from students;//查询名字不相同的学生;
+　　select distinct name,age from students;//查询名字和年龄同时不同的学生
+　　
+　　1.distinct必须放在最开头
+　　2.distinct只能使用需要去重的字段进行操作。  ----也就是说我sidtinct了name,age两个字段，我后面想根据id进行排序，是不可以的，因为只能name,age两个字段进行操作.
+　　3.distinct去重多个字段时，含义是：几个字段 同时重复 时才会被 过滤。
+</code></pre>
+<h3 id="3条件查询">3.条件查询</h3>
+<pre><code>select 字段 from 表名 where 条件;
+
+eg:select * from student where sex='男' and age&gt;20; //查询性别是男，并且年龄大于20岁的人。
+
+where后面的条件可以用&gt;、&lt;、&gt;=、&lt;=、!=等多种比较运算符，多个条件之间可以用or、and等逻辑运算符
+</code></pre>
+<h3 id="4排序和限制">4.排序和限制</h3>
+<pre><code>排序
+select * from 表名 [where 条件] [ order by  field1 [desc/asc],field2 [desc/asc]... ];
+
+eg:select *from student order by age desc;//查询学生表并按年龄降序排列。
+
+1.desc 降序排列，asc 升序排列
+2.order by 后面可以跟多个不同的排序字段，每个排序字段都可以有不同的排序顺序。
+3.如果排序字段的值一样，则相同的字段按照第二个排序字段进行排序。
+4.如果只有一个排序字段，则字段相同的记录将会无序排列。
+</code></pre>
+<pre><code>限制
+select ... [limit 起始偏移量,行数];
+
+eg:select * from student order by mark desc limit 5;//取出成绩前五名的学生(省略了起始偏移量，此时默认为0)
+
+1.默认情况下，起始偏移量为0，只写记录行数就可以。
+</code></pre>
+<h3 id="5聚合">5.聚合</h3>
+<pre><code>select 字段 fun_name from 表名 [where 条件] [group by field1,field2...] [with rollup] [having 条件];
+
+eg:
+
+1.fun_name 表示要做的聚合操作，也就是说聚合函数，常用的有 : sum(求和)、count(*)(记录数)、max(最大值)、min(最小值)。
+2.group by关键字 表示要进行分类聚合的字段。比如要按照部门分类统计员工数量，部门就应该写在group by 后面。
+3.with rollup 是可选语法，表明是否对分类聚合后的结果进行再汇总
+4.having 关键字表示对分类后的结果再进行条件过滤。
+</code></pre>
+<p>公司员工表A如下 (编号，姓，名，薪水) ：<br>
+<img src="https://weidadeda.github.io/post-images/1642143111386.png" alt="" loading="lazy"></p>
+<pre><code>统计总人数
+select count(1) from A;
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://weidadeda.github.io/post-images/1642143169839.png" alt="" loading="lazy"></figure>
+<pre><code>统计各个姓的人数
+select xing,count(1) from A group by xing;
+</code></pre>
+<figure data-type="image" tabindex="2"><img src="https://weidadeda.github.io/post-images/1642143194061.png" alt="" loading="lazy"></figure>
+<pre><code>既要统计各个姓的人数，又统计总人数
+select xing,count(1) from A group by xing with rollup;
+</code></pre>
+<figure data-type="image" tabindex="3"><img src="https://weidadeda.github.io/post-images/1642143250933.png" alt="" loading="lazy"></figure>
+<pre><code>统计人数大4的姓
+select xing,count(1) from A group by xing having count(1)&gt;4;
+</code></pre>
+<figure data-type="image" tabindex="4"><img src="https://weidadeda.github.io/post-images/1642143298558.png" alt="" loading="lazy"></figure>
+<pre><code>统计薪水总额，最低薪资，最高薪资
+select count(1),min(salary),max(salary) from A;
+</code></pre>
+<figure data-type="image" tabindex="5"><img src="https://weidadeda.github.io/post-images/1642143319528.png" alt="" loading="lazy"></figure>
+<h3 id="6为表和字段取别名">6.为表和字段取别名</h3>
+<p>在查询数据时，可以为表和字段取别名，这个别名可以代替指定的表和字段。如果表名很长，用起来不方便，则可以用一个别名来代替，语法如下：(as关键字可省略)</p>
+<pre><code>select * from 表名 [as] 别名  （为表取别名）
+</code></pre>
+<pre><code>SELECT 字段名 [AS] 别名[,字段名 [AS] 别名,……] FROM 表名; (为字段取别名)
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[docker的安装与使用]]></title>
+        <id>https://weidadeda.github.io/post/docker-de-an-zhuang-yu-shi-yong</id>
+        <link href="https://weidadeda.github.io/post/docker-de-an-zhuang-yu-shi-yong">
+        </link>
+        <updated>2022-01-13T09:14:24.000Z</updated>
+        <content type="html"><![CDATA[<p><a href="http://www.dockerinfo.net/document">docker中文文档</a></p>
+<p>最近Docker突然火得不得了，到处都是谈论Docker的声音，相信大家和小编一样的心情，看这个东西有点高大上，但尝试去阅读Docker文章时又发现概念很模糊、不接地气、难以理解、无从下手…于是三天打鱼两天晒网，最终不了了之，反正公司也没要求用这玩意儿，不费劲了… 这不，当前几天项目要求快速上线并且部署多台服务器环境时，小编一台一台服务器的yum install、vim、restart…想屎的心都有，那时小编心里想要是有一个这么一个U盘，能把整个环境一台一台的Ctrl+V过去，那该多好啊。那时脑子一下子闪过一个念头：Docker不就是我想拥有的那个U盘吗。</p>
+<p>怀着这样的一个念头，小编花了一些时间去查阅Docker相关的书籍、看视频、逛论坛，刚开始学习时非常难受，搞不懂什么是容器什么是镜像什么是鲸鱼船…而涉及到一些原理底层的知识，书籍里的那些概念比代码都能懂，小编硬啃了一段时间并且实操了几次之后，再回过头来，才豁然开朗。念及许多想要学Docker却苦于难以入门的开发者们，正在学习却很挣扎的初学者们，故而把小编这段时间的学习成果，以一个初学者的角度，遵循循序渐进的原则，编成一份通俗易懂的文章，希望能以此引导入门，早日成Docker大神。</p>
+<p>文章提纲：</p>
+<p>1、什么是Docker</p>
+<p>2、Docker对我们有什么用处</p>
+<p>3、Docker安装和使用</p>
+<p>4、彩蛋</p>
+<p>1、什么是Docker<br>
+什么是docker？恐怕90%的人脑子一闪而过的都是那张图：一条鲸鱼背上扛着一堆箱子，图片下方是大大的“docker”。</p>
+<p>docker是什么？</p>
+<p>是鲸鱼？</p>
+<p>还是一堆箱子？</p>
+<p>或者说是载着箱子的鲸鱼？<br>
+这里小编不做解释，先引用一下官方的解释：</p>
+<p>Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的容器中，然后发布到任何流行的 Linux 机器上，也可以实现虚拟化。</p>
+<p>顾名思义，docker是一个容器引擎，容器且不说，什么是引擎？</p>
+<p>我们知道：</p>
+<p>汽车的引擎是发动机，有了发动起，汽车才能跑起来</p>
+<p>游戏需要游戏引擎（如Unity3D..），基于引擎的开发，能让游戏动起来。</p>
+<p>如官言，docker也是一种引擎，基于这个引擎，开发者能让他们开发的应用处于一个有隔离性的、可移植性的容器中，以便于发布于各种机器中而无需考虑兼容性问题。</p>
+<p>因此就不难解释，为什么docker的logo是一条装着一堆箱子的鲸鱼.</p>
+<p>这是因为：docker扮演的是图中鲸鱼的角色，而鲸鱼之上的集装箱就是一个个容器，容器中是我们开发的应用程序（不仅限于web应用），每个容器都有自己独立的环境（环境设置、网络、文件系统…），互不干扰。而每个箱子，又可以打包成一个新的镜像，放到其它服务器的docker环境中直接运行，不再需要重复安装程序运行环境。</p>
+<p>上面的解释插入了两个生疏的概念：</p>
+<p>1、镜像</p>
+<p>2、容器</p>
+<p>我们先讲容器</p>
+<p>容器，顾名思义：就是装东西的器皿，在docker中，容器就是装载我们的应用程序的器皿，在docker的logo中，容器就是一个个箱子。我们知道，运行JavaWeb应用程序需要有Tomcat，那么我们就需要创建一个Tomcat的容器，才能把我们的程序放进去运行。</p>
+<p>那么，容器哪里来的呢</p>
+<p>我们知道，给电脑安装Windows系统需要有Windows镜像，因此给docker安装容器也是需要镜像的，所以，通俗一点，镜像就类似于我们日常中的安装软件，甚至说是操作系统镜像更为形象点。</p>
+<p>那容器和镜像有什么关系？</p>
+<p>网上说是类和对象的关系，没错，但是这样的比喻没什么实际卵用。</p>
+<p>我们知道:要运行一个web程序，需要有个Tomcat环境，需要Tomcat环境，那就下载一个Tomcat解压出来，然后把web程序放入Tomcat的webapps中启动即可，</p>
+<p>那么在docker中要运行一个web程序，就需要有Tomcat容器，需要Tomcat容器，就得去下载Tomcat镜像（也可以自己构建），把镜像pull下来之后，运行起来，就是一个Tomcat容器，此时把web程序至于Tomcat挂载的数据目录webapps中既可以运行。</p>
+<p>所以docker中，容器和镜像的关系更像是一种动静的关系，也就是说，存于仓库中的镜像是一个死的软件，而运行起来的容器则像是一个正在运行的程序（进程）。</p>
+<p>2、Docker有什么用<br>
+对docker有了清晰的了解之后，我们心里可能在想： 这玩儿对我有什么用？ 我在哪里能用得上？ 怎么用才对？</p>
+<p>这里引用几个案例来让大家体会体会。</p>
+<p>1、案例一 前几天，公司一批服务器就要到期了，由于服务器是15年购买的，硬件的性能远比现在新出的云主机低，因此决定把所有服务器都换成新一代服务器，但是小编整准备动手迁移服务器时，内心一阵阵崩溃感涌上心头，仔细一算，每台服务器都要做同样的事情：</p>
+<p>1、安装jdk、Tomcat、nginx 2、配置jdk环境变量和系统变量 3、配置Tomcat 4、配置nginx 5、安装项目所需的视频解码组件 6、导入项目所需的一些特殊字体</p>
+<p>后来决定用docker部署的办法，在每台服务器都把docker安装之后，只需要在其中一台服务器中把Tomcat镜像从镜像仓库拉取下来，把这些配置都设置好，做成一个自己的镜像上传到镜像仓库中，之后在其他几台服务器都下载自己做的镜像，运行于docker中，把代码上传，就万事大吉了。</p>
+<p>2、案例二</p>
+<p>前不久的圣诞活动中，公司临时的活动方案在程序员的加班加点中终于上线，但是一上线之后发现推广海报中的中文名字乱码，领导问责测试人员怎么没做好测试，测试很委屈的说我已经测试无数遍并且测试报告都提交了，解决了所有问题才上线的；没办法只能让服务器同事查看正式服务器中的tomcat配置，发现原来 tomcat用了默认编码方式：iso8859-1，而测试环境中是UTF-8。针对这个问题，项目组决定把开发环境迁移到docker中，在测试环境中测试无误后，把镜像打包发布到正式环境中，解决了环境不同导致的问题。</p>
+<p>3、docker的安装<br>
+感知到docker对我们开发者的好处之后，相信大家也跃跃欲试了吧，下面 就Linux centOS（版本大于等于7.0）系统进行演示docker的安装步骤：</p>
+<p>1、删除可能存在的旧版本</p>
+<pre><code>1 sudo yum remove docker
+2 docker-client
+3 docker-client-latest
+4 docker-common
+5 docker-latest
+6 docker-latest-logrotate
+7 docker-logrotate
+8 docker-selinux
+9 docker-engine-selinux
+10 docker-engine
+</code></pre>
+<p></p>
+<p>2、安装一些必备工具：</p>
+<pre><code>1 yum install -y yum-utils device-mapper-persistent-data lvm2
+</code></pre>
+<p>3、添加Docker源：</p>
+<pre><code>1yum-config-manager
+2 --add-repo
+3 https://download.docker.com/linux/centos/docker-ce.repo
+</code></pre>
+<p>4、更新yum缓存</p>
+<pre><code>1 yum makecache fast
+</code></pre>
+<p>5、安装</p>
+<pre><code>yum install docker-ce
+</code></pre>
+<p>6、创建docker用户</p>
+<p>温馨提示：以下操作不是必备，但是为了养成一个Linux用户的使用的良好习惯，小编不建议直接使用root操作，因此创建一个用户用来操作docker。</p>
+<pre><code>useradd docker_manager
+</code></pre>
+<p>docker_manager是用户名，可以根据喜好起名，创建完用户之后，设置密码</p>
+<pre><code>1 passwd docker_manager
+2
+3 docker_manager_wsdt
+</code></pre>
+<p>会提示输入密码和确认密码,按照提示操作即可</p>
+<p>7、配置docker用户的权限</p>
+<pre><code>visudo
+</code></pre>
+<p>visudo是配置用户权限的文件，在命令行中输入visudo回车之后，会进入文件操作，找到“# %wheel ALL=(ALL) NOPASSWD: ALL”这一行，把前面的“#”去掉，保存文件</p>
+<p>8、授权</p>
+<pre><code>usermod -aG wheel,docker docker_manager
+</code></pre>
+<p>9、启动 Docker CE</p>
+<pre><code>sudo systemctl enable docker
+sudo systemctl start docker
+```　
+此时在命令行中输入“docker info”之后，能够展示docker相关信息，就表示docker安装成功。
+
+</code></pre>
+<p>docker info</p>
+<pre><code>
+10、镜像加速：
+
+编辑daemon.json文件（首次安装daemon.json是个新文件，不要惊讶）
+
+</code></pre>
+<p>vim /etc/docker/daemon.json</p>
+<pre><code>加入以下内容：
+</code></pre>
+<p>1{<br>
+2 &quot;registry-mirrors&quot;: [<br>
+3 &quot;https://registry.docker-cn.com&quot;<br>
+4 ]<br>
+5}</p>
+<pre><code>保存，sudo systemctl restart docker重启即可。
+
+4、总结
+上面针对docker使用了一种比较通俗诙谐的语言来讲述，也是为了方便读者能容易的解读和理解，理解并且成功安装docker之后，你们就会想方设法的要把自己的web项目部署到docker了，这我没说错吧，大家可以网上查找一些资料去学习这一块。
+学习转载：https://www.cnblogs.com/myprogramer/p/10288634.html</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[docker中使用redis]]></title>
+        <id>https://weidadeda.github.io/post/docker-zhong-shi-yong-redis</id>
+        <link href="https://weidadeda.github.io/post/docker-zhong-shi-yong-redis">
+        </link>
+        <updated>2022-01-13T09:08:41.000Z</updated>
+        <summary type="html"><![CDATA[<p>项目中频繁使用Redis，为了不用每次打开Redis目录去启动Redis想到了Docker可以作为Redis的容器 直接下载使用就行 把Docker使用Redis的过程分享下：</p>
+<ol>
+<li>
+<pre><code>拉取redis    （如果想直接运行也可以直接执行第二步省略第一步）
+   docker pull redis
+
+   拉取完成后可使用 docker images 查看镜像列表检查
+</code></pre>
+</li>
+<li>
+<pre><code>后台运行redis server
+   
+   docker run --name redis-test -p 6379:6379 -d redis
+   或者 docker run --name redis-test -p 6379:6379  --rm -d redis
+
+   -d表示后台运行 
+   -p表示本机端口映射到运行的容积端口  第一个是本机端口 第二个是容器端口
+   --rm表示用完自动删除 容器停止运行后自动删除  一般不用
+   --name表示指定名称 之后会用到
+</code></pre>
+</li>
+<li>
+<pre><code> 客户端连接redis 
+   
+   docker run -it --rm  redis redis-cli -h 192.168.1.99
+   或者 完整 docker run -it --rm redis redis-cli -h 192.168.1.99 -p 6379 -a 123123
+   
+   -it表示运行后进入容器内部命令模式
+</code></pre>
+</li>
+<li>
+<pre><code>启动已关闭的redis服务
+   步骤二指定了redis的名称为redis-test 执行命令 redis start redis-test 启动redis服务
+</code></pre>
+</li>
+<li>
+<pre><code>不小心关掉了正在连接的客户端界面redis-cli 
+  - 查找当前运行的容器 docker ps  
+  - 直接进入容器中 docker attach 容器标识
+</code></pre>
+</li>
+<li>
+<pre><code>删除容器
+   - docker rm [containerName||ID] 或者强制删除加-f参数
+</code></pre>
+</li>
+</ol>
+<p>推荐一个好用的redis可视化软件，免费的，“Another Redis Desktop Manager” 地址：https://github.com/qishibo/AnotherRedisDesktopManager/</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>项目中频繁使用Redis，为了不用每次打开Redis目录去启动Redis想到了Docker可以作为Redis的容器 直接下载使用就行 把Docker使用Redis的过程分享下：</p>
+<ol>
+<li>
+<pre><code>拉取redis    （如果想直接运行也可以直接执行第二步省略第一步）
+   docker pull redis
+
+   拉取完成后可使用 docker images 查看镜像列表检查
+</code></pre>
+</li>
+<li>
+<pre><code>后台运行redis server
+   
+   docker run --name redis-test -p 6379:6379 -d redis
+   或者 docker run --name redis-test -p 6379:6379  --rm -d redis
+
+   -d表示后台运行 
+   -p表示本机端口映射到运行的容积端口  第一个是本机端口 第二个是容器端口
+   --rm表示用完自动删除 容器停止运行后自动删除  一般不用
+   --name表示指定名称 之后会用到
+</code></pre>
+</li>
+<li>
+<pre><code> 客户端连接redis 
+   
+   docker run -it --rm  redis redis-cli -h 192.168.1.99
+   或者 完整 docker run -it --rm redis redis-cli -h 192.168.1.99 -p 6379 -a 123123
+   
+   -it表示运行后进入容器内部命令模式
+</code></pre>
+</li>
+<li>
+<pre><code>启动已关闭的redis服务
+   步骤二指定了redis的名称为redis-test 执行命令 redis start redis-test 启动redis服务
+</code></pre>
+</li>
+<li>
+<pre><code>不小心关掉了正在连接的客户端界面redis-cli 
+  - 查找当前运行的容器 docker ps  
+  - 直接进入容器中 docker attach 容器标识
+</code></pre>
+</li>
+<li>
+<pre><code>删除容器
+   - docker rm [containerName||ID] 或者强制删除加-f参数
+</code></pre>
+</li>
+</ol>
+<p>推荐一个好用的redis可视化软件，免费的，“Another Redis Desktop Manager” 地址：https://github.com/qishibo/AnotherRedisDesktopManager/</p>
+<!-- more -->
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[nuxt 服务端渲染和预渲染的区别]]></title>
+        <id>https://weidadeda.github.io/post/nuxt-fu-wu-duan-xuan-ran-he-yu-xuan-ran-de-qu-bie</id>
+        <link href="https://weidadeda.github.io/post/nuxt-fu-wu-duan-xuan-ran-he-yu-xuan-ran-de-qu-bie">
+        </link>
+        <updated>2022-01-13T07:38:15.000Z</updated>
+        <content type="html"><![CDATA[<p>nuxt分spa和非spa，预渲染直接nuxt generate打好的静态页面放在服务器就能访问(也是服务端渲染)， 服务端渲染需要先build完，把打出来的项目放到服务器，然后允许start，还要配置nginx转发<br>
+使用nuxt的服务端渲染插件在node中可以直接返回<br>
+预渲染不像服务器渲染那样即时编译 HTML，它只在构建时为了特定的路由生成特定的几个静态页面，等于我们可以通过 Webpack 插件将一些特定页面组件 build 时就编译为 html 文件，直接以静态资源的形式输出给搜索引擎。预渲染不执行js的，只适应于纯静态页面<br>
+先说结论，都必然会优化SEO，原因如下：</p>
+<p>1、seo的本质是爬虫动态抓取根html里面的关键标签关键字；<br>
+2、现代主流前端开发框架基本都是html拉回来之后，异步执行js动态挂载dom，根html在渲染之前里面提供给爬虫的信息极少；</p>
+<p>综上，如果不做服务器渲染或预渲染，seo只能抓到手动配置的顶级标签的关键字，效率与效果非常差<br>
+不论是服务器渲染还是预渲染，它们都能“加速浏览器显示页面的速度”和seo优化。首先客户端程序只有js。现代网页出现以后这些js程度越来越复杂，于是必须有一些类似react、angular这样的东西。但这些东西全都有一个问题：第一次渲染结束前，页面是白的。于是有了服务端渲染：如果服务器恰好是nodejs，那么可以让服务器提前运行“第一次渲染”。浏览器只需要显示就好了，如果需要，再进行以后的渲染。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Docker attach 命令]]></title>
+        <id>https://weidadeda.github.io/post/docker-attach-ming-ling</id>
+        <link href="https://weidadeda.github.io/post/docker-attach-ming-ling">
+        </link>
+        <updated>2022-01-12T07:34:57.000Z</updated>
+        <summary type="html"><![CDATA[<p>docker attach :连接到正在运行中的容器。<br>
+要attach上去的容器必须正在运行，可以同时连接上同一个container来共享屏幕（与screen命令的attach类似）。</p>
+<p>官方文档中说attach后可以通过CTRL-C来detach，但实际上经过我的测试，如果container当前在运行bash，CTRL-C自然是当前行的输入，没有退出；如果container当前正在前台运行进程，如输出nginx的access.log日志，CTRL-C不仅会导致退出容器，而且还stop了😨</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>docker attach :连接到正在运行中的容器。<br>
+要attach上去的容器必须正在运行，可以同时连接上同一个container来共享屏幕（与screen命令的attach类似）。</p>
+<p>官方文档中说attach后可以通过CTRL-C来detach，但实际上经过我的测试，如果container当前在运行bash，CTRL-C自然是当前行的输入，没有退出；如果container当前正在前台运行进程，如输出nginx的access.log日志，CTRL-C不仅会导致退出容器，而且还stop了😨</p>
+<!-- more -->
+<p>。这不是我们想要的，detach的意思按理应该是脱离容器终端，但容器依然运行。好在attach是可以带上--sig-proxy=false来确保CTRL-D或CTRL-C不会关闭容器。<br>
+runoob@runoob:~$ docker attach --sig-proxy=false mynginx</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[shell $? 获取函数返回值或者上一个命令的退出状态]]></title>
         <id>https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai</id>
@@ -22,23 +552,46 @@
 ]]></content>
     </entry>
     <entry>
-        <title type="html"><![CDATA[shell $?]]></title>
-        <id>https://weidadeda.github.io/post/shell-dollar</id>
-        <link href="https://weidadeda.github.io/post/shell-dollar">
-        </link>
-        <updated>2022-01-12T03:03:58.000Z</updated>
-        <content type="html"><![CDATA[<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>?</mo><mi mathvariant="normal">是</mi><mi mathvariant="normal">上</mi><mi mathvariant="normal">一</mi><mi mathvariant="normal">个</mi><mi mathvariant="normal">程</mi><mi mathvariant="normal">序</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">是</mi><mi mathvariant="normal">否</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">标</mi><mi mathvariant="normal">志</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">如</mi><mi mathvariant="normal">果</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">则</mi></mrow><annotation encoding="application/x-tex">? 是上一个程序执行是否成功的标志，如果执行成功则</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mclose">?</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">上</span><span class="mord cjk_fallback">一</span><span class="mord cjk_fallback">个</span><span class="mord cjk_fallback">程</span><span class="mord cjk_fallback">序</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">否</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">标</span><span class="mord cjk_fallback">志</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">如</span><span class="mord cjk_fallback">果</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">则</span></span></span></span>? 为0，否则 不为0。<br>
-比如判断一个node服务是该启动还是该重启，则可以执行pm2 info ***<br>
-<img src="https://weidadeda.github.io/post-images/1641956978962.jpg" alt="" loading="lazy"></p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[我是测试111]]></title>
+        <title type="html"><![CDATA[mysql 时间戳格式化函数from_unixtime]]></title>
         <id>https://weidadeda.github.io/post/wo-shi-ce-shi</id>
         <link href="https://weidadeda.github.io/post/wo-shi-ce-shi">
         </link>
         <updated>2021-04-06T03:01:44.000Z</updated>
-        <content type="html"><![CDATA[<p>开始写作</p>
+        <content type="html"><![CDATA[<p>作用：时间戳转化个格式</p>
+<p>原因：数据库中为了快速查询，一般保持日期是int(1415873634479),但是这样查询的时候很难知道确切的日期</p>
+<p>格式：select from_unixtime(1459338786);2016-03-30 19:53:06</p>
+<p>select from_unixtime(1459338786, '%Y-%m-%d %H:%i:%s');2016-03-30 19:53:06</p>
+<p>SELECT id ,FROM_UNIXTIME('last_update_time') FROM current_inventory WHERE seat_code = 'hk2-i0302c03' //字段要加引号</p>
+<p>备注：默认转化格式是%Y-%m-%d %H:%i:%s</p>
+<p>格式说明：</p>
+<p>%M 月名字(January～December)<br>
+%W 星期名字(Sunday～Saturday)<br>
+%D 有英语前缀的月份的日期(1st, 2nd, 3rd, 等等。）<br>
+%Y 年, 数字, 4 位<br>
+%y 年, 数字, 2 位<br>
+%a 缩写的星期名字(Sun～Sat)<br>
+%d 月份中的天数, 数字(00～31)<br>
+%e 月份中的天数, 数字(0～31)<br>
+%m 月, 数字(01～12)<br>
+%c 月, 数字(1～12)<br>
+%b 缩写的月份名字(Jan～Dec)<br>
+%j 一年中的天数(001～366)<br>
+%H 小时(00～23)<br>
+%k 小时(0～23)<br>
+%h 小时(01～12)<br>
+%I 小时(01～12)<br>
+%l 小时(1～12)<br>
+%i 分钟, 数字(00～59)<br>
+%r 时间,12 小时(hh:mm:ss [AP]M)<br>
+%T 时间,24 小时(hh:mm:ss)<br>
+%S 秒(00～59)<br>
+%s 秒(00～59)<br>
+%p AM或PM<br>
+%w 一个星期中的天数(0=Sunday ～6=Saturday ）<br>
+%U 星期(0～52), 这里星期天是星期的第一天<br>
+%u 星期(0～52), 这里星期一是星期的第一天<br>
+%% 一个文字%</p>
+<p>原文链接：https://blog.csdn.net/yangliu4683/article/details/78340939</p>
 ]]></content>
     </entry>
     <entry>
@@ -53,50 +606,6 @@
 <h2 id="兴趣爱好">⛹ 兴趣爱好</h2>
 <h2 id="联系我呀">📬 联系我呀</h2>
 <p>https://www.cnblogs.com/lovesong/p/10847433.html</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[如何自定义commit规范]]></title>
-        <id>https://weidadeda.github.io/post/hello-gridea</id>
-        <link href="https://weidadeda.github.io/post/hello-gridea">
-        </link>
-        <updated>2018-12-11T16:00:00.000Z</updated>
-        <content type="html"><![CDATA[<p>👏  欢迎来到我的博客！</p>
-<p><a href="https://github.com/getgridea/gridea">Github</a><br>
-<a href="https://gridea.dev/">Gridea 主页</a><br>
-<a href="http://fehey.com/">示例网站</a></p>
-<p>强制commit规范有两种，一种是在package项目中的gitHooks选项下的&quot;commit-msg&quot;设置自己的commit规则脚本。比如我要强制commit内容为feat:加空格xxx或者fix:加空格xxx，如果不符合给出相应提示，则我应该这么写：<br>
-<img src="https://note.youdao.com/yws/public/resource/d60e09a825bba46e1719f2dc06a2f7e3/xmlnote/302F691AA217499EA4DC783EA5E361B8/3538" alt="" loading="lazy"><br>
-verify-commit-msg.js中代码：</p>
-<pre><code>const chalk = require(&quot;chalk&quot;);
-const msgPath = process.env.GIT_PARAMS;
-const msg = require(&quot;fs&quot;)
-  .readFileSync(msgPath, &quot;utf-8&quot;)
-  .trim();
-
-const commitRE = /^(revert: )?(feat|fix|polish|docs|style|refactor|perf|test|workflow|ci|chore|types|build|Merge)(\(.+\))?: .{1,50}|Merge /;
-
-if (!commitRE.test(msg)) {
-  console.error(
-    `  ${chalk.bgRed.white(&quot; ERROR &quot;)} ${chalk.red(
-      `invalid commit message format.`
-    )}\n\n` +
-      chalk.red(
-        `  Proper commit message format is required for automated changelog generation. Examples:\n\n`
-      ) +
-      `    ${chalk.green(`feat: add 'comments' option`)}\n` +
-      `    ${chalk.green(`fix: handle events on blur (close #28)`)}\n\n` +
-      chalk.red(
-        `  You can also use ${chalk.cyan(
-          `yarn commit`
-        )} to interactively generate a commit message.\n`
-      )
-  );
-  process.exit(1);
-}
-
-</code></pre>
-<p>另一种是也可以使用git-cz通过交互的方式生成更专业的commit</p>
 ]]></content>
     </entry>
 </feed>

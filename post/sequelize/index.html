@@ -8,7 +8,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>shell $? 获取函数返回值或者上一个命令的退出状态 | Gridea</title>
+<title>前端使用Nacos | Gridea</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1642156623955">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -29,7 +29,7 @@
 
 
 
-  <meta name="description" content="shell $? 获取函数返回值或者上一个命令的退出状态" />
+  <meta name="description" content="前端使用Nacos" />
   <meta name="keywords" content="" />
 </head>
 
@@ -161,7 +161,8 @@
       <div class="sidebar-body gemini" id="sidebar_body">
         
           
-            
+            <div class="post-side-meta" id="post_side_meta">
+              
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="/images/avatar.png"/>
@@ -199,6 +200,200 @@
 
 
 </div>
+            </div>
+            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+              <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto"
+    id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#nacos-docker-%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B">Nacos Docker 快速开始</a></li>
+<li><a href="#%E6%B3%A8%E6%84%8F%E8%BF%99%E9%87%8C%E8%A6%81%E7%94%A8openapi%E6%8F%90%E4%BE%9B%E7%9A%84%E5%AD%97%E6%AE%B5%E4%BF%A1%E6%81%AF%E5%A4%9A%E4%BA%86tenant%E5%AD%97%E6%AE%B5-%E6%9C%89%E5%93%AA%E9%87%8C%E4%B8%8D%E6%98%8E%E7%99%BD%E7%9A%84%E5%8F%AF%E4%BB%A5%E7%9C%8B%E4%B8%8B%E5%BC%80%E5%A4%B4%E7%9A%84%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E5%93%88">注意，这里要用openApi提供的字段信息，多了tenant字段。有哪里不明白的可以看下开头的官方文档哈。</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+</div>
+
+<script>
+
+  let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1;
+  let active = 'active-show', activeClass = 'active-current';
+  let tocWrapper = document.querySelector('#toc_wrapper');
+  let tocContent = tocWrapper.children[0];
+  let autoNumber = tocWrapper && tocWrapper.classList.contains('auto-number');
+
+  function addTocNumber(elem, deep) {
+    if (!elem) {
+      return;
+    }
+    let prop = elem.__proto__;
+
+    if (prop === HTMLUListElement.prototype) {
+      for (let i = 0; i < elem.children.length; i++) {
+        addTocNumber(elem.children[i], deep + (i + 1) + '.');
+      }
+    } else if (prop === HTMLLIElement.prototype) {
+      // 保存li元素
+      if (elem.children[0].__proto__ === HTMLAnchorElement.prototype) {
+        lList.push(elem);
+      }
+      for (let i = 0; i < elem.children.length; i++) {
+        let cur = elem.children[i];
+        if (cur.__proto__ === HTMLAnchorElement.prototype) {
+          if (autoNumber) {
+            cur.text = deep + ' ' + cur.text;
+          }
+        } else if (cur.__proto__ === HTMLUListElement.prototype) {
+          addTocNumber(cur, deep);
+        }
+      }
+    }
+  }
+
+  function removeParentActiveClass() {
+    let parents = tocContent.querySelectorAll('.' + active)
+    parents.forEach(function (elem) {
+      elem.classList.remove(active);
+    });
+  }
+
+  function addActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.add(activeClass);
+    }
+  }
+
+  function removeActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.remove(activeClass);
+    }
+  }
+
+  function addActiveLiElemment(elem, parent) {
+    if (!elem || elem === parent) {
+      return;
+    } else {
+      if (elem.__proto__ === HTMLLIElement.prototype) {
+        elem.classList.add(active);
+      }
+      addActiveLiElemment(elem.parentElement, parent);
+    }
+  }
+
+  function showToc() {
+    if (tocWrapper) {
+      postBody = document.querySelector('#post_body');
+      for (let i = 0; i < postBody.children.length; i++) {
+        if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+          hList.push(postBody.children[i]);
+        }
+      }
+      if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+      } else if (tocWrapper.classList.contains('no_compress')) {
+        tocContent.classList.add('expanded');
+      } else {
+        if (hList.length > 10) {
+          active = 'active-hidden'
+          tocContent.classList.add('closed');
+        } else {
+          tocContent.classList.add('expanded');
+        }
+      }
+    }
+  }
+
+  (function () {
+    // 处理不是从#一级标题开始目录
+    if (tocContent.children.length === 1 && tocContent.children[0].__proto__ === HTMLLIElement.prototype) {
+      let con = tocContent.children[0].children[0];
+      tocContent.innerHTML = con.innerHTML;
+    }
+    let markdownItTOC = document.querySelector('.markdownIt-TOC');
+    let innerHeight = window.innerHeight;
+    markdownItTOC.style = `max-height: ${innerHeight - 80 > 0 ? innerHeight - 80 : innerHeight}px`
+    addTocNumber(tocContent, '');
+  })();
+
+  document.addEventListener('scroll', function (e) {
+    if (lList.length <= 0) {
+      return;
+    }
+    let scrollTop = document.scrollingElement.scrollTop + 10;
+    let dir;
+
+    if (lastTop - scrollTop > 0) {
+      dir = 'up';
+    } else {
+      dir = 'down';
+    }
+
+    lastTop = scrollTop;
+    if (scrollTop <= 0) {
+      if (lastIndex >= 0 && lastIndex < hList.length) {
+        lList[lastIndex].classList.remove(activeClass);
+      }
+      return;
+    }
+
+    let current = 0, hasFind = false;
+    for (let i = 0; i < hList.length; i++) {
+      if (hList[i].offsetTop > scrollTop) {
+        current = i;
+        hasFind = true;
+        break;
+      }
+    }
+    if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+      current = hList.length - 1;
+    } else {
+      current--;
+    }
+    if (dir === 'down') {
+      if (current > lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex)
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    } else {
+      if (current < lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex);
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    }
+  });
+
+
+  window.addEventListener('load', function () {
+    showToc();
+    document.querySelector('#sidebar').style = 'display: block;';
+    tocWrapper.classList.add('toc-active');
+    setTimeout(function () {
+      if ("createEvent" in document) {
+        let evt = document.createEvent("HTMLEvents");
+        evt.initEvent("scroll", false, true);
+        document.dispatchEvent(evt);
+      }
+      else {
+        document.fireEvent("scroll");
+      }
+    }, 500)
+  })
+
+</script>
+            </div>
           
         
       </div>
@@ -286,8 +481,8 @@
           <div class="section bg-color post post-page">
             <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai">
-      shell $? 获取函数返回值或者上一个命令的退出状态
+    <a class="post-title-link" href="https://weidadeda.github.io/post/sequelize">
+      前端使用Nacos
     </a>
   </h1>
   <div class="post-meta">
@@ -295,26 +490,64 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2022-01-12</span>
+      <span>2022-01-14</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>1分钟</span>
+      <span>3分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>98<span class="pc-show">字数</span></span>
+      <span>664<span class="pc-show">字数</span></span>
     </span>
     
   </div>
 </header>
             <div class="post-body next-md-body" id="post_body">
-              <p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>?</mo><mi mathvariant="normal">是</mi><mi mathvariant="normal">上</mi><mi mathvariant="normal">一</mi><mi mathvariant="normal">个</mi><mi mathvariant="normal">程</mi><mi mathvariant="normal">序</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">是</mi><mi mathvariant="normal">否</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">标</mi><mi mathvariant="normal">志</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">如</mi><mi mathvariant="normal">果</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">则</mi></mrow><annotation encoding="application/x-tex">? 是上一个程序执行是否成功的标志，如果执行成功则</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mclose">?</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">上</span><span class="mord cjk_fallback">一</span><span class="mord cjk_fallback">个</span><span class="mord cjk_fallback">程</span><span class="mord cjk_fallback">序</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">否</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">标</span><span class="mord cjk_fallback">志</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">如</span><span class="mord cjk_fallback">果</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">则</span></span></span></span>? 为0，否则 不为0。<br>
-比如判断一个node服务是该启动还是该重启，则可以执行pm2 info ***<br>
-<img src="https://weidadeda.github.io/post-images/1641956978962.jpg" alt="" loading="lazy"></p>
+              <p>官网介绍：一个更易于构建云原生应用的动态服务发现、配置管理和服务管理平台。<br>
+<a href="https://nacos.io/zh-cn/docs/what-is-nacos.html">Nacos中文文档</a></p>
+<blockquote>
+<p>概览<br>
+欢迎来到 Nacos 的世界！<br>
+Nacos 致力于帮助您发现、配置和管理微服务。Nacos 提供了一组简单易用的特性集，帮助您快速实现动态服务发现、服务配置、服务元数据及流量管理。<br>
+Nacos 帮助您更敏捷和容易地构建、交付和管理微服务平台。 Nacos 是构建以“服务”为中心的现代应用架构 (例如微服务范式、云原生范式) 的服务基础设施。</p>
+</blockquote>
+<p>这个东西主要用于微服务，但我作为一个前端，只用了它的配置管理功能，虽然有点大材小用，但确实方便,而且还可以通过网页去直接查看数据结构。</p>
+<p>假设前端要搞一个平台，但是并没有后端支持，那么权限管理以及一些必要的数据获取该怎么做呢，我们想到的肯定是node起服务，然后写接口，然后连接数据库。从而实现数据的增删改查。</p>
+<p>但有一种更简单的方式，就是在服务器的docker中下载一个nacos,把数据放到nacos中管理，这样数据依然在我们的服务器上，并且不需要我们自己去写接口，nacos提供了openApi，我们直接调用接口就可以，是不是很方便呢。下面开始安装：</p>
+<h3 id="nacos-docker-快速开始">Nacos Docker 快速开始</h3>
+<p>操作步骤<br>
+Clone 项目</p>
+<pre><code>git clone https://github.com/nacos-group/nacos-docker.git
+cd nacos-docker
+</code></pre>
+<p>单机模式 Derby</p>
+<pre><code>docker-compose -f example/standalone-derby.yaml up
+</code></pre>
+<p>单机模式 MySQL</p>
+<p>如果希望使用MySQL5.7</p>
+<pre><code>docker-compose -f example/standalone-mysql-5.7.yaml up
+</code></pre>
+<p>如果希望使用MySQL8</p>
+<pre><code>docker-compose -f example/standalone-mysql-8.yaml up
+</code></pre>
+<p>集群模式</p>
+<pre><code>docker-compose -f example/cluster-hostname.yaml up 
+</code></pre>
+<p>服务注册</p>
+<p>curl -X POST 'http://127.0.0.1:8848/nacos/v1/ns/instance?serviceName=nacos.naming.serviceName&amp;ip=20.18.7.10&amp;port=8080'<br>
+服务发现</p>
+<p>curl -X GET 'http://127.0.0.1:8848/nacos/v1/ns/instance/list?serviceName=nacos.naming.serviceName'<br>
+发布配置</p>
+<p>curl -X POST &quot;http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=nacos.cfg.dataId&amp;group=test&amp;content=helloWorld&quot;<br>
+获取配置</p>
+<p>curl -X GET &quot;http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=nacos.cfg.dataId&amp;group=test&quot;<br>
+Nacos 控制台</p>
+<p>link：http://127.0.0.1:8848/nacos/（因为是在服务器上，所以可以直接使用对应的域名或者ip来访问）</p>
+<h3 id="注意这里要用openapi提供的字段信息多了tenant字段-有哪里不明白的可以看下开头的官方文档哈">注意，这里要用openApi提供的字段信息，多了tenant字段。有哪里不明白的可以看下开头的官方文档哈。</h3>
 
             </div>
             <div class="post-footer">
@@ -325,7 +558,7 @@
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai" title="shell $? 获取函数返回值或者上一个命令的退出状态">https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai</a>
+      <a href="https://weidadeda.github.io/post/sequelize" title="前端使用Nacos">https://weidadeda.github.io/post/sequelize</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -339,14 +572,14 @@
     <div class="nav-prev">
       
         <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="Docker attach 命令" href="https://weidadeda.github.io/post/docker-attach-ming-ling">Docker attach 命令</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="Docker attach 命令" href="https://weidadeda.github.io/post/docker-attach-ming-ling">上一篇</a>
+        <a class="nav-pc-next" title="Sequelize node连接数据库的ORM" href="https://weidadeda.github.io/post/sequelize-node-lian-jie-shu-ju-ku-de-orm">Sequelize node连接数据库的ORM</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title="Sequelize node连接数据库的ORM" href="https://weidadeda.github.io/post/sequelize-node-lian-jie-shu-ju-ku-de-orm">上一篇</a>
       
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="mysql 时间戳格式化函数from_unixtime" href="https://weidadeda.github.io/post/wo-shi-ce-shi">mysql 时间戳格式化函数from_unixtime</a>
-        <a class="nav-mobile-next" title="mysql 时间戳格式化函数from_unixtime" href="https://weidadeda.github.io/post/wo-shi-ce-shi">下一篇</a>
+        <a class="nav-pc-next" title="mysql查询语句" href="https://weidadeda.github.io/post/mysql-cha-xun-yu-ju">mysql查询语句</a>
+        <a class="nav-mobile-next" title="mysql查询语句" href="https://weidadeda.github.io/post/mysql-cha-xun-yu-ju">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>

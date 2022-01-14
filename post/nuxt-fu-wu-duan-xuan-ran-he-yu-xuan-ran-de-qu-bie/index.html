@@ -8,7 +8,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>shell $? 获取函数返回值或者上一个命令的退出状态 | Gridea</title>
+<title>nuxt 服务端渲染和预渲染的区别 | Gridea</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1642156623955">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -29,7 +29,7 @@
 
 
 
-  <meta name="description" content="shell $? 获取函数返回值或者上一个命令的退出状态" />
+  <meta name="description" content="nuxt 服务端渲染和预渲染的区别" />
   <meta name="keywords" content="" />
 </head>
 
@@ -286,8 +286,8 @@
           <div class="section bg-color post post-page">
             <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai">
-      shell $? 获取函数返回值或者上一个命令的退出状态
+    <a class="post-title-link" href="https://weidadeda.github.io/post/nuxt-fu-wu-duan-xuan-ran-he-yu-xuan-ran-de-qu-bie">
+      nuxt 服务端渲染和预渲染的区别
     </a>
   </h1>
   <div class="post-meta">
@@ -295,26 +295,31 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2022-01-12</span>
+      <span>2022-01-13</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>1分钟</span>
+      <span>2分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>98<span class="pc-show">字数</span></span>
+      <span>479<span class="pc-show">字数</span></span>
     </span>
     
   </div>
 </header>
             <div class="post-body next-md-body" id="post_body">
-              <p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>?</mo><mi mathvariant="normal">是</mi><mi mathvariant="normal">上</mi><mi mathvariant="normal">一</mi><mi mathvariant="normal">个</mi><mi mathvariant="normal">程</mi><mi mathvariant="normal">序</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">是</mi><mi mathvariant="normal">否</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">标</mi><mi mathvariant="normal">志</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">如</mi><mi mathvariant="normal">果</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">则</mi></mrow><annotation encoding="application/x-tex">? 是上一个程序执行是否成功的标志，如果执行成功则</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mclose">?</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">上</span><span class="mord cjk_fallback">一</span><span class="mord cjk_fallback">个</span><span class="mord cjk_fallback">程</span><span class="mord cjk_fallback">序</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">否</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">标</span><span class="mord cjk_fallback">志</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">如</span><span class="mord cjk_fallback">果</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">则</span></span></span></span>? 为0，否则 不为0。<br>
-比如判断一个node服务是该启动还是该重启，则可以执行pm2 info ***<br>
-<img src="https://weidadeda.github.io/post-images/1641956978962.jpg" alt="" loading="lazy"></p>
+              <p>nuxt分spa和非spa，预渲染直接nuxt generate打好的静态页面放在服务器就能访问(也是服务端渲染)， 服务端渲染需要先build完，把打出来的项目放到服务器，然后允许start，还要配置nginx转发<br>
+使用nuxt的服务端渲染插件在node中可以直接返回<br>
+预渲染不像服务器渲染那样即时编译 HTML，它只在构建时为了特定的路由生成特定的几个静态页面，等于我们可以通过 Webpack 插件将一些特定页面组件 build 时就编译为 html 文件，直接以静态资源的形式输出给搜索引擎。预渲染不执行js的，只适应于纯静态页面<br>
+先说结论，都必然会优化SEO，原因如下：</p>
+<p>1、seo的本质是爬虫动态抓取根html里面的关键标签关键字；<br>
+2、现代主流前端开发框架基本都是html拉回来之后，异步执行js动态挂载dom，根html在渲染之前里面提供给爬虫的信息极少；</p>
+<p>综上，如果不做服务器渲染或预渲染，seo只能抓到手动配置的顶级标签的关键字，效率与效果非常差<br>
+不论是服务器渲染还是预渲染，它们都能“加速浏览器显示页面的速度”和seo优化。首先客户端程序只有js。现代网页出现以后这些js程度越来越复杂，于是必须有一些类似react、angular这样的东西。但这些东西全都有一个问题：第一次渲染结束前，页面是白的。于是有了服务端渲染：如果服务器恰好是nodejs，那么可以让服务器提前运行“第一次渲染”。浏览器只需要显示就好了，如果需要，再进行以后的渲染。</p>
 
             </div>
             <div class="post-footer">
@@ -325,7 +330,7 @@
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai" title="shell $? 获取函数返回值或者上一个命令的退出状态">https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai</a>
+      <a href="https://weidadeda.github.io/post/nuxt-fu-wu-duan-xuan-ran-he-yu-xuan-ran-de-qu-bie" title="nuxt 服务端渲染和预渲染的区别">https://weidadeda.github.io/post/nuxt-fu-wu-duan-xuan-ran-he-yu-xuan-ran-de-qu-bie</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -339,14 +344,14 @@
     <div class="nav-prev">
       
         <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="Docker attach 命令" href="https://weidadeda.github.io/post/docker-attach-ming-ling">Docker attach 命令</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="Docker attach 命令" href="https://weidadeda.github.io/post/docker-attach-ming-ling">上一篇</a>
+        <a class="nav-pc-next" title="docker中使用redis" href="https://weidadeda.github.io/post/docker-zhong-shi-yong-redis">docker中使用redis</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title="docker中使用redis" href="https://weidadeda.github.io/post/docker-zhong-shi-yong-redis">上一篇</a>
       
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="mysql 时间戳格式化函数from_unixtime" href="https://weidadeda.github.io/post/wo-shi-ce-shi">mysql 时间戳格式化函数from_unixtime</a>
-        <a class="nav-mobile-next" title="mysql 时间戳格式化函数from_unixtime" href="https://weidadeda.github.io/post/wo-shi-ce-shi">下一篇</a>
+        <a class="nav-pc-next" title="Docker attach 命令" href="https://weidadeda.github.io/post/docker-attach-ming-ling">Docker attach 命令</a>
+        <a class="nav-mobile-next" title="Docker attach 命令" href="https://weidadeda.github.io/post/docker-attach-ming-ling">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>

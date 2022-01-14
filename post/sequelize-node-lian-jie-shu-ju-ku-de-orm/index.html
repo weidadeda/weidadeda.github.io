@@ -8,7 +8,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>shell $? 获取函数返回值或者上一个命令的退出状态 | Gridea</title>
+<title>Sequelize node连接数据库的ORM | Gridea</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1642156623955">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -29,7 +29,7 @@
 
 
 
-  <meta name="description" content="shell $? 获取函数返回值或者上一个命令的退出状态" />
+  <meta name="description" content="Sequelize node连接数据库的ORM" />
   <meta name="keywords" content="" />
 </head>
 
@@ -161,7 +161,8 @@
       <div class="sidebar-body gemini" id="sidebar_body">
         
           
-            
+            <div class="post-side-meta" id="post_side_meta">
+              
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="/images/avatar.png"/>
@@ -199,6 +200,207 @@
 
 
 </div>
+            </div>
+            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+              <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto"
+    id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#%E8%BF%9E%E6%8E%A5%E6%95%B0%E6%8D%AE%E5%BA%93">连接数据库</a></li>
+<li><a href="#%E5%AE%9A%E4%B9%89%E6%A8%A1%E5%9E%8B-%E5%AE%9A%E4%B9%89%E8%A1%A8%E7%BB%93%E6%9E%84">定义模型 （定义表结构）</a></li>
+<li><a href="#%E6%A8%A1%E5%9E%8B%E5%90%8C%E6%AD%A5-%E7%9C%9F%E6%AD%A3%E4%BB%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%9B%E5%BB%BA">模型同步 （真正从数据库创建）</a>
+<ul>
+<li><a href="#usersync-force-true-%E5%B0%86%E5%88%9B%E5%BB%BA%E8%A1%A8%E5%A6%82%E6%9E%9C%E8%A1%A8%E5%B7%B2%E7%BB%8F%E5%AD%98%E5%9C%A8%E5%88%99%E5%B0%86%E5%85%B6%E9%A6%96%E5%85%88%E5%88%A0%E9%99%A4-%E8%BF%99%E4%B8%AA%E4%B8%8D%E8%A6%81%E7%94%A8%E4%B9%9F%E6%9C%80%E5%A5%BD%E5%88%AB%E8%AF%95">User.sync({ force: true }) - 将创建表,如果表已经存在,则将其首先删除 （这个不要用，也最好别试）</a></li>
+</ul>
+</li>
+<li><a href="#%E5%88%9B%E5%BB%BA%E5%AE%9E%E4%BE%8B%E4%BF%AE%E6%94%B9%E5%86%85%E5%AE%B9insert">创建实例（修改内容INSERT）</a></li>
+<li><a href="#%E7%AE%80%E5%8D%95-select-%E6%9F%A5%E8%AF%A2">简单 SELECT 查询</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+</div>
+
+<script>
+
+  let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1;
+  let active = 'active-show', activeClass = 'active-current';
+  let tocWrapper = document.querySelector('#toc_wrapper');
+  let tocContent = tocWrapper.children[0];
+  let autoNumber = tocWrapper && tocWrapper.classList.contains('auto-number');
+
+  function addTocNumber(elem, deep) {
+    if (!elem) {
+      return;
+    }
+    let prop = elem.__proto__;
+
+    if (prop === HTMLUListElement.prototype) {
+      for (let i = 0; i < elem.children.length; i++) {
+        addTocNumber(elem.children[i], deep + (i + 1) + '.');
+      }
+    } else if (prop === HTMLLIElement.prototype) {
+      // 保存li元素
+      if (elem.children[0].__proto__ === HTMLAnchorElement.prototype) {
+        lList.push(elem);
+      }
+      for (let i = 0; i < elem.children.length; i++) {
+        let cur = elem.children[i];
+        if (cur.__proto__ === HTMLAnchorElement.prototype) {
+          if (autoNumber) {
+            cur.text = deep + ' ' + cur.text;
+          }
+        } else if (cur.__proto__ === HTMLUListElement.prototype) {
+          addTocNumber(cur, deep);
+        }
+      }
+    }
+  }
+
+  function removeParentActiveClass() {
+    let parents = tocContent.querySelectorAll('.' + active)
+    parents.forEach(function (elem) {
+      elem.classList.remove(active);
+    });
+  }
+
+  function addActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.add(activeClass);
+    }
+  }
+
+  function removeActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.remove(activeClass);
+    }
+  }
+
+  function addActiveLiElemment(elem, parent) {
+    if (!elem || elem === parent) {
+      return;
+    } else {
+      if (elem.__proto__ === HTMLLIElement.prototype) {
+        elem.classList.add(active);
+      }
+      addActiveLiElemment(elem.parentElement, parent);
+    }
+  }
+
+  function showToc() {
+    if (tocWrapper) {
+      postBody = document.querySelector('#post_body');
+      for (let i = 0; i < postBody.children.length; i++) {
+        if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+          hList.push(postBody.children[i]);
+        }
+      }
+      if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+      } else if (tocWrapper.classList.contains('no_compress')) {
+        tocContent.classList.add('expanded');
+      } else {
+        if (hList.length > 10) {
+          active = 'active-hidden'
+          tocContent.classList.add('closed');
+        } else {
+          tocContent.classList.add('expanded');
+        }
+      }
+    }
+  }
+
+  (function () {
+    // 处理不是从#一级标题开始目录
+    if (tocContent.children.length === 1 && tocContent.children[0].__proto__ === HTMLLIElement.prototype) {
+      let con = tocContent.children[0].children[0];
+      tocContent.innerHTML = con.innerHTML;
+    }
+    let markdownItTOC = document.querySelector('.markdownIt-TOC');
+    let innerHeight = window.innerHeight;
+    markdownItTOC.style = `max-height: ${innerHeight - 80 > 0 ? innerHeight - 80 : innerHeight}px`
+    addTocNumber(tocContent, '');
+  })();
+
+  document.addEventListener('scroll', function (e) {
+    if (lList.length <= 0) {
+      return;
+    }
+    let scrollTop = document.scrollingElement.scrollTop + 10;
+    let dir;
+
+    if (lastTop - scrollTop > 0) {
+      dir = 'up';
+    } else {
+      dir = 'down';
+    }
+
+    lastTop = scrollTop;
+    if (scrollTop <= 0) {
+      if (lastIndex >= 0 && lastIndex < hList.length) {
+        lList[lastIndex].classList.remove(activeClass);
+      }
+      return;
+    }
+
+    let current = 0, hasFind = false;
+    for (let i = 0; i < hList.length; i++) {
+      if (hList[i].offsetTop > scrollTop) {
+        current = i;
+        hasFind = true;
+        break;
+      }
+    }
+    if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+      current = hList.length - 1;
+    } else {
+      current--;
+    }
+    if (dir === 'down') {
+      if (current > lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex)
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    } else {
+      if (current < lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex);
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    }
+  });
+
+
+  window.addEventListener('load', function () {
+    showToc();
+    document.querySelector('#sidebar').style = 'display: block;';
+    tocWrapper.classList.add('toc-active');
+    setTimeout(function () {
+      if ("createEvent" in document) {
+        let evt = document.createEvent("HTMLEvents");
+        evt.initEvent("scroll", false, true);
+        document.dispatchEvent(evt);
+      }
+      else {
+        document.fireEvent("scroll");
+      }
+    }, 500)
+  })
+
+</script>
+            </div>
           
         
       </div>
@@ -286,8 +488,8 @@
           <div class="section bg-color post post-page">
             <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai">
-      shell $? 获取函数返回值或者上一个命令的退出状态
+    <a class="post-title-link" href="https://weidadeda.github.io/post/sequelize-node-lian-jie-shu-ju-ku-de-orm">
+      Sequelize node连接数据库的ORM
     </a>
   </h1>
   <div class="post-meta">
@@ -295,26 +497,139 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2022-01-12</span>
+      <span>2022-01-14</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>1分钟</span>
+      <span>5分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>98<span class="pc-show">字数</span></span>
+      <span>1033<span class="pc-show">字数</span></span>
     </span>
     
   </div>
 </header>
             <div class="post-body next-md-body" id="post_body">
-              <p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>?</mo><mi mathvariant="normal">是</mi><mi mathvariant="normal">上</mi><mi mathvariant="normal">一</mi><mi mathvariant="normal">个</mi><mi mathvariant="normal">程</mi><mi mathvariant="normal">序</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">是</mi><mi mathvariant="normal">否</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">标</mi><mi mathvariant="normal">志</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">如</mi><mi mathvariant="normal">果</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">则</mi></mrow><annotation encoding="application/x-tex">? 是上一个程序执行是否成功的标志，如果执行成功则</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mclose">?</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">上</span><span class="mord cjk_fallback">一</span><span class="mord cjk_fallback">个</span><span class="mord cjk_fallback">程</span><span class="mord cjk_fallback">序</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">否</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">标</span><span class="mord cjk_fallback">志</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">如</span><span class="mord cjk_fallback">果</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">则</span></span></span></span>? 为0，否则 不为0。<br>
-比如判断一个node服务是该启动还是该重启，则可以执行pm2 info ***<br>
-<img src="https://weidadeda.github.io/post-images/1641956978962.jpg" alt="" loading="lazy"></p>
+              <p><a href="https://www.sequelize.com.cn/">Sequelize 中文文档</a><br>
+可以先看文档，文档很全，它的语句帮我们做了很多处理，而且很精简，让我们不用死记硬背sql语句，也不用去库里建表。</p>
+<h3 id="连接数据库">连接数据库</h3>
+<pre><code>连接到数据库
+要连接到数据库,必须创建一个 Sequelize 实例. 这可以通过将连接参数分别传递到 Sequelize 构造函数或通过传递一个连接 URI 来完成：
+
+const { Sequelize } = require('sequelize');
+
+// 方法 1: 传递一个连接 URI
+const sequelize = new Sequelize('sqlite::memory:') // Sqlite 示例
+const sequelize = new Sequelize('postgres://user:pass@example.com:5432/dbname') // Postgres 示例
+
+// 方法 2: 分别传递参数 (sqlite)
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: 'path/to/database.sqlite'
+});
+
+// 方法 3: 分别传递参数 (其它数据库)
+const sequelize = new Sequelize('database', 'username', 'password', {
+  host: 'localhost',
+  dialect: /* 选择 'mysql' | 'mariadb' | 'postgres' | 'mssql' 其一 */
+});
+</code></pre>
+<h3 id="定义模型-定义表结构">定义模型 （定义表结构）</h3>
+<pre><code>module.exports = function(sequelize, DataTypes) {
+  return sequelize.define(
+    'project',
+    {
+      id: {
+        type: DataTypes.INTEGER(11),
+        allowNull: false,
+        primaryKey: true,
+        autoIncrement: true
+      },
+      name: { type: DataTypes.STRING(255), allowNull: true },
+      title: { type: DataTypes.STRING(255), allowNull: true },
+      report_fix_id: { type: DataTypes.STRING(1000), allowNull: true },
+      fix_url: { type: DataTypes.STRING(2000), allowNull: true },
+      ignore_key: {
+        type: DataTypes.STRING(2000),
+        allowNull: true,
+        comment: '简化打印对象中比较大的对象'
+      },
+      env: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        comment: '哪些环境能上报日志'
+      },
+      report_interval: {
+        type: DataTypes.INTEGER(11),
+        allowNull: true,
+        comment: '上报时间间隔'
+      },
+      ctime: {
+        type: DataTypes.INTEGER(10),
+        allowNull: true,
+        get() {
+          return moment
+            .unix(this.getDataValue('ctime'))
+            .format('YYYY/MM/DD HH:mm:ss')
+        }
+      },
+      del: { type: DataTypes.INTEGER(1), allowNull: true, defaultValue: '0' }
+    },
+    {
+      tableName: 'project'
+    }
+  )
+}
+</code></pre>
+<h3 id="模型同步-真正从数据库创建">模型同步 （真正从数据库创建）</h3>
+<p>定义模型时,你要告诉 Sequelize 有关数据库中表的一些信息. 但是,如果该表实际上不存在于数据库中怎么办？ 如果存在,但具有不同的列,较少的列或任何其他差异,该怎么办？</p>
+<p>这就是模型同步的来源.可以通过调用一个异步函数(返回一个Promise)model.sync(options). 通过此调用,Sequelize 将自动对数据库执行 SQL 查询. 请注意,这仅更改数据库中的表,而不更改 JavaScript 端的模型.</p>
+<p>User.sync() - 如果表不存在,则创建该表(如果已经存在,则不执行任何操作)</p>
+<h4 id="usersync-force-true-将创建表如果表已经存在则将其首先删除-这个不要用也最好别试">User.sync({ force: true }) - 将创建表,如果表已经存在,则将其首先删除 （这个不要用，也最好别试）</h4>
+<p>User.sync({ alter: true }) - 这将检查数据库中表的当前状态(它具有哪些列,它们的数据类型等),然后在表中进行必要的更改以使其与模型匹配.</p>
+<pre><code>sequelize
+  .authenticate()
+  .then(() =&gt; {
+    console.log('数据库连接成功'.green)
+    // sequelize.sync({ alter: true })
+  })
+  .catch(err =&gt; {
+    console.log('数据库连接失败'.red)
+  })
+</code></pre>
+<h3 id="创建实例修改内容insert">创建实例（修改内容INSERT）</h3>
+<p>尽管模型是一个类,但是你不应直接使用 new 运算符来创建实例. 相反,应该使用 build 方法：</p>
+<pre><code>const jane = User.build({ name: &quot;Jane&quot; });
+console.log(jane instanceof User); // true
+console.log(jane.name); // &quot;Jane&quot;
+</code></pre>
+<p>但是,以上代码根本无法与数据库通信(请注意,它甚至不是异步的)！ 这是因为 build 方法仅创建一个对象,该对象 表示 可以 映射到数据库的数据. 为了将这个实例真正保存(即持久保存)在数据库中,应使用 save 方法：</p>
+<pre><code>await jane.save();
+console.log('Jane 已保存到数据库!');
+</code></pre>
+<p>请注意,从上面代码段中的 await 用法来看,save 是一种异步方法. 实际上,几乎每个 Sequelize 方法都是异步的. build 是极少数例外之一.</p>
+<p>非常有用的捷径: create 方法<br>
+Sequelize提供了 create 方法,该方法将上述的 build 方法和 save 方法合并为一个方法：</p>
+<pre><code>const jane = await User.create({ name: &quot;Jane&quot; });
+// Jane 现在存在于数据库中！
+console.log(jane instanceof User); // true
+console.log(jane.name); // &quot;Jane&quot;
+</code></pre>
+<h3 id="简单-select-查询">简单 SELECT 查询</h3>
+<p>你可以使用 findAll 方法从数据库中读取整个表：</p>
+<pre><code>// 查询所有用户
+const users = await User.findAll();
+console.log(users.every(user =&gt; user instanceof User)); // true
+console.log(&quot;All users:&quot;, JSON.stringify(users, null, 2));
+</code></pre>
+<p>相当于sql语句</p>
+<pre><code>SELECT * FROM ...
+</code></pre>
+<p>嗯，写一些建表与查询的流程，照着官网抄也没什么意思。使用这个我们可以很轻松的操作数据库，使我们写node接口的时候效率翻倍～</p>
 
             </div>
             <div class="post-footer">
@@ -325,7 +640,7 @@
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai" title="shell $? 获取函数返回值或者上一个命令的退出状态">https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai</a>
+      <a href="https://weidadeda.github.io/post/sequelize-node-lian-jie-shu-ju-ku-de-orm" title="Sequelize node连接数据库的ORM">https://weidadeda.github.io/post/sequelize-node-lian-jie-shu-ju-ku-de-orm</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -338,15 +653,11 @@
   <div class="nav">
     <div class="nav-prev">
       
-        <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="Docker attach 命令" href="https://weidadeda.github.io/post/docker-attach-ming-ling">Docker attach 命令</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="Docker attach 命令" href="https://weidadeda.github.io/post/docker-attach-ming-ling">上一篇</a>
-      
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="mysql 时间戳格式化函数from_unixtime" href="https://weidadeda.github.io/post/wo-shi-ce-shi">mysql 时间戳格式化函数from_unixtime</a>
-        <a class="nav-mobile-next" title="mysql 时间戳格式化函数from_unixtime" href="https://weidadeda.github.io/post/wo-shi-ce-shi">下一篇</a>
+        <a class="nav-pc-next" title="前端使用Nacos" href="https://weidadeda.github.io/post/sequelize">前端使用Nacos</a>
+        <a class="nav-mobile-next" title="前端使用Nacos" href="https://weidadeda.github.io/post/sequelize">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>
