@@ -8,7 +8,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>nuxt 服务端渲染和预渲染的区别 | Gridea</title>
+<title>node接口生成接口文档 | Gridea</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1642412282732">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -29,7 +29,7 @@
 
 
 
-  <meta name="description" content="nuxt 服务端渲染和预渲染的区别" />
+  <meta name="description" content="node接口生成接口文档" />
   <meta name="keywords" content="" />
 </head>
 
@@ -161,7 +161,8 @@
       <div class="sidebar-body gemini" id="sidebar_body">
         
           
-            
+            <div class="post-side-meta" id="post_side_meta">
+              
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="/images/avatar.png"/>
@@ -208,6 +209,201 @@
 
 
 </div>
+            </div>
+            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+              <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto"
+    id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#%E5%AE%89%E8%A3%85">安装</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE">配置</a></li>
+<li><a href="#%E6%B3%A8%E9%87%8A%E7%94%9F%E6%88%90%E6%96%87%E6%A1%A3">注释生成文档</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+</div>
+
+<script>
+
+  let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1;
+  let active = 'active-show', activeClass = 'active-current';
+  let tocWrapper = document.querySelector('#toc_wrapper');
+  let tocContent = tocWrapper.children[0];
+  let autoNumber = tocWrapper && tocWrapper.classList.contains('auto-number');
+
+  function addTocNumber(elem, deep) {
+    if (!elem) {
+      return;
+    }
+    let prop = elem.__proto__;
+
+    if (prop === HTMLUListElement.prototype) {
+      for (let i = 0; i < elem.children.length; i++) {
+        addTocNumber(elem.children[i], deep + (i + 1) + '.');
+      }
+    } else if (prop === HTMLLIElement.prototype) {
+      // 保存li元素
+      if (elem.children[0].__proto__ === HTMLAnchorElement.prototype) {
+        lList.push(elem);
+      }
+      for (let i = 0; i < elem.children.length; i++) {
+        let cur = elem.children[i];
+        if (cur.__proto__ === HTMLAnchorElement.prototype) {
+          if (autoNumber) {
+            cur.text = deep + ' ' + cur.text;
+          }
+        } else if (cur.__proto__ === HTMLUListElement.prototype) {
+          addTocNumber(cur, deep);
+        }
+      }
+    }
+  }
+
+  function removeParentActiveClass() {
+    let parents = tocContent.querySelectorAll('.' + active)
+    parents.forEach(function (elem) {
+      elem.classList.remove(active);
+    });
+  }
+
+  function addActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.add(activeClass);
+    }
+  }
+
+  function removeActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.remove(activeClass);
+    }
+  }
+
+  function addActiveLiElemment(elem, parent) {
+    if (!elem || elem === parent) {
+      return;
+    } else {
+      if (elem.__proto__ === HTMLLIElement.prototype) {
+        elem.classList.add(active);
+      }
+      addActiveLiElemment(elem.parentElement, parent);
+    }
+  }
+
+  function showToc() {
+    if (tocWrapper) {
+      postBody = document.querySelector('#post_body');
+      for (let i = 0; i < postBody.children.length; i++) {
+        if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+          hList.push(postBody.children[i]);
+        }
+      }
+      if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+      } else if (tocWrapper.classList.contains('no_compress')) {
+        tocContent.classList.add('expanded');
+      } else {
+        if (hList.length > 10) {
+          active = 'active-hidden'
+          tocContent.classList.add('closed');
+        } else {
+          tocContent.classList.add('expanded');
+        }
+      }
+    }
+  }
+
+  (function () {
+    // 处理不是从#一级标题开始目录
+    if (tocContent.children.length === 1 && tocContent.children[0].__proto__ === HTMLLIElement.prototype) {
+      let con = tocContent.children[0].children[0];
+      tocContent.innerHTML = con.innerHTML;
+    }
+    let markdownItTOC = document.querySelector('.markdownIt-TOC');
+    let innerHeight = window.innerHeight;
+    markdownItTOC.style = `max-height: ${innerHeight - 80 > 0 ? innerHeight - 80 : innerHeight}px`
+    addTocNumber(tocContent, '');
+  })();
+
+  document.addEventListener('scroll', function (e) {
+    if (lList.length <= 0) {
+      return;
+    }
+    let scrollTop = document.scrollingElement.scrollTop + 10;
+    let dir;
+
+    if (lastTop - scrollTop > 0) {
+      dir = 'up';
+    } else {
+      dir = 'down';
+    }
+
+    lastTop = scrollTop;
+    if (scrollTop <= 0) {
+      if (lastIndex >= 0 && lastIndex < hList.length) {
+        lList[lastIndex].classList.remove(activeClass);
+      }
+      return;
+    }
+
+    let current = 0, hasFind = false;
+    for (let i = 0; i < hList.length; i++) {
+      if (hList[i].offsetTop > scrollTop) {
+        current = i;
+        hasFind = true;
+        break;
+      }
+    }
+    if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+      current = hList.length - 1;
+    } else {
+      current--;
+    }
+    if (dir === 'down') {
+      if (current > lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex)
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    } else {
+      if (current < lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex);
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    }
+  });
+
+
+  window.addEventListener('load', function () {
+    showToc();
+    document.querySelector('#sidebar').style = 'display: block;';
+    tocWrapper.classList.add('toc-active');
+    setTimeout(function () {
+      if ("createEvent" in document) {
+        let evt = document.createEvent("HTMLEvents");
+        evt.initEvent("scroll", false, true);
+        document.dispatchEvent(evt);
+      }
+      else {
+        document.fireEvent("scroll");
+      }
+    }, 500)
+  })
+
+</script>
+            </div>
           
         
       </div>
@@ -295,8 +491,8 @@
           <div class="section bg-color post post-page">
             <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/nuxt-fu-wu-duan-xuan-ran-he-yu-xuan-ran-de-qu-bie">
-      nuxt 服务端渲染和预渲染的区别
+    <a class="post-title-link" href="https://weidadeda.github.io/post/node-jie-kou-sheng-cheng-jie-kou-wen-dang">
+      node接口生成接口文档
     </a>
   </h1>
   <div class="post-meta">
@@ -304,31 +500,211 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2022-01-13</span>
+      <span>2022-01-17</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>2分钟</span>
+      <span>4分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>479<span class="pc-show">字数</span></span>
+      <span>670<span class="pc-show">字数</span></span>
     </span>
     
   </div>
 </header>
             <div class="post-body next-md-body" id="post_body">
-              <p>nuxt分spa和非spa，预渲染直接nuxt generate打好的静态页面放在服务器就能访问(也是服务端渲染)， 服务端渲染需要先build完，把打出来的项目放到服务器，然后允许start，还要配置nginx转发<br>
-使用nuxt的服务端渲染插件在node中可以直接返回<br>
-预渲染不像服务器渲染那样即时编译 HTML，它只在构建时为了特定的路由生成特定的几个静态页面，等于我们可以通过 Webpack 插件将一些特定页面组件 build 时就编译为 html 文件，直接以静态资源的形式输出给搜索引擎。预渲染不执行js的，只适应于纯静态页面<br>
-先说结论，都必然会优化SEO，原因如下：</p>
-<p>1、seo的本质是爬虫动态抓取根html里面的关键标签关键字；<br>
-2、现代主流前端开发框架基本都是html拉回来之后，异步执行js动态挂载dom，根html在渲染之前里面提供给爬虫的信息极少；</p>
-<p>综上，如果不做服务器渲染或预渲染，seo只能抓到手动配置的顶级标签的关键字，效率与效果非常差<br>
-不论是服务器渲染还是预渲染，它们都能“加速浏览器显示页面的速度”和seo优化。首先客户端程序只有js。现代网页出现以后这些js程度越来越复杂，于是必须有一些类似react、angular这样的东西。但这些东西全都有一个问题：第一次渲染结束前，页面是白的。于是有了服务端渲染：如果服务器恰好是nodejs，那么可以让服务器提前运行“第一次渲染”。浏览器只需要显示就好了，如果需要，再进行以后的渲染。</p>
+              <p><img src="https://weidadeda.github.io/post-images/1642391805862.png" alt="" loading="lazy"><br>
+这里我用的是koa2+swagger</p>
+<h3 id="安装">安装</h3>
+<pre><code>// koa2-swagger-ui UI视图组件  swagger-jsdoc 识别写的 /***/ 转 json
+npm install koa2-swagger-ui swagger-jsdoc --save
+</code></pre>
+<p><a href="https://www.npmjs.com/package/koa2-swagger-ui">koa2-swagger-ui npm地址</a> （创建接口文档）<br>
+<a href="https://www.npmjs.com/package/swagger-jsdoc">swagger-jsdoc npm地址</a> （这个库读取带有jsdoc注释的源代码，并生成OpenAPI (Swagger)规范。）<br>
+<a href="https://www.jianshu.com/p/5365ef83252a">OpenAPI 规范摘要</a></p>
+<h3 id="配置">配置</h3>
+<p>router.js</p>
+<pre><code>const router = require('koa-router')() //引入路由函数
+const swaggerJSDoc = require('swagger-jsdoc')
+const path = require('path')
+const swaggerDefinition = {
+  openapi: '3.0.1',
+    info: {
+        title: 'blog项目访问地址',
+        version: '1.0.0',
+        description: 'API',
+    },
+    basePath: '/', // Base path (optional)
+    tags: [
+      {
+        name: 'manage',
+        description: '管理系统'
+      },
+      {
+        name: 'client',
+        description: '日志上报'
+      }
+    ],
+    schemes: ['http', 'https'],
+    securityDefinitions: {
+    server_auth: {
+      type: 'oauth2',
+      description: '登录账号密码鉴权',
+      tokenUrl: 'http://localhost:4000/image/oauth',
+      flow: 'password',
+      scopes: {
+        token: 'modify pets in your account'
+      }
+    },
+    token: {
+      type: 'apiKey',
+      name: 'token',
+      in: 'header'
+    }
+  }
+};
+const options = {
+    swaggerDefinition,
+    apis: [path.join(__dirname, './controllers/*.js')], // 包含上述注释的文件（）
+};
+const swaggerSpec = swaggerJSDoc(options)
+// 通过路由获取生成的注解文件
+router.get('/swagger.json', async function (ctx) {
+    ctx.set('Content-Type', 'application/json');
+    ctx.body = swaggerSpec;
+})
+module.exports = router
+</code></pre>
+<p>app.js 入口文件</p>
+<pre><code>const swagger = require('./router')  // router中做了swagger配置
+const { koaSwagger } = require('koa2-swagger-ui')
+
+// 接口文档配置
+app.use(swagger.routes(), swagger.allowedMethods())
+app.use(koaSwagger({
+  routePrefix: '/swagger', // 接口文档访问地址
+  swaggerOptions: {
+    url: '/swagger.json', // example path to json 其实就是之后swagger-jsdoc生成的文档地址
+  }
+}))
+</code></pre>
+<p>启动项目，访问项目接口地址 + swagger ，我的地址是 http://localhost:8000/swagger</p>
+<h3 id="注释生成文档">注释生成文档</h3>
+<p>在controller层文件每个接口上写注释，注释是以@swagger开头的，swagger-jsdoc 会识别@swagger，然后解析下面的注释，解析完给koa2-swagger-ui显示成页面，总的流程就是这样。<br>
+get方式</p>
+<pre><code>// 获取博客列表
+/**
+ * @swagger
+ * /api/blog/list:
+ *   get:
+ *     summary: 获取博客列表
+ *     description: 获取博客列表
+ *     tags:
+ *       - blogs
+ *     parameters:
+ *       - name: author
+ *         in: query
+ *         required: false
+ *         description: 作者
+ *         type: string
+ *       - name: keyword
+ *         in: query
+ *         required: false
+ *         description: 搜索关键字
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: 成功获取
+ */
+router.get('/list', async (ctx, next) =&gt; {
+  const query = ctx.query
+  let author = query.author || ''
+  const keyword = query.keyword || ''
+
+  const listData = await getList(author, keyword)
+  ctx.body = new SuccessModel(listData)
+})
+</code></pre>
+<p>post方式</p>
+<pre><code>/**
+ * @swagger
+ * definitions:
+ *  loginparam:
+ *    properties:
+ *      username:
+ *        type: &quot;string&quot;
+ *        default: &quot;shangsan&quot;
+ *        description: 用户名
+ *      password:
+ *        type: &quot;string&quot;
+ *        default: &quot;123&quot;
+ *        description: 密码
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     ProjectDetail:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           format: int64
+ *         petId:
+ *           type: integer
+ *           format: int64
+ *         quantity:
+ *           type: integer
+ *           format: int32
+ *         shipDate:
+ *           type: string
+ *           format: date-time
+ */
+
+/**
+ * @swagger
+ * /api/user/login:
+ *   post:
+ *     summary: 登录
+ *     description: 登录
+ *     tags:
+ *       - user
+ *     consumes:
+ *      - application/json
+ *      - application/xml
+ *     produces:
+ *      - application/json
+ *      - application/xml
+ *     parameters:
+ *       - name: body
+ *         in: body
+ *         schema:
+ *          $ref: '#/definitions/loginparam' （请求参数这里单独抽出，在上面定义）
+ *     responses:
+ *       200:
+ *         description: 发布成功
+ *          content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ProjectDetail'（返回参数也是单独抽出定义，这里是随便举个例子）
+ *       402:
+ *          description: 信息填写不全
+ *       403:
+ *          description: 参数类型错误
+ */
+
+router.post('/login', async (ctx, next) =&gt; {
+    // 业务逻辑
+})
+</code></pre>
+<p>返回示例<br>
+<img src="https://weidadeda.github.io/post-images/1642412213197.png" alt="" loading="lazy"><br>
+基本的接口文档就生成啦，快试一下吧～</p>
 
             </div>
             <div class="post-footer">
@@ -339,7 +715,7 @@
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://weidadeda.github.io/post/nuxt-fu-wu-duan-xuan-ran-he-yu-xuan-ran-de-qu-bie" title="nuxt 服务端渲染和预渲染的区别">https://weidadeda.github.io/post/nuxt-fu-wu-duan-xuan-ran-he-yu-xuan-ran-de-qu-bie</a>
+      <a href="https://weidadeda.github.io/post/node-jie-kou-sheng-cheng-jie-kou-wen-dang" title="node接口生成接口文档">https://weidadeda.github.io/post/node-jie-kou-sheng-cheng-jie-kou-wen-dang</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -352,15 +728,11 @@
   <div class="nav">
     <div class="nav-prev">
       
-        <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="docker中使用redis" href="https://weidadeda.github.io/post/docker-zhong-shi-yong-redis">docker中使用redis</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="docker中使用redis" href="https://weidadeda.github.io/post/docker-zhong-shi-yong-redis">上一篇</a>
-      
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="Docker attach 命令" href="https://weidadeda.github.io/post/docker-attach-ming-ling">Docker attach 命令</a>
-        <a class="nav-mobile-next" title="Docker attach 命令" href="https://weidadeda.github.io/post/docker-attach-ming-ling">下一篇</a>
+        <a class="nav-pc-next" title="Sequelize node连接数据库的ORM" href="https://weidadeda.github.io/post/sequelize-node-lian-jie-shu-ju-ku-de-orm">Sequelize node连接数据库的ORM</a>
+        <a class="nav-mobile-next" title="Sequelize node连接数据库的ORM" href="https://weidadeda.github.io/post/sequelize-node-lian-jie-shu-ju-ku-de-orm">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>

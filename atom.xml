@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://weidadeda.github.io</id>
     <title>Gridea</title>
-    <updated>2022-01-14T10:49:46.428Z</updated>
+    <updated>2022-01-17T09:38:07.702Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://weidadeda.github.io"/>
     <link rel="self" href="https://weidadeda.github.io/atom.xml"/>
@@ -10,6 +10,202 @@
     <logo>https://weidadeda.github.io/images/avatar.png</logo>
     <icon>https://weidadeda.github.io/favicon.ico</icon>
     <rights>All rights reserved 2022, Gridea</rights>
+    <entry>
+        <title type="html"><![CDATA[node接口生成接口文档]]></title>
+        <id>https://weidadeda.github.io/post/node-jie-kou-sheng-cheng-jie-kou-wen-dang</id>
+        <link href="https://weidadeda.github.io/post/node-jie-kou-sheng-cheng-jie-kou-wen-dang">
+        </link>
+        <updated>2022-01-17T03:21:22.000Z</updated>
+        <content type="html"><![CDATA[<p><img src="https://weidadeda.github.io/post-images/1642391805862.png" alt="" loading="lazy"><br>
+这里我用的是koa2+swagger</p>
+<h3 id="安装">安装</h3>
+<pre><code>// koa2-swagger-ui UI视图组件  swagger-jsdoc 识别写的 /***/ 转 json
+npm install koa2-swagger-ui swagger-jsdoc --save
+</code></pre>
+<p><a href="https://www.npmjs.com/package/koa2-swagger-ui">koa2-swagger-ui npm地址</a> （创建接口文档）<br>
+<a href="https://www.npmjs.com/package/swagger-jsdoc">swagger-jsdoc npm地址</a> （这个库读取带有jsdoc注释的源代码，并生成OpenAPI (Swagger)规范。）<br>
+<a href="https://www.jianshu.com/p/5365ef83252a">OpenAPI 规范摘要</a></p>
+<h3 id="配置">配置</h3>
+<p>router.js</p>
+<pre><code>const router = require('koa-router')() //引入路由函数
+const swaggerJSDoc = require('swagger-jsdoc')
+const path = require('path')
+const swaggerDefinition = {
+  openapi: '3.0.1',
+    info: {
+        title: 'blog项目访问地址',
+        version: '1.0.0',
+        description: 'API',
+    },
+    basePath: '/', // Base path (optional)
+    tags: [
+      {
+        name: 'manage',
+        description: '管理系统'
+      },
+      {
+        name: 'client',
+        description: '日志上报'
+      }
+    ],
+    schemes: ['http', 'https'],
+    securityDefinitions: {
+    server_auth: {
+      type: 'oauth2',
+      description: '登录账号密码鉴权',
+      tokenUrl: 'http://localhost:4000/image/oauth',
+      flow: 'password',
+      scopes: {
+        token: 'modify pets in your account'
+      }
+    },
+    token: {
+      type: 'apiKey',
+      name: 'token',
+      in: 'header'
+    }
+  }
+};
+const options = {
+    swaggerDefinition,
+    apis: [path.join(__dirname, './controllers/*.js')], // 包含上述注释的文件（）
+};
+const swaggerSpec = swaggerJSDoc(options)
+// 通过路由获取生成的注解文件
+router.get('/swagger.json', async function (ctx) {
+    ctx.set('Content-Type', 'application/json');
+    ctx.body = swaggerSpec;
+})
+module.exports = router
+</code></pre>
+<p>app.js 入口文件</p>
+<pre><code>const swagger = require('./router')  // router中做了swagger配置
+const { koaSwagger } = require('koa2-swagger-ui')
+
+// 接口文档配置
+app.use(swagger.routes(), swagger.allowedMethods())
+app.use(koaSwagger({
+  routePrefix: '/swagger', // 接口文档访问地址
+  swaggerOptions: {
+    url: '/swagger.json', // example path to json 其实就是之后swagger-jsdoc生成的文档地址
+  }
+}))
+</code></pre>
+<p>启动项目，访问项目接口地址 + swagger ，我的地址是 http://localhost:8000/swagger</p>
+<h3 id="注释生成文档">注释生成文档</h3>
+<p>在controller层文件每个接口上写注释，注释是以@swagger开头的，swagger-jsdoc 会识别@swagger，然后解析下面的注释，解析完给koa2-swagger-ui显示成页面，总的流程就是这样。<br>
+get方式</p>
+<pre><code>// 获取博客列表
+/**
+ * @swagger
+ * /api/blog/list:
+ *   get:
+ *     summary: 获取博客列表
+ *     description: 获取博客列表
+ *     tags:
+ *       - blogs
+ *     parameters:
+ *       - name: author
+ *         in: query
+ *         required: false
+ *         description: 作者
+ *         type: string
+ *       - name: keyword
+ *         in: query
+ *         required: false
+ *         description: 搜索关键字
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: 成功获取
+ */
+router.get('/list', async (ctx, next) =&gt; {
+  const query = ctx.query
+  let author = query.author || ''
+  const keyword = query.keyword || ''
+
+  const listData = await getList(author, keyword)
+  ctx.body = new SuccessModel(listData)
+})
+</code></pre>
+<p>post方式</p>
+<pre><code>/**
+ * @swagger
+ * definitions:
+ *  loginparam:
+ *    properties:
+ *      username:
+ *        type: &quot;string&quot;
+ *        default: &quot;shangsan&quot;
+ *        description: 用户名
+ *      password:
+ *        type: &quot;string&quot;
+ *        default: &quot;123&quot;
+ *        description: 密码
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     ProjectDetail:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           format: int64
+ *         petId:
+ *           type: integer
+ *           format: int64
+ *         quantity:
+ *           type: integer
+ *           format: int32
+ *         shipDate:
+ *           type: string
+ *           format: date-time
+ */
+
+/**
+ * @swagger
+ * /api/user/login:
+ *   post:
+ *     summary: 登录
+ *     description: 登录
+ *     tags:
+ *       - user
+ *     consumes:
+ *      - application/json
+ *      - application/xml
+ *     produces:
+ *      - application/json
+ *      - application/xml
+ *     parameters:
+ *       - name: body
+ *         in: body
+ *         schema:
+ *          $ref: '#/definitions/loginparam' （请求参数这里单独抽出，在上面定义）
+ *     responses:
+ *       200:
+ *         description: 发布成功
+ *          content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ProjectDetail'（返回参数也是单独抽出定义，这里是随便举个例子）
+ *       402:
+ *          description: 信息填写不全
+ *       403:
+ *          description: 参数类型错误
+ */
+
+router.post('/login', async (ctx, next) =&gt; {
+    // 业务逻辑
+})
+</code></pre>
+<p>返回示例<br>
+<img src="https://weidadeda.github.io/post-images/1642412213197.png" alt="" loading="lazy"><br>
+基本的接口文档就生成啦，快试一下吧～</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Sequelize node连接数据库的ORM]]></title>
         <id>https://weidadeda.github.io/post/sequelize-node-lian-jie-shu-ju-ku-de-orm</id>
@@ -592,20 +788,6 @@ runoob@runoob:~$ docker attach --sig-proxy=false mynginx</p>
 %u 星期(0～52), 这里星期一是星期的第一天<br>
 %% 一个文字%</p>
 <p>原文链接：https://blog.csdn.net/yangliu4683/article/details/78340939</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[关于]]></title>
-        <id>https://weidadeda.github.io/post/about</id>
-        <link href="https://weidadeda.github.io/post/about">
-        </link>
-        <updated>2019-01-25T11:09:48.000Z</updated>
-        <content type="html"><![CDATA[<p><img src="https://weidadeda.github.io/post-images/1640761677993.gif" alt="" loading="lazy">&gt; 欢迎来到我的小站呀，很高兴遇见你嘿嘿！🤝</p>
-<h2 id="关于本站">🏠 关于本站</h2>
-<h2 id="博主是谁">👨‍💻 博主是谁</h2>
-<h2 id="兴趣爱好">⛹ 兴趣爱好</h2>
-<h2 id="联系我呀">📬 联系我呀</h2>
-<p>https://www.cnblogs.com/lovesong/p/10847433.html</p>
 ]]></content>
     </entry>
 </feed>
