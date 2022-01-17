@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://weidadeda.github.io</id>
     <title>Gridea</title>
-    <updated>2022-01-17T09:38:31.315Z</updated>
+    <updated>2022-01-17T09:42:48.406Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://weidadeda.github.io"/>
     <link rel="self" href="https://weidadeda.github.io/atom.xml"/>
@@ -16,7 +16,8 @@
         <link href="https://weidadeda.github.io/post/node-jie-kou-sheng-cheng-jie-kou-wen-dang">
         </link>
         <updated>2022-01-17T03:21:22.000Z</updated>
-        <content type="html"><![CDATA[<p><img src="https://weidadeda.github.io/post-images/1642391805862.png" alt="" loading="lazy"><br>
+        <content type="html"><![CDATA[<p>先看下效果<br>
+<img src="https://weidadeda.github.io/post-images/1642391805862.png" alt="" loading="lazy"><br>
 这里我用的是koa2+swagger</p>
 <h3 id="安装">安装</h3>
 <pre><code>// koa2-swagger-ui UI视图组件  swagger-jsdoc 识别写的 /***/ 转 json
@@ -53,7 +54,7 @@ const swaggerDefinition = {
     server_auth: {
       type: 'oauth2',
       description: '登录账号密码鉴权',
-      tokenUrl: 'http://localhost:4000/image/oauth',
+      tokenUrl: '',
       flow: 'password',
       scopes: {
         token: 'modify pets in your account'
@@ -91,7 +92,7 @@ app.use(koaSwagger({
   }
 }))
 </code></pre>
-<p>启动项目，访问项目接口地址 + swagger ，我的地址是 http://localhost:8000/swagger</p>
+<p>启动项目，访问项目接口地址 + swagger ，我的地址是 http://localhost:4002/swagger</p>
 <h3 id="注释生成文档">注释生成文档</h3>
 <p>在controller层文件每个接口上写注释，注释是以@swagger开头的，swagger-jsdoc 会识别@swagger，然后解析下面的注释，解析完给koa2-swagger-ui显示成页面，总的流程就是这样。<br>
 get方式</p>
