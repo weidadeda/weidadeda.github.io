@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://weidadeda.github.io</id>
     <title>Gridea</title>
-    <updated>2022-01-17T09:53:13.757Z</updated>
+    <updated>2022-01-21T02:42:15.958Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://weidadeda.github.io"/>
     <link rel="self" href="https://weidadeda.github.io/atom.xml"/>
@@ -10,6 +10,556 @@
     <logo>https://weidadeda.github.io/images/avatar.png</logo>
     <icon>https://weidadeda.github.io/favicon.ico</icon>
     <rights>All rights reserved 2022, Gridea</rights>
+    <entry>
+        <title type="html"><![CDATA[如何用Object.create浅拷贝一个对象]]></title>
+        <id>https://weidadeda.github.io/post/ru-he-yong-objectcreate-qian-kao-bei-yi-ge-dui-xiang</id>
+        <link href="https://weidadeda.github.io/post/ru-he-yong-objectcreate-qian-kao-bei-yi-ge-dui-xiang">
+        </link>
+        <updated>2022-01-21T02:41:42.000Z</updated>
+        <content type="html"><![CDATA[<p>// 首先得介绍一下深拷贝和浅拷贝（虽然大家都知道，但毕竟写文章，还是得照顾下不知道的同学）<br>
+// 其次问下大家object.assign属于浅拷贝还是深拷贝<br>
+// Object.assign() 方法只能拷贝源对象的可枚举的自身属性，同时拷贝时无法拷贝属性的特性们，而且访问器属性会被转换成数据属性，也无法拷贝源对象的原型<br>
+// Object.getOwnPropertyDescriptors方法配合 Object.create() 方法可以实现浅拷贝。<br>
+// <code>// Object.create( // Object.getPrototypeOf(obj), // Object.getOwnPropertyDescriptors(obj) // ); //</code></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[自定义一个new方法]]></title>
+        <id>https://weidadeda.github.io/post/zi-ding-yi-yi-ge-new-fang-fa</id>
+        <link href="https://weidadeda.github.io/post/zi-ding-yi-yi-ge-new-fang-fa">
+        </link>
+        <updated>2022-01-20T06:36:51.000Z</updated>
+        <content type="html"><![CDATA[<p><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/new">MDN new</a></p>
+<h3 id="一-new的介绍">一、new的介绍</h3>
+<p>new是干什么的：</p>
+<blockquote>
+<p>new 运算符创建一个用户定义的对象类型的实例或具有构造函数的内置对象的实例。</p>
+</blockquote>
+<p>使用new可以少做四件事情：</p>
+<p>不用创建临时对象，因为 new 会帮你做（你使用「this」就可以访问到临时对象）；<br>
+不用绑定原型，因为 new 会帮你做（new 为了知道原型在哪，所以指定原型的名字为 prototype）；<br>
+不用 return 临时对象，因为 new 会帮你做；<br>
+不要给原型想名字了，因为 new 指定名字为 prototype。</p>
+<p>new 关键字会进行如下的操作：</p>
+<p>创建一个空的简单JavaScript对象（即{}）；<br>
+为步骤1新创建的对象添加属性__proto__，将该属性链接至构造函数的原型对象 ；<br>
+将步骤1新创建的对象作为this的上下文 ；<br>
+如果该函数没有返回对象，则返回this。<br>
+（译注：关于对象的 constructor，参见 Object.prototype.constructor）</p>
+<p>创建一个用户自定义的对象需要两步：</p>
+<p>通过编写函数来定义对象类型。<br>
+通过 new 来创建对象实例。<br>
+创建一个对象类型，需要创建一个指定其名称和属性的函数；对象的属性可以指向其他对象，看下面的例子：</p>
+<p>当代码 new Foo(...) 执行时，会发生以下事情：</p>
+<p>一个继承自 Foo.prototype 的新对象被创建。<br>
+使用指定的参数调用构造函数 Foo，并将 this 绑定到新创建的对象。new Foo 等同于 new Foo()，也就是没有指定参数列表，Foo 不带任何参数调用的情况。<br>
+由构造函数返回的对象就是 new 表达式的结果。如果构造函数没有显式返回一个对象，则使用步骤1创建的对象。（一般情况下，构造函数不返回值，但是用户可以选择主动返回对象，来覆盖正常的对象创建步骤）<br>
+你始终可以对已定义的对象添加新的属性。例如，car1.color = &quot;black&quot; 语句给 car1 添加了一个新的属性 color，并给这个属性赋值 &quot;black&quot;。但是，这不会影响任何其他对象。要将新属性添加到相同类型的所有对象，你必须将该属性添加到 Car 对象类型的定义中。</p>
+<p>你可以使用 Function.prototype 属性将共享属性添加到以前定义的对象类型。这定义了一个由该函数创建的所有对象共享的属性，而不仅仅是对象类型的其中一个实例。下面的代码将一个值为 null 的 color 属性添加到 car 类型的所有对象，然后仅在实例对象 car1 中用字符串 &quot;black&quot; 覆盖该值</p>
+<pre><code>function Car() {}
+car1 = new Car();
+car2 = new Car();
+
+console.log(car1.color);    // undefined
+
+Car.prototype.color = &quot;original color&quot;;
+console.log(car1.color);    // original color
+
+car1.color = 'black';
+console.log(car1.color);   // black
+
+console.log(car1.__proto__.color) //original color
+console.log(car2.__proto__.color) //original color
+console.log(car1.color)  // black
+console.log(car2.color) // original color
+</code></pre>
+<blockquote>
+<p>如果你没有使用 new 运算符， 构造函数会像其他的常规函数一样被调用， 并不会创建一个对象。在这种情况下， this 的指向也是不一样的。</p>
+</blockquote>
+<h3 id="二-自定义一个new">二、自定义一个new</h3>
+<pre><code>  // 构造器函数
+  let Parent = function (name, age) {
+    this.name = name;
+    this.age = age;
+  };
+  Parent.prototype.sayName = function () {
+    console.log(this.name);
+  };
+  //自己定义的new方法
+  let newMethod = function (Parent, ...rest) {
+    // 1.以构造器的prototype属性为原型，创建新对象；
+    let child = Object.create(Parent.prototype);
+    // 2.将this和调用参数传给构造器执行
+    Parent.apply(child, rest);
+    // 3.返回第一步的对象
+    return child;
+  };
+  //创建实例，将构造函数Parent与形参作为参数传入
+  const child = newMethod(Parent, 'echo', 26);
+  child.sayName() //'echo';
+
+  //最后检验，与使用new的效果相同
+  child instanceof Parent//true
+  child.hasOwnProperty('name')//true
+  child.hasOwnProperty('age')//true
+  child.hasOwnProperty('sayName')//false
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Node.js 常用工具 （util.inherits）]]></title>
+        <id>https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits</id>
+        <link href="https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits">
+        </link>
+        <updated>2022-01-19T03:27:23.000Z</updated>
+        <content type="html"><![CDATA[<p>util 是一个Node.js 核心模块，提供常用函数的集合，用于弥补核心JavaScript 的功能 过于精简的不足。</p>
+<p>util.inherits<br>
+util.inherits(constructor, superConstructor)是一个实现对象间原型继承 的函数。</p>
+<p>JavaScript 的面向对象特性是基于原型的，与常见的基于类的不同。JavaScript 没有 提供对象继承的语言级别特性，而是通过原型复制来实现的。</p>
+<p>在这里我们只介绍util.inherits 的用法，示例如下：</p>
+<pre><code>var util = require('util'); 
+function Base() { 
+    this.name = 'base'; 
+    this.base = 1991; 
+    this.sayHello = function() { 
+    console.log('Hello ' + this.name); 
+    }; 
+} 
+Base.prototype.showName = function() { 
+    console.log(this.name);
+}; 
+function Sub() { 
+    this.name = 'sub'; 
+} 
+util.inherits(Sub, Base); 
+var objBase = new Base(); 
+objBase.showName(); 
+objBase.sayHello(); 
+console.log(objBase); 
+var objSub = new Sub(); 
+objSub.showName(); 
+//objSub.sayHello(); 
+console.log(objSub);
+</code></pre>
+<p>我们定义了一个基础对象Base 和一个继承自Base 的Sub，Base 有三个在构造函数 内定义的属性和一个原型中定义的函数，通过util.inherits 实现继承。运行结果如下：</p>
+<pre><code>base 
+Hello base 
+{ name: 'base', base: 1991, sayHello: [Function] } 
+sub 
+{ name: 'sub' }
+</code></pre>
+<p>注意：Sub 仅仅继承了Base 在原型中定义的函数，而构造函数内部创造的 base 属 性和 sayHello 函数都没有被 Sub 继承。</p>
+<p>同时，在原型中定义的属性不会被console.log 作 为对象的属性输出。如果我们去掉 objSub.sayHello(); 这行的注释，将会看到：</p>
+<pre><code>node.js:201 
+throw e; // process.nextTick error, or 'error' event on first tick 
+^ 
+TypeError: Object #&lt;Sub&gt; has no method 'sayHello' 
+at Object.&lt;anonymous&gt; (/home/byvoid/utilinherits.js:29:8) 
+at Module._compile (module.js:441:26) 
+at Object..js (module.js:459:10) 
+at Module.load (module.js:348:31) 
+at Function._load (module.js:308:12) 
+at Array.0 (module.js:479:10) 
+at EventEmitter._tickCallback (node.js:192:40)
+</code></pre>
+<p>转载自https://www.cnblogs.com/yuwenjing0727/p/8135608.html</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Koa接口参数校验与返回值统一处理]]></title>
+        <id>https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li</id>
+        <link href="https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li">
+        </link>
+        <updated>2022-01-18T11:03:04.000Z</updated>
+        <content type="html"><![CDATA[<p><a href="https://github.com/node-modules/parameter">parameter地址</a><br>
+// Koa接口参数校验与返回值统一处理  将参数校验变成一个路由中间件，正确的话继续执行，错误的话抛出错误异常。<br>
+// 在第一个中间件中自定义返回格式这里叫ctx.DATA（ctx上自定义一个对象，对象包含code默认200,msg默认‘成功’,data默认空对象）<br>
+// 这里对错误异常做了处理，抛出的是带code码以及与code码对应的msg和错误原因data的对象，此时我们将错误信息赋值给ctx.DATA.data。app中先写一个捕获错误的中间件，这样抛出的错误我们能够捕获到，然后从这里我们给body赋值，这样错误时返回的就是code码和message都有的返回值<br>
+// 当成功查找到数据库中的数据时，我们只需要将数据给ctx.DATA.data，那么返回值就是code码为200，msg为成功，data为正确数据的对象了。万一出现了登陆失败，我们也可以改变ctx.DATA.message为登陆失败，改变code码等</p>
+<pre><code>/**
+ * 数据校验
+ * wiki：https://github.com/node-modules/parameter/blob/master/example.js
+ * @type {Parameter}
+ */
+// const { HttpError } = require('../../utils/tool/error')
+const util = require('util')
+// const ERROR_MSG = require('./errorMsg')
+const ERROR_MSG = Object.freeze({
+  // en
+  // 0: 'fail',
+  // 1: 'validation error',
+  // 200: 'ok',
+  // 400: 'invalid param',
+  // 401: 'unauthorized',
+  // 403: 'forbidden',
+  // 404: 'not found',
+  // 500: 'internal server error',
+  // 503: 'service busy',
+
+  // zh-cn
+  0: '失败',
+  1: '验证码错误',
+  200: '成功',
+  400: '请求出错',
+  401: '未授权的请求',
+  403: '禁止：禁止执行访问',
+  404: '找不到：请检查URL以确保路径正确',
+  500: '服务器的内部错误',
+  503: '服务不可用'
+})
+
+function CustomError(code, msg) {
+  Error.call(this, '')
+
+  this.code = code
+  this.msg = msg || ERROR_MSG[code] || 'unknown error'
+
+  this.getCodeMsg = function() {
+    return {
+      code: this.code,
+      msg: this.msg
+    }
+  }
+}
+
+util.inherits(CustomError, Error)
+
+function HttpError(code, msg) {
+  if ([0, 1, 200, 400, 401, 403, 404, 500, 503].indexOf(code) &lt; 0) {
+    throw Error('not an invalid http code')
+  }
+
+  CustomError.call(this, code, msg)
+}
+
+util.inherits(HttpError, CustomError)
+
+const Parameter = require('parameter')
+const parm = new Parameter()
+
+// 自定义校验
+parm.addRule('name', function(e, v) {
+  let sta = /^[a-z]$/.test(v)
+  return sta || '只能输入一个字母'
+})
+
+// 路由校验列表
+const ruleList = {
+  // 登录
+  'post/api/login': {
+    mobile: { type: 'string', required: true },
+    password: { type: 'string', required: true }
+  },
+  // 获取配置
+  'get/api/setting': {
+    id: { type: 'string', required: true }
+  },
+  // 保存配置
+  'post/api/setting': {
+    id: { type: 'number', required: true },
+    title: { type: 'string', required: false },
+    report_fix_id: { type: 'string', required: false },
+    fix_url: { type: 'string', required: false },
+    env: { type: 'string', required: false },
+    report: { type: 'number', required: false },
+    report_interval: { type: 'number', required: false }
+  },
+  // CICD
+  'post/api/deploy': {
+    name: { type: 'string', required: true },
+    branch: { type: 'string', required: false },
+    env: { type: 'string', required: false }
+  },
+  // 用户详情
+  'get/api/user-details': {
+    user_id: { type: 'string', required: true }
+  }
+}
+
+/**
+ * 校验方法
+ * @param ctx
+ * @param next
+ * @returns {Promise&lt;void&gt;}
+ */
+const parameter = async (ctx, next) =&gt; {
+  let errors, data
+  let method = 'get'
+  if (ctx.request.method === 'GET') {
+    data = ctx.query
+  } else {
+    method = 'post'
+    data = ctx.request.body
+  }
+  console.log(method, data)
+  try {
+    let name = ctx.req._parsedUrl.pathname
+    errors = parm.validate(ruleList[method + name], data)
+  } catch (e) {
+    throw new HttpError(0, e.toString())
+  }
+  if (errors &amp;&amp; errors.length) {
+    ctx.DATA.data = errors
+    throw new HttpError(0, '数据校验未通过')
+  }
+  await next()
+}
+module.exports = parameter
+</code></pre>
+<p>router.js</p>
+<pre><code>// 数据校验
+const router = require('koa-router')()
+const parameter = require('../utils/parameter')
+// project
+router.get('/api/user-details', parameter, userDetail)
+router.get('/api/setting', parameter, getSetting)
+router.post('/api/setting', parameter, setSetting)
+// common
+router.post('/api/login', parameter, login)
+// devops
+router.post('/api/deploy', parameter, checkToken, deploy)
+// swagger
+router.get('/api/swagger.json', async function (ctx) {
+  ctx.set('Content-Type', 'application/json')
+  ctx.body = openapiSpecification
+})
+// index
+router.get('/', index)
+
+module.exports = router
+</code></pre>
+<p>app.js</p>
+<pre><code>const Koa = require('koa')
+const app = new Koa()
+const views = require('koa-views')
+const json = require('koa-json')
+const favicon = require('koa-favicon')
+const koaBody = require('koa-body')
+const logger = require('koa-logger')
+const colors = require('colors')
+const { resolve } = require('path')
+const { koaSwagger } = require('koa2-swagger-ui')
+const mysql = require('mysql2')
+
+const conf = require('./config')
+const index = require('./routes')
+
+// 允许上传文件
+app.use(
+  koaBody({
+    multipart: true,
+    formidable: {
+      maxFileSize: 1000 * 1024 * 1024 // 设置上传文件大小最大限制
+    }
+  })
+)
+
+// 网站图标
+app.use(favicon(resolve(__dirname, './public', 'favicon.ico')))
+
+// 返回美化json
+app.use(json())
+
+// koa-logger
+app.use(logger())
+
+// 资源文件
+app.use(require('koa-static')(resolve(__dirname, './public')))
+
+// 模板引擎
+app.use(views(resolve(__dirname, './views'), { map: { html: 'nunjucks' } }))
+
+// sql特殊字符处理
+const toEscapeString = val =&gt; {
+  return mysql.escape(val)
+}
+const toEscapeObject = dat =&gt; {
+  for (let key in dat) {
+    typeof dat[key] === 'string' &amp;&amp; (dat[key] = toEscapeString(dat[key]))
+    typeof dat[key] === 'object' &amp;&amp; toEscapeObject(dat[key])
+  }
+  return dat
+}
+
+// 加入cookie.get、set及自定义返回格式
+app.use(async (ctx, next) =&gt; {
+  ctx.cookie = {
+    set: (k, v, opt) =&gt; {
+      opt = Object.assign({}, conf.cookieOptions, opt)
+      return ctx.cookies.set(k, v, opt)
+    },
+    get: (k, opt) =&gt; {
+      opt = Object.assign({}, conf.cookieOptions, opt)
+      return ctx.cookies.get(k, opt)
+    }
+  }
+
+  let msg = {
+    0: '失败',
+    1: '验证码错误',
+    200: '成功',
+    400: '请求出错',
+    401: '未授权的请求',
+    403: '禁止：禁止执行访问',
+    404: '找不到：请检查URL以确保路径正确',
+    500: '服务器的内部错误',
+    503: '服务不可用'
+  }
+  ctx.json = dat =&gt; {
+    !dat.message &amp;&amp; (dat.message = msg[dat.code])
+    return dat
+  }
+
+  // 自定义返回格式
+  ctx.DATA = {
+    data: {},
+    message: '',
+    code: 200
+  }
+
+  // 状态统一判断
+  ctx.state = res =&gt; {
+    return !(res &amp;&amp; res.length ? res[0] : res)
+  }
+  await next()
+})
+
+// swagger
+app.use(
+  koaSwagger({
+    routePrefix: '/swagger', // host at /swagger instead of default /docs
+    swaggerOptions: {
+      url: '/api/swagger.json' // example path to json 其实就是之后swagger-jsdoc生成的文档地址
+    }
+  })
+)
+// 错误捕获
+app.use((ctx, next) =&gt; {
+  return next().catch(err =&gt; {
+    console.log(err)
+    let msg = err ? err.msg || err.toString() : 'unknown error'
+    let code = err ? (err.code &gt;= 0 ? err.code : 500) : 500
+    ctx.DATA.code = code
+    ctx.DATA.message = msg
+    ctx.body = ctx.DATA
+    ctx.status =
+      [200, 400, 401, 403, 404, 500, 503].indexOf(code) &gt;= 0 ? code : 200
+  })
+})
+// routes
+app.use(index.routes(), index.allowedMethods())
+
+app.proxy = true
+
+// koa error-handling 服务端、http错误
+app.on('error', (err, ctx) =&gt; {
+  console.error('server error', err, ctx)
+})
+
+module.exports = app
+</code></pre>
+<p>controller层的接口文件</p>
+<pre><code>const resData = {
+    os_type_data,
+    ip_data,
+    browser_data,
+    channel_group_data,
+    client_id_group_data,
+    sortArrFormat,
+    userActions
+  }
+  // 正常返回写法，一个个的定义很麻烦
+  // const successData = {
+  //   code: 0,
+  //   data: resData,
+  //   status: '请求成功'
+  // }
+  // ctx.body = successData
+  
+  // 直接把结果赋值，code码和message不用管
+  ctx.DATA.data = resData
+  ctx.body = ctx.json(ctx.DATA)
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[KOA中间件与执行顺序]]></title>
+        <id>https://weidadeda.github.io/post/koa-zhong-jian-jian-yu-zhi-xing-shun-xu</id>
+        <link href="https://weidadeda.github.io/post/koa-zhong-jian-jian-yu-zhi-xing-shun-xu">
+        </link>
+        <updated>2022-01-18T06:59:26.000Z</updated>
+        <content type="html"><![CDATA[<p><a href="https://www.itying.com/koa/article-index-id-90.html">koa2中文文档</a></p>
+<h3 id="一-什么是koa的中间件">一、什么是Koa的中间件</h3>
+<p>通俗的讲：中间件就是匹配路由之前或者匹配路由完成做的一系列的操作，我们就可以把它叫做中间件。</p>
+<p>在express中间件（Middleware） 是一个函数，它可以访问请求对象（request object (req)）, 响应对象（response object (res)）, 和 web 应用中处理请求-响应循环流程中的中间件，一般被命名为 next 的变量。在Koa中中间件和express有点类似。</p>
+<p>中间件的功能包括：</p>
+<p>执行任何代码。<br>
+修改请求和响应对象。<br>
+终结请求-响应循环。<br>
+调用堆栈中的下一个中间件。</p>
+<p>如果我的get、post回调函数中，没有next参数，那么就匹配上第一个路由，就不会往下匹配了。如果想往下匹配的话，那么需要写next()</p>
+<h3 id="二-koa应用可使用如下几种中间件">二、Koa应用可使用如下几种中间件：</h3>
+<p>应用级中间件<br>
+路由级中间件<br>
+错误处理中间件<br>
+第三方中间件</p>
+<h3 id="三-使用">三、使用</h3>
+<ul>
+<li>
+<ol>
+<li>async和await<br>
+在koa中使用关键词 async 标记的函数是异步函数，<br>
+在异步函数中使用 await next(); 处理下一个异步函数。</li>
+</ol>
+</li>
+<li>
+<ol start="2">
+<li>app.use(async func())<br>
+koa的使用方法很简单，将一系列要处理的操作封装到一个个异步函数中，然后用Koa的实例app通过 app.use(async func()) 的形式调用</li>
+</ol>
+</li>
+</ul>
+<p>一个koa应用程序如下：</p>
+<pre><code>// 导入koa，和koa 1.x不同，在koa2中，我们导入的是一个class，因此用大写的Koa表示:
+const Koa = require('koa');
+const app = new Koa(); // 创建一个Koa对象表示web app本身:
+
+// 对于任何请求，app将调用该异步函数处理请求：
+app.use(async (ctx, next) =&gt; {
+    await next();
+    ctx.response.type = 'text/html';
+    ctx.response.body = '&lt;h1&gt;Hello, koa2!&lt;/h1&gt;';
+});
+
+// 在端口3000监听:
+app.listen(3000);
+console.log('app started at port 3000...');
+</code></pre>
+<p>可以看到 app.use() 括号里面的参数是一个函数。函数用了异步修饰符 async ，在这个函数内部，又通过关键字 await next() 调用下一个app.use的异步函数。如果这个函数是最后一个需要执行的函数，则内部不需要再写await next（）。</p>
+<h3 id="四-koa中间件的执行顺序">四、koa中间件的执行顺序</h3>
+<p>Express的中间件是顺序执行，从第一个中间件执行到最后一个中间件，发出响应。<br>
+Koa是从第一个中间件开始执行,遇到 await next() 就进入下一个中间件，一直到执行到最后一个中间件。然后再逆序执行上一个中间件 await next() 后面的代码，一直到第一个中间件 await next() 后面的代码执行完毕才发出响应。</p>
+<p>koa把很多async函数组成一个处理链，每个async函数都可以做一些自己的事情，然后用await next()来调用下一个async函数。我们把每个async函数称为middleware，这些middleware可以组合起来，完成很多有用的功能。</p>
+<p>例子：</p>
+<pre><code>app.use(async (ctx, next) =&gt; {
+    console.log('1'); 
+    await next(); // 调用下一个middleware
+    console.log('5')
+});
+
+app.use(async (ctx, next) =&gt; {
+    console.log('2');
+    await next(); // 调用下一个middleware
+    console.log('4');
+});
+
+app.use(async (ctx, next) =&gt; {
+    console.log('3');
+});
+</code></pre>
+<p>输出结果： 12345</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[node接口生成接口文档]]></title>
         <id>https://weidadeda.github.io/post/node-jie-kou-sheng-cheng-jie-kou-wen-dang</id>
@@ -595,200 +1145,6 @@ sudo systemctl start docker
 4、总结
 上面针对docker使用了一种比较通俗诙谐的语言来讲述，也是为了方便读者能容易的解读和理解，理解并且成功安装docker之后，你们就会想方设法的要把自己的web项目部署到docker了，这我没说错吧，大家可以网上查找一些资料去学习这一块。
 学习转载：https://www.cnblogs.com/myprogramer/p/10288634.html</code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[docker中使用redis]]></title>
-        <id>https://weidadeda.github.io/post/docker-zhong-shi-yong-redis</id>
-        <link href="https://weidadeda.github.io/post/docker-zhong-shi-yong-redis">
-        </link>
-        <updated>2022-01-13T09:08:41.000Z</updated>
-        <summary type="html"><![CDATA[<p>项目中频繁使用Redis，为了不用每次打开Redis目录去启动Redis想到了Docker可以作为Redis的容器 直接下载使用就行 把Docker使用Redis的过程分享下：</p>
-<ol>
-<li>
-<pre><code>拉取redis    （如果想直接运行也可以直接执行第二步省略第一步）
-   docker pull redis
-
-   拉取完成后可使用 docker images 查看镜像列表检查
-</code></pre>
-</li>
-<li>
-<pre><code>后台运行redis server
-   
-   docker run --name redis-test -p 6379:6379 -d redis
-   或者 docker run --name redis-test -p 6379:6379  --rm -d redis
-
-   -d表示后台运行 
-   -p表示本机端口映射到运行的容积端口  第一个是本机端口 第二个是容器端口
-   --rm表示用完自动删除 容器停止运行后自动删除  一般不用
-   --name表示指定名称 之后会用到
-</code></pre>
-</li>
-<li>
-<pre><code> 客户端连接redis 
-   
-   docker run -it --rm  redis redis-cli -h 192.168.1.99
-   或者 完整 docker run -it --rm redis redis-cli -h 192.168.1.99 -p 6379 -a 123123
-   
-   -it表示运行后进入容器内部命令模式
-</code></pre>
-</li>
-<li>
-<pre><code>启动已关闭的redis服务
-   步骤二指定了redis的名称为redis-test 执行命令 redis start redis-test 启动redis服务
-</code></pre>
-</li>
-<li>
-<pre><code>不小心关掉了正在连接的客户端界面redis-cli 
-  - 查找当前运行的容器 docker ps  
-  - 直接进入容器中 docker attach 容器标识
-</code></pre>
-</li>
-<li>
-<pre><code>删除容器
-   - docker rm [containerName||ID] 或者强制删除加-f参数
-</code></pre>
-</li>
-</ol>
-<p>推荐一个好用的redis可视化软件，免费的，“Another Redis Desktop Manager” 地址：https://github.com/qishibo/AnotherRedisDesktopManager/</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>项目中频繁使用Redis，为了不用每次打开Redis目录去启动Redis想到了Docker可以作为Redis的容器 直接下载使用就行 把Docker使用Redis的过程分享下：</p>
-<ol>
-<li>
-<pre><code>拉取redis    （如果想直接运行也可以直接执行第二步省略第一步）
-   docker pull redis
-
-   拉取完成后可使用 docker images 查看镜像列表检查
-</code></pre>
-</li>
-<li>
-<pre><code>后台运行redis server
-   
-   docker run --name redis-test -p 6379:6379 -d redis
-   或者 docker run --name redis-test -p 6379:6379  --rm -d redis
-
-   -d表示后台运行 
-   -p表示本机端口映射到运行的容积端口  第一个是本机端口 第二个是容器端口
-   --rm表示用完自动删除 容器停止运行后自动删除  一般不用
-   --name表示指定名称 之后会用到
-</code></pre>
-</li>
-<li>
-<pre><code> 客户端连接redis 
-   
-   docker run -it --rm  redis redis-cli -h 192.168.1.99
-   或者 完整 docker run -it --rm redis redis-cli -h 192.168.1.99 -p 6379 -a 123123
-   
-   -it表示运行后进入容器内部命令模式
-</code></pre>
-</li>
-<li>
-<pre><code>启动已关闭的redis服务
-   步骤二指定了redis的名称为redis-test 执行命令 redis start redis-test 启动redis服务
-</code></pre>
-</li>
-<li>
-<pre><code>不小心关掉了正在连接的客户端界面redis-cli 
-  - 查找当前运行的容器 docker ps  
-  - 直接进入容器中 docker attach 容器标识
-</code></pre>
-</li>
-<li>
-<pre><code>删除容器
-   - docker rm [containerName||ID] 或者强制删除加-f参数
-</code></pre>
-</li>
-</ol>
-<p>推荐一个好用的redis可视化软件，免费的，“Another Redis Desktop Manager” 地址：https://github.com/qishibo/AnotherRedisDesktopManager/</p>
-<!-- more -->
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[nuxt 服务端渲染和预渲染的区别]]></title>
-        <id>https://weidadeda.github.io/post/nuxt-fu-wu-duan-xuan-ran-he-yu-xuan-ran-de-qu-bie</id>
-        <link href="https://weidadeda.github.io/post/nuxt-fu-wu-duan-xuan-ran-he-yu-xuan-ran-de-qu-bie">
-        </link>
-        <updated>2022-01-13T07:38:15.000Z</updated>
-        <content type="html"><![CDATA[<p>nuxt分spa和非spa，预渲染直接nuxt generate打好的静态页面放在服务器就能访问(也是服务端渲染)， 服务端渲染需要先build完，把打出来的项目放到服务器，然后允许start，还要配置nginx转发<br>
-使用nuxt的服务端渲染插件在node中可以直接返回<br>
-预渲染不像服务器渲染那样即时编译 HTML，它只在构建时为了特定的路由生成特定的几个静态页面，等于我们可以通过 Webpack 插件将一些特定页面组件 build 时就编译为 html 文件，直接以静态资源的形式输出给搜索引擎。预渲染不执行js的，只适应于纯静态页面<br>
-先说结论，都必然会优化SEO，原因如下：</p>
-<p>1、seo的本质是爬虫动态抓取根html里面的关键标签关键字；<br>
-2、现代主流前端开发框架基本都是html拉回来之后，异步执行js动态挂载dom，根html在渲染之前里面提供给爬虫的信息极少；</p>
-<p>综上，如果不做服务器渲染或预渲染，seo只能抓到手动配置的顶级标签的关键字，效率与效果非常差<br>
-不论是服务器渲染还是预渲染，它们都能“加速浏览器显示页面的速度”和seo优化。首先客户端程序只有js。现代网页出现以后这些js程度越来越复杂，于是必须有一些类似react、angular这样的东西。但这些东西全都有一个问题：第一次渲染结束前，页面是白的。于是有了服务端渲染：如果服务器恰好是nodejs，那么可以让服务器提前运行“第一次渲染”。浏览器只需要显示就好了，如果需要，再进行以后的渲染。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Docker attach 命令]]></title>
-        <id>https://weidadeda.github.io/post/docker-attach-ming-ling</id>
-        <link href="https://weidadeda.github.io/post/docker-attach-ming-ling">
-        </link>
-        <updated>2022-01-12T07:34:57.000Z</updated>
-        <summary type="html"><![CDATA[<p>docker attach :连接到正在运行中的容器。<br>
-要attach上去的容器必须正在运行，可以同时连接上同一个container来共享屏幕（与screen命令的attach类似）。</p>
-<p>官方文档中说attach后可以通过CTRL-C来detach，但实际上经过我的测试，如果container当前在运行bash，CTRL-C自然是当前行的输入，没有退出；如果container当前正在前台运行进程，如输出nginx的access.log日志，CTRL-C不仅会导致退出容器，而且还stop了😨</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>docker attach :连接到正在运行中的容器。<br>
-要attach上去的容器必须正在运行，可以同时连接上同一个container来共享屏幕（与screen命令的attach类似）。</p>
-<p>官方文档中说attach后可以通过CTRL-C来detach，但实际上经过我的测试，如果container当前在运行bash，CTRL-C自然是当前行的输入，没有退出；如果container当前正在前台运行进程，如输出nginx的access.log日志，CTRL-C不仅会导致退出容器，而且还stop了😨</p>
-<!-- more -->
-<p>。这不是我们想要的，detach的意思按理应该是脱离容器终端，但容器依然运行。好在attach是可以带上--sig-proxy=false来确保CTRL-D或CTRL-C不会关闭容器。<br>
-runoob@runoob:~$ docker attach --sig-proxy=false mynginx</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[shell $? 获取函数返回值或者上一个命令的退出状态]]></title>
-        <id>https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai</id>
-        <link href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai">
-        </link>
-        <updated>2022-01-12T03:03:58.000Z</updated>
-        <content type="html"><![CDATA[<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>?</mo><mi mathvariant="normal">是</mi><mi mathvariant="normal">上</mi><mi mathvariant="normal">一</mi><mi mathvariant="normal">个</mi><mi mathvariant="normal">程</mi><mi mathvariant="normal">序</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">是</mi><mi mathvariant="normal">否</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">标</mi><mi mathvariant="normal">志</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">如</mi><mi mathvariant="normal">果</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">则</mi></mrow><annotation encoding="application/x-tex">? 是上一个程序执行是否成功的标志，如果执行成功则</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mclose">?</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">上</span><span class="mord cjk_fallback">一</span><span class="mord cjk_fallback">个</span><span class="mord cjk_fallback">程</span><span class="mord cjk_fallback">序</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">否</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">标</span><span class="mord cjk_fallback">志</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">如</span><span class="mord cjk_fallback">果</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">则</span></span></span></span>? 为0，否则 不为0。<br>
-比如判断一个node服务是该启动还是该重启，则可以执行pm2 info ***<br>
-<img src="https://weidadeda.github.io/post-images/1641956978962.jpg" alt="" loading="lazy"></p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[mysql 时间戳格式化函数from_unixtime]]></title>
-        <id>https://weidadeda.github.io/post/wo-shi-ce-shi</id>
-        <link href="https://weidadeda.github.io/post/wo-shi-ce-shi">
-        </link>
-        <updated>2021-04-06T03:01:44.000Z</updated>
-        <content type="html"><![CDATA[<p>作用：时间戳转化个格式</p>
-<p>原因：数据库中为了快速查询，一般保持日期是int(1415873634479),但是这样查询的时候很难知道确切的日期</p>
-<p>格式：select from_unixtime(1459338786);2016-03-30 19:53:06</p>
-<p>select from_unixtime(1459338786, '%Y-%m-%d %H:%i:%s');2016-03-30 19:53:06</p>
-<p>SELECT id ,FROM_UNIXTIME('last_update_time') FROM current_inventory WHERE seat_code = 'hk2-i0302c03' //字段要加引号</p>
-<p>备注：默认转化格式是%Y-%m-%d %H:%i:%s</p>
-<p>格式说明：</p>
-<p>%M 月名字(January～December)<br>
-%W 星期名字(Sunday～Saturday)<br>
-%D 有英语前缀的月份的日期(1st, 2nd, 3rd, 等等。）<br>
-%Y 年, 数字, 4 位<br>
-%y 年, 数字, 2 位<br>
-%a 缩写的星期名字(Sun～Sat)<br>
-%d 月份中的天数, 数字(00～31)<br>
-%e 月份中的天数, 数字(0～31)<br>
-%m 月, 数字(01～12)<br>
-%c 月, 数字(1～12)<br>
-%b 缩写的月份名字(Jan～Dec)<br>
-%j 一年中的天数(001～366)<br>
-%H 小时(00～23)<br>
-%k 小时(0～23)<br>
-%h 小时(01～12)<br>
-%I 小时(01～12)<br>
-%l 小时(1～12)<br>
-%i 分钟, 数字(00～59)<br>
-%r 时间,12 小时(hh:mm:ss [AP]M)<br>
-%T 时间,24 小时(hh:mm:ss)<br>
-%S 秒(00～59)<br>
-%s 秒(00～59)<br>
-%p AM或PM<br>
-%w 一个星期中的天数(0=Sunday ～6=Saturday ）<br>
-%U 星期(0～52), 这里星期天是星期的第一天<br>
-%u 星期(0～52), 这里星期一是星期的第一天<br>
-%% 一个文字%</p>
-<p>原文链接：https://blog.csdn.net/yangliu4683/article/details/78340939</p>
 ]]></content>
     </entry>
 </feed>

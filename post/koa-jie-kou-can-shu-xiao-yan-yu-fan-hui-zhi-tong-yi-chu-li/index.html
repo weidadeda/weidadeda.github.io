@@ -8,7 +8,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>shell $? 获取函数返回值或者上一个命令的退出状态 | Gridea</title>
+<title>Koa接口参数校验与返回值统一处理 | Gridea</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1642732933470">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -29,7 +29,7 @@
 
 
 
-  <meta name="description" content="shell $? 获取函数返回值或者上一个命令的退出状态" />
+  <meta name="description" content="Koa接口参数校验与返回值统一处理" />
   <meta name="keywords" content="" />
 </head>
 
@@ -295,8 +295,8 @@
           <div class="section bg-color post post-page">
             <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai">
-      shell $? 获取函数返回值或者上一个命令的退出状态
+    <a class="post-title-link" href="https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li">
+      Koa接口参数校验与返回值统一处理
     </a>
   </h1>
   <div class="post-meta">
@@ -304,26 +304,332 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2022-01-12</span>
+      <span>2022-01-18</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>1分钟</span>
+      <span>7分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>98<span class="pc-show">字数</span></span>
+      <span>1341<span class="pc-show">字数</span></span>
     </span>
     
   </div>
 </header>
             <div class="post-body next-md-body" id="post_body">
-              <p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>?</mo><mi mathvariant="normal">是</mi><mi mathvariant="normal">上</mi><mi mathvariant="normal">一</mi><mi mathvariant="normal">个</mi><mi mathvariant="normal">程</mi><mi mathvariant="normal">序</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">是</mi><mi mathvariant="normal">否</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">标</mi><mi mathvariant="normal">志</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">如</mi><mi mathvariant="normal">果</mi><mi mathvariant="normal">执</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">则</mi></mrow><annotation encoding="application/x-tex">? 是上一个程序执行是否成功的标志，如果执行成功则</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mclose">?</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">上</span><span class="mord cjk_fallback">一</span><span class="mord cjk_fallback">个</span><span class="mord cjk_fallback">程</span><span class="mord cjk_fallback">序</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">否</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">标</span><span class="mord cjk_fallback">志</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">如</span><span class="mord cjk_fallback">果</span><span class="mord cjk_fallback">执</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord cjk_fallback">则</span></span></span></span>? 为0，否则 不为0。<br>
-比如判断一个node服务是该启动还是该重启，则可以执行pm2 info ***<br>
-<img src="https://weidadeda.github.io/post-images/1641956978962.jpg" alt="" loading="lazy"></p>
+              <p><a href="https://github.com/node-modules/parameter">parameter地址</a><br>
+// Koa接口参数校验与返回值统一处理  将参数校验变成一个路由中间件，正确的话继续执行，错误的话抛出错误异常。<br>
+// 在第一个中间件中自定义返回格式这里叫ctx.DATA（ctx上自定义一个对象，对象包含code默认200,msg默认‘成功’,data默认空对象）<br>
+// 这里对错误异常做了处理，抛出的是带code码以及与code码对应的msg和错误原因data的对象，此时我们将错误信息赋值给ctx.DATA.data。app中先写一个捕获错误的中间件，这样抛出的错误我们能够捕获到，然后从这里我们给body赋值，这样错误时返回的就是code码和message都有的返回值<br>
+// 当成功查找到数据库中的数据时，我们只需要将数据给ctx.DATA.data，那么返回值就是code码为200，msg为成功，data为正确数据的对象了。万一出现了登陆失败，我们也可以改变ctx.DATA.message为登陆失败，改变code码等</p>
+<pre><code>/**
+ * 数据校验
+ * wiki：https://github.com/node-modules/parameter/blob/master/example.js
+ * @type {Parameter}
+ */
+// const { HttpError } = require('../../utils/tool/error')
+const util = require('util')
+// const ERROR_MSG = require('./errorMsg')
+const ERROR_MSG = Object.freeze({
+  // en
+  // 0: 'fail',
+  // 1: 'validation error',
+  // 200: 'ok',
+  // 400: 'invalid param',
+  // 401: 'unauthorized',
+  // 403: 'forbidden',
+  // 404: 'not found',
+  // 500: 'internal server error',
+  // 503: 'service busy',
+
+  // zh-cn
+  0: '失败',
+  1: '验证码错误',
+  200: '成功',
+  400: '请求出错',
+  401: '未授权的请求',
+  403: '禁止：禁止执行访问',
+  404: '找不到：请检查URL以确保路径正确',
+  500: '服务器的内部错误',
+  503: '服务不可用'
+})
+
+function CustomError(code, msg) {
+  Error.call(this, '')
+
+  this.code = code
+  this.msg = msg || ERROR_MSG[code] || 'unknown error'
+
+  this.getCodeMsg = function() {
+    return {
+      code: this.code,
+      msg: this.msg
+    }
+  }
+}
+
+util.inherits(CustomError, Error)
+
+function HttpError(code, msg) {
+  if ([0, 1, 200, 400, 401, 403, 404, 500, 503].indexOf(code) &lt; 0) {
+    throw Error('not an invalid http code')
+  }
+
+  CustomError.call(this, code, msg)
+}
+
+util.inherits(HttpError, CustomError)
+
+const Parameter = require('parameter')
+const parm = new Parameter()
+
+// 自定义校验
+parm.addRule('name', function(e, v) {
+  let sta = /^[a-z]$/.test(v)
+  return sta || '只能输入一个字母'
+})
+
+// 路由校验列表
+const ruleList = {
+  // 登录
+  'post/api/login': {
+    mobile: { type: 'string', required: true },
+    password: { type: 'string', required: true }
+  },
+  // 获取配置
+  'get/api/setting': {
+    id: { type: 'string', required: true }
+  },
+  // 保存配置
+  'post/api/setting': {
+    id: { type: 'number', required: true },
+    title: { type: 'string', required: false },
+    report_fix_id: { type: 'string', required: false },
+    fix_url: { type: 'string', required: false },
+    env: { type: 'string', required: false },
+    report: { type: 'number', required: false },
+    report_interval: { type: 'number', required: false }
+  },
+  // CICD
+  'post/api/deploy': {
+    name: { type: 'string', required: true },
+    branch: { type: 'string', required: false },
+    env: { type: 'string', required: false }
+  },
+  // 用户详情
+  'get/api/user-details': {
+    user_id: { type: 'string', required: true }
+  }
+}
+
+/**
+ * 校验方法
+ * @param ctx
+ * @param next
+ * @returns {Promise&lt;void&gt;}
+ */
+const parameter = async (ctx, next) =&gt; {
+  let errors, data
+  let method = 'get'
+  if (ctx.request.method === 'GET') {
+    data = ctx.query
+  } else {
+    method = 'post'
+    data = ctx.request.body
+  }
+  console.log(method, data)
+  try {
+    let name = ctx.req._parsedUrl.pathname
+    errors = parm.validate(ruleList[method + name], data)
+  } catch (e) {
+    throw new HttpError(0, e.toString())
+  }
+  if (errors &amp;&amp; errors.length) {
+    ctx.DATA.data = errors
+    throw new HttpError(0, '数据校验未通过')
+  }
+  await next()
+}
+module.exports = parameter
+</code></pre>
+<p>router.js</p>
+<pre><code>// 数据校验
+const router = require('koa-router')()
+const parameter = require('../utils/parameter')
+// project
+router.get('/api/user-details', parameter, userDetail)
+router.get('/api/setting', parameter, getSetting)
+router.post('/api/setting', parameter, setSetting)
+// common
+router.post('/api/login', parameter, login)
+// devops
+router.post('/api/deploy', parameter, checkToken, deploy)
+// swagger
+router.get('/api/swagger.json', async function (ctx) {
+  ctx.set('Content-Type', 'application/json')
+  ctx.body = openapiSpecification
+})
+// index
+router.get('/', index)
+
+module.exports = router
+</code></pre>
+<p>app.js</p>
+<pre><code>const Koa = require('koa')
+const app = new Koa()
+const views = require('koa-views')
+const json = require('koa-json')
+const favicon = require('koa-favicon')
+const koaBody = require('koa-body')
+const logger = require('koa-logger')
+const colors = require('colors')
+const { resolve } = require('path')
+const { koaSwagger } = require('koa2-swagger-ui')
+const mysql = require('mysql2')
+
+const conf = require('./config')
+const index = require('./routes')
+
+// 允许上传文件
+app.use(
+  koaBody({
+    multipart: true,
+    formidable: {
+      maxFileSize: 1000 * 1024 * 1024 // 设置上传文件大小最大限制
+    }
+  })
+)
+
+// 网站图标
+app.use(favicon(resolve(__dirname, './public', 'favicon.ico')))
+
+// 返回美化json
+app.use(json())
+
+// koa-logger
+app.use(logger())
+
+// 资源文件
+app.use(require('koa-static')(resolve(__dirname, './public')))
+
+// 模板引擎
+app.use(views(resolve(__dirname, './views'), { map: { html: 'nunjucks' } }))
+
+// sql特殊字符处理
+const toEscapeString = val =&gt; {
+  return mysql.escape(val)
+}
+const toEscapeObject = dat =&gt; {
+  for (let key in dat) {
+    typeof dat[key] === 'string' &amp;&amp; (dat[key] = toEscapeString(dat[key]))
+    typeof dat[key] === 'object' &amp;&amp; toEscapeObject(dat[key])
+  }
+  return dat
+}
+
+// 加入cookie.get、set及自定义返回格式
+app.use(async (ctx, next) =&gt; {
+  ctx.cookie = {
+    set: (k, v, opt) =&gt; {
+      opt = Object.assign({}, conf.cookieOptions, opt)
+      return ctx.cookies.set(k, v, opt)
+    },
+    get: (k, opt) =&gt; {
+      opt = Object.assign({}, conf.cookieOptions, opt)
+      return ctx.cookies.get(k, opt)
+    }
+  }
+
+  let msg = {
+    0: '失败',
+    1: '验证码错误',
+    200: '成功',
+    400: '请求出错',
+    401: '未授权的请求',
+    403: '禁止：禁止执行访问',
+    404: '找不到：请检查URL以确保路径正确',
+    500: '服务器的内部错误',
+    503: '服务不可用'
+  }
+  ctx.json = dat =&gt; {
+    !dat.message &amp;&amp; (dat.message = msg[dat.code])
+    return dat
+  }
+
+  // 自定义返回格式
+  ctx.DATA = {
+    data: {},
+    message: '',
+    code: 200
+  }
+
+  // 状态统一判断
+  ctx.state = res =&gt; {
+    return !(res &amp;&amp; res.length ? res[0] : res)
+  }
+  await next()
+})
+
+// swagger
+app.use(
+  koaSwagger({
+    routePrefix: '/swagger', // host at /swagger instead of default /docs
+    swaggerOptions: {
+      url: '/api/swagger.json' // example path to json 其实就是之后swagger-jsdoc生成的文档地址
+    }
+  })
+)
+// 错误捕获
+app.use((ctx, next) =&gt; {
+  return next().catch(err =&gt; {
+    console.log(err)
+    let msg = err ? err.msg || err.toString() : 'unknown error'
+    let code = err ? (err.code &gt;= 0 ? err.code : 500) : 500
+    ctx.DATA.code = code
+    ctx.DATA.message = msg
+    ctx.body = ctx.DATA
+    ctx.status =
+      [200, 400, 401, 403, 404, 500, 503].indexOf(code) &gt;= 0 ? code : 200
+  })
+})
+// routes
+app.use(index.routes(), index.allowedMethods())
+
+app.proxy = true
+
+// koa error-handling 服务端、http错误
+app.on('error', (err, ctx) =&gt; {
+  console.error('server error', err, ctx)
+})
+
+module.exports = app
+</code></pre>
+<p>controller层的接口文件</p>
+<pre><code>const resData = {
+    os_type_data,
+    ip_data,
+    browser_data,
+    channel_group_data,
+    client_id_group_data,
+    sortArrFormat,
+    userActions
+  }
+  // 正常返回写法，一个个的定义很麻烦
+  // const successData = {
+  //   code: 0,
+  //   data: resData,
+  //   status: '请求成功'
+  // }
+  // ctx.body = successData
+  
+  // 直接把结果赋值，code码和message不用管
+  ctx.DATA.data = resData
+  ctx.body = ctx.json(ctx.DATA)
+</code></pre>
 
             </div>
             <div class="post-footer">
@@ -334,7 +640,7 @@
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai" title="shell $? 获取函数返回值或者上一个命令的退出状态">https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai</a>
+      <a href="https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li" title="Koa接口参数校验与返回值统一处理">https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -348,14 +654,14 @@
     <div class="nav-prev">
       
         <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="Docker attach 命令" href="https://weidadeda.github.io/post/docker-attach-ming-ling">Docker attach 命令</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="Docker attach 命令" href="https://weidadeda.github.io/post/docker-attach-ming-ling">上一篇</a>
+        <a class="nav-pc-next" title="Node.js 常用工具 （util.inherits）" href="https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits">Node.js 常用工具 （util.inherits）</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title="Node.js 常用工具 （util.inherits）" href="https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits">上一篇</a>
       
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="mysql 时间戳格式化函数from_unixtime" href="https://weidadeda.github.io/post/wo-shi-ce-shi">mysql 时间戳格式化函数from_unixtime</a>
-        <a class="nav-mobile-next" title="mysql 时间戳格式化函数from_unixtime" href="https://weidadeda.github.io/post/wo-shi-ce-shi">下一篇</a>
+        <a class="nav-pc-next" title="KOA中间件与执行顺序" href="https://weidadeda.github.io/post/koa-zhong-jian-jian-yu-zhi-xing-shun-xu">KOA中间件与执行顺序</a>
+        <a class="nav-mobile-next" title="KOA中间件与执行顺序" href="https://weidadeda.github.io/post/koa-zhong-jian-jian-yu-zhi-xing-shun-xu">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>
