@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://weidadeda.github.io</id>
     <title>Gridea</title>
-    <updated>2022-02-07T08:19:26.823Z</updated>
+    <updated>2022-02-07T10:10:40.896Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://weidadeda.github.io"/>
     <link rel="self" href="https://weidadeda.github.io/atom.xml"/>
@@ -10,6 +10,281 @@
     <logo>https://weidadeda.github.io/images/avatar.png</logo>
     <icon>https://weidadeda.github.io/favicon.ico</icon>
     <rights>All rights reserved 2022, Gridea</rights>
+    <entry>
+        <title type="html"><![CDATA[js获取文件大小]]></title>
+        <id>https://weidadeda.github.io/post/js-huo-qu-wen-jian-da-xiao</id>
+        <link href="https://weidadeda.github.io/post/js-huo-qu-wen-jian-da-xiao">
+        </link>
+        <updated>2022-02-07T09:49:49.000Z</updated>
+        <content type="html"><![CDATA[<p>背景：今天 每周例行技术分享 的时候，有位同事说 js 获取不到文件大小：浏览器默认不允许js 执行IO操作。 举了个例子，比如想获取一个图片地址的文件大小，因为之前做过图片上传功能所以比较敏感，感觉应该是可以的，虽然他说网上找过很多资料但是都不行，但是这种东西 只有自己试试才安心嘛~~</p>
+<h3 id="失败方案-canvastoblob">失败方案 canvas.toBlob</h3>
+<pre><code>function loadImg(url){
+    return new Promise((res, rej) =&gt; {
+        const img = new Image()
+        img.crossOrigin = ''   // 防止img 画在canvas上时报跨域错误
+        img.onload = function() {
+            res(this)
+        }
+        img.onerror = function() {
+            rej()
+        }
+        img.src = url
+    })
+}
+
+async function getImgSize(url) {
+    const urlArr = url.split('.')
+    const mime = &quot;image/&quot; + urlArr[urlArr.length-1]
+    const img = await loadImg(url)
+    const {width,height} = img
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d');
+    canvas.width = width;
+    canvas.height = height;
+    ctx.drawImage(img,0,0,width,height)
+    canvas.toBlob(
+        blob =&gt; {
+            console.log(url,blob,(blob.size / 1000)+'KB')
+        },
+        mime
+    );
+}
+
+getImgSize('https://images.daojia.com/changsha/banner/pic/25675a8d10bfa08e9599d2deb9a44eae.jpeg')
+</code></pre>
+<p>看日志输出<br>
+<img src="https://weidadeda.github.io/post-images/1644227403808.jpg" alt="" loading="lazy"><br>
+看着成了，但实际.... 与 本地 和 Network 差 十万八千里<br>
+<img src="https://weidadeda.github.io/post-images/1644227440435.png" alt="" loading="lazy"><br>
+<img src="https://weidadeda.github.io/post-images/1644227452558.jpg" alt="" loading="lazy"><br>
+我尝试了几个图片,每个图片都比之前要大，而且增大程度不一定,这块估计是canvas画了一遍的原因。。。</p>
+<h3 id="失败方法-canvastodataurl-dataurltoblob">失败方法 canvas.toDataURL + dataURLtoBlob</h3>
+<pre><code>function loadImg(url){
+    return new Promise((res, rej) =&gt; {
+        const img = new Image()
+        img.crossOrigin = ''   // 防止img 画在canvas上时报跨域错误
+        img.onload = function() {
+            res(this)
+        }
+        img.onerror = function() {
+            rej()
+        }
+        img.src = url
+    })
+}
+
+async function getImgSize(url) {
+    const urlArr = url.split('.')
+    const mime = &quot;image/&quot; + urlArr[urlArr.length-1]
+    const img = await loadImg(url)
+    const {width,height} = img
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d');
+    canvas.width = width;
+    canvas.height = height;
+    ctx.drawImage(img,0,0,width,height);
+    const blob =  dataURLtoBlob(canvas.toDataURL(mime));
+    console.log(url,blob,(blob.size / 1000)+'KB')
+}
+function dataURLtoBlob(dataurl) {
+    var arr = dataurl.split(',');
+    var _arr = arr[1].substring(0,arr[1].length-2);
+    var mime = arr[0].match(/:(.*?);/)[1],
+        bstr =atob(_arr),
+        n = bstr.length,
+        u8arr = new Uint8Array(n);
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], {
+        type: mime
+    });
+}
+
+getImgSize('https://images.daojia.com/changsha/banner/pic/25675a8d10bfa08e9599d2deb9a44eae.jpeg')
+</code></pre>
+<p>看结果⬇️<br>
+<img src="https://weidadeda.github.io/post-images/1644227621781.jpg" alt="" loading="lazy"><br>
+。。。看来不能走canvas这条路了</p>
+<h3 id="成功方案-performance">成功方案 performance</h3>
+<p><img src="https://weidadeda.github.io/post-images/1644227695711.png" alt="" loading="lazy"><br>
+难道真的没有办法了嘛？我盯着 浏览器Network 陷入沉思, 突然 Network 资源加载 的size在我眼里 越来越抢眼，貌似有个api可以获取到资源加载~~~~~ 走起</p>
+<pre><code>function getImgSize(url){
+    return new Promise((res, rej) =&gt; {
+        var performance = window.performance || 
+            window.msPerformance || 
+            window.webkitPerformance;
+        if (performance) {
+            const img = new Image()
+            img.crossOrigin = ''
+            img.onload = function() {
+                let [imgEntries] = performance.getEntriesByName(url)
+                res(imgEntries)
+            }
+            img.onerror = function() {
+                rej('图片加载失败')
+            }
+            img.src = url
+        }else{
+            rej('浏览器不持支持performance')
+        }
+    })
+}
+let url = 'https://images.daojia.com/changsha/banner/pic/25675a8d10bfa08e9599d2deb9a44eae.jpeg'
+getImgSize(url).then(v=&gt;{
+    console.log(v)
+    console.log(v.decodedBodySize)
+    console.log((v.decodedBodySize / 1000),'KB')
+    // transferSize  判断是否缓存
+})
+</code></pre>
+<blockquote>
+<p>这块使用 decodedBodySize，因为 css js等资源 decodedBodySize 与本地大小一致<br>
+<img src="https://weidadeda.github.io/post-images/1644227863370.png" alt="" loading="lazy"><br>
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming/decodedBodySize">decodedBodySize-MDN文档</a><br>
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming/encodedBodySize">encodedBodySize-MDN 文档</a><br>
+<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Performance/getEntriesByName">performance.getEntriesByName-MDN文档</a><br>
+哈哈哈哈，成了～</p>
+</blockquote>
+<h3 id="多组数据验证">多组数据验证</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">图片地址</th>
+<th style="text-align:center">本地size</th>
+<th style="text-align:center">canvas.toBlob</th>
+<th style="text-align:center">canvas.toDataURL + dataURLtoBlob</th>
+<th style="text-align:center">performance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">https://images.daojia.com/changsha/banner/pic/25675a8d10bfa08e9599d2deb9a44eae.jpeg</td>
+<td style="text-align:center">20519</td>
+<td style="text-align:center">36345</td>
+<td style="text-align:center">36343</td>
+<td style="text-align:center">20519</td>
+</tr>
+<tr>
+<td style="text-align:left">https://images.daojia.com/dop/custom/dda52b42212b6bdea3e12d03ac97ffbe.png</td>
+<td style="text-align:center">65511</td>
+<td style="text-align:center">164303</td>
+<td style="text-align:center">164302</td>
+<td style="text-align:center">65511</td>
+</tr>
+<tr>
+<td style="text-align:left">https://images.daojia.com/dop/custom/f8f0528c61e243699c309f5f25eab513.png</td>
+<td style="text-align:center">14638</td>
+<td style="text-align:center">36394</td>
+<td style="text-align:center">36391</td>
+<td style="text-align:center">14638</td>
+</tr>
+</tbody>
+</table>
+<h4 id="没有看错-performance-与本地的完全一样">没有看错 performance 与本地的完全一样</h4>
+<h3 id="不限制于图片">不限制于图片</h3>
+<pre><code>function loadJSFile(source) {
+    return new Promise((res, rej) =&gt; {
+        const node = document.createElement('script')
+        node.async = false
+        node.src = source
+
+        const supportOnload = 'onload' in node
+        if (supportOnload) {
+            node.onload = function(){
+                res(this)
+            }
+            node.onerror = () =&gt; {
+                rej(`${source}加载失败`)
+            }
+        } else {
+            node.onreadystatechange = function(){
+                if (/loaded|complete/i.test(node.readyState)) {
+                    res(this)
+                }
+            }
+        }
+        document.getElementsByTagName('head')[0].appendChild(node)
+    })
+}
+function loadImgFile(url){
+    return new Promise((res, rej) =&gt; {
+        const img = new Image()
+        img.crossOrigin = ''
+        img.onload = function() {
+            res(this)
+        }
+        img.onerror = function() {
+            rej('图片加载失败')
+        }
+        img.src = url
+    })
+}
+
+function loadCSSFile(source) {
+    return new Promise((res, rej) =&gt; {
+        var head = document.getElementsByTagName('head')[0];
+        var link = document.createElement('link');
+        link.type = 'text/css';
+        link.rel = 'stylesheet';
+        link.href = source;
+        const supportOnload = 'onload' in link
+        if (supportOnload) {
+            link.onload = function(){
+                res(this)
+            }
+            link.onerror = () =&gt; {
+                rej(`${source}加载失败`)
+            }
+        } else {
+            link.onreadystatechange = function(){
+                if (/loaded|complete/i.test(link.readyState)) {
+                    res(this)
+                }
+            }
+        }
+        head.appendChild(link);
+    })
+}
+function getFileSize(url){
+    return new Promise((res, rej) =&gt; {
+    var performance = window.performance || 
+        window.msPerformance || 
+        window.webkitPerformance;
+    if (performance) {
+        let [imgEntries] = performance.getEntriesByName(url)
+        if(imgEntries){
+            console.log(imgEntries)
+            console.log(imgEntries.decodedBodySize)
+            console.log((imgEntries.decodedBodySize / 1000),'KB')
+            res(imgEntries)
+        }else{
+            rej('资源加载有问题')
+        }
+    }else{
+        rej('浏览器不持支持performance')
+    }
+})
+}
+(async function (){
+    const css = 'https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css';
+    await loadCSSFile(css)
+    await getFileSize(css)
+
+    const js = 'https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.min.js';
+    await loadJSFile(js)
+    await getFileSize(js)
+
+    const img = 'https://images.daojia.com/dop/custom/f8f0528c61e243699c309f5f25eab513.png';
+    await loadImgFile(img)
+    await getFileSize(img)
+})()
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://weidadeda.github.io/post-images/1644228526757.png" alt="" loading="lazy"></figure>
+<h3 id="兼容性">兼容性</h3>
+<p>最后记得使用<a href="https://caniuse.com/?search=encodedBodySize">caniuse - performance</a>查看一下兼容性</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[用yeoman开发一个自己的项目脚手架]]></title>
         <id>https://weidadeda.github.io/post/kai-fa-yi-ge-zi-ji-de-xiang-mu-jiao-shou-jia</id>
@@ -1139,99 +1414,6 @@ cd nacos-docker
 Nacos 控制台</p>
 <p>link：http://127.0.0.1:8848/nacos/（因为是在服务器上，所以可以直接使用对应的域名或者ip来访问）</p>
 <h3 id="注意这里要用openapi提供的字段信息多了tenant字段-有哪里不明白的可以看下开头的官方文档哈">注意，这里要用openApi提供的字段信息，多了tenant字段。有哪里不明白的可以看下开头的官方文档哈。</h3>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[mysql查询语句]]></title>
-        <id>https://weidadeda.github.io/post/mysql-cha-xun-yu-ju</id>
-        <link href="https://weidadeda.github.io/post/mysql-cha-xun-yu-ju">
-        </link>
-        <updated>2022-01-14T06:46:38.000Z</updated>
-        <content type="html"><![CDATA[<p><a href="https://www.mysqlzh.com/doc/124.html">mysql中文文档</a></p>
-<h3 id="1查询记录">1.查询记录</h3>
-<pre><code>select*from 表名 [where 条件];
-
-eg:select*from students;//查询 students 表中所有记录，所有字段的值都显示出来
-
-select field1,field2,...fieldn... from 表名 [where 条件];
-
-eg:select id,name,age from students;//查询 students 表中所有记录, 只显示出 id，name，age三个字段的值
-</code></pre>
-<p>1.“*”表示将所有的字段都显示出来</p>
-<p>2.用逗号分割，列出需要显示的字段</p>
-<h3 id="2查询不重复的记录">2.查询不重复的记录</h3>
-<pre><code>select distinct 字段 from 表名;
-
-eg: select distinct name from students;//查询名字不相同的学生;
-　　select distinct name,age from students;//查询名字和年龄同时不同的学生
-　　
-　　1.distinct必须放在最开头
-　　2.distinct只能使用需要去重的字段进行操作。  ----也就是说我sidtinct了name,age两个字段，我后面想根据id进行排序，是不可以的，因为只能name,age两个字段进行操作.
-　　3.distinct去重多个字段时，含义是：几个字段 同时重复 时才会被 过滤。
-</code></pre>
-<h3 id="3条件查询">3.条件查询</h3>
-<pre><code>select 字段 from 表名 where 条件;
-
-eg:select * from student where sex='男' and age&gt;20; //查询性别是男，并且年龄大于20岁的人。
-
-where后面的条件可以用&gt;、&lt;、&gt;=、&lt;=、!=等多种比较运算符，多个条件之间可以用or、and等逻辑运算符
-</code></pre>
-<h3 id="4排序和限制">4.排序和限制</h3>
-<pre><code>排序
-select * from 表名 [where 条件] [ order by  field1 [desc/asc],field2 [desc/asc]... ];
-
-eg:select *from student order by age desc;//查询学生表并按年龄降序排列。
-
-1.desc 降序排列，asc 升序排列
-2.order by 后面可以跟多个不同的排序字段，每个排序字段都可以有不同的排序顺序。
-3.如果排序字段的值一样，则相同的字段按照第二个排序字段进行排序。
-4.如果只有一个排序字段，则字段相同的记录将会无序排列。
-</code></pre>
-<pre><code>限制
-select ... [limit 起始偏移量,行数];
-
-eg:select * from student order by mark desc limit 5;//取出成绩前五名的学生(省略了起始偏移量，此时默认为0)
-
-1.默认情况下，起始偏移量为0，只写记录行数就可以。
-</code></pre>
-<h3 id="5聚合">5.聚合</h3>
-<pre><code>select 字段 fun_name from 表名 [where 条件] [group by field1,field2...] [with rollup] [having 条件];
-
-eg:
-
-1.fun_name 表示要做的聚合操作，也就是说聚合函数，常用的有 : sum(求和)、count(*)(记录数)、max(最大值)、min(最小值)。
-2.group by关键字 表示要进行分类聚合的字段。比如要按照部门分类统计员工数量，部门就应该写在group by 后面。
-3.with rollup 是可选语法，表明是否对分类聚合后的结果进行再汇总
-4.having 关键字表示对分类后的结果再进行条件过滤。
-</code></pre>
-<p>公司员工表A如下 (编号，姓，名，薪水) ：<br>
-<img src="https://weidadeda.github.io/post-images/1642143111386.png" alt="" loading="lazy"></p>
-<pre><code>统计总人数
-select count(1) from A;
-</code></pre>
-<figure data-type="image" tabindex="1"><img src="https://weidadeda.github.io/post-images/1642143169839.png" alt="" loading="lazy"></figure>
-<pre><code>统计各个姓的人数
-select xing,count(1) from A group by xing;
-</code></pre>
-<figure data-type="image" tabindex="2"><img src="https://weidadeda.github.io/post-images/1642143194061.png" alt="" loading="lazy"></figure>
-<pre><code>既要统计各个姓的人数，又统计总人数
-select xing,count(1) from A group by xing with rollup;
-</code></pre>
-<figure data-type="image" tabindex="3"><img src="https://weidadeda.github.io/post-images/1642143250933.png" alt="" loading="lazy"></figure>
-<pre><code>统计人数大4的姓
-select xing,count(1) from A group by xing having count(1)&gt;4;
-</code></pre>
-<figure data-type="image" tabindex="4"><img src="https://weidadeda.github.io/post-images/1642143298558.png" alt="" loading="lazy"></figure>
-<pre><code>统计薪水总额，最低薪资，最高薪资
-select count(1),min(salary),max(salary) from A;
-</code></pre>
-<figure data-type="image" tabindex="5"><img src="https://weidadeda.github.io/post-images/1642143319528.png" alt="" loading="lazy"></figure>
-<h3 id="6为表和字段取别名">6.为表和字段取别名</h3>
-<p>在查询数据时，可以为表和字段取别名，这个别名可以代替指定的表和字段。如果表名很长，用起来不方便，则可以用一个别名来代替，语法如下：(as关键字可省略)</p>
-<pre><code>select * from 表名 [as] 别名  （为表取别名）
-</code></pre>
-<pre><code>SELECT 字段名 [AS] 别名[,字段名 [AS] 别名,……] FROM 表名; (为字段取别名)
-</code></pre>
 ]]></content>
     </entry>
 </feed>
