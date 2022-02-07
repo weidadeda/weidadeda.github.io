@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://weidadeda.github.io</id>
     <title>Gridea</title>
-    <updated>2022-02-07T06:31:48.815Z</updated>
+    <updated>2022-02-07T08:19:26.823Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://weidadeda.github.io"/>
     <link rel="self" href="https://weidadeda.github.io/atom.xml"/>
@@ -10,6 +10,217 @@
     <logo>https://weidadeda.github.io/images/avatar.png</logo>
     <icon>https://weidadeda.github.io/favicon.ico</icon>
     <rights>All rights reserved 2022, Gridea</rights>
+    <entry>
+        <title type="html"><![CDATA[用yeoman开发一个自己的项目脚手架]]></title>
+        <id>https://weidadeda.github.io/post/kai-fa-yi-ge-zi-ji-de-xiang-mu-jiao-shou-jia</id>
+        <link href="https://weidadeda.github.io/post/kai-fa-yi-ge-zi-ji-de-xiang-mu-jiao-shou-jia">
+        </link>
+        <updated>2022-02-07T07:37:02.000Z</updated>
+        <content type="html"><![CDATA[<p><img src="https://weidadeda.github.io/post-images/1644219568486.gif" alt="" loading="lazy"><br>
+上面是一个使用脚手架来初始化项目的典型例子。<br>
+随着前端工程化的理念不断深入，越来越多的人选择使用脚手架来从零到一搭建自己的项目。其中大家最熟悉的就是create-react-app和vue-cli，它们可以帮助我们初始化配置、生成项目结构、自动安装依赖，最后我们一行指令即可运行项目开始开发，或者进行项目构建（build）。<br>
+这些脚手架提供的都是普遍意义上的最佳实践，但是我在开发中发现，随着业务的不断发展，必然会出现需要针对业务开发的实际情况来进行调整。例如：</p>
+<ol>
+<li>
+<p>项目架构的配置<br>
+a. webpack/gulp的配置<br>
+ⅰ. style/less/sass的选择和处理配置。<br>
+ⅱ. Typescript和JavaScript的loader和babel的配置，比如babel-loader和tsc。<br>
+ⅲ. 图片的配置，比如需要file-loader或者url-loader。<br>
+ⅳ. 静态资源的配置。<br>
+ⅴ. 企业内部，真对于某些特定功能的webpack-loader/webpack-plugin，比如打包完图片上传。<br>
+b. 是否内置一些第三方框架供上手使用，比如Element-UI，Antd等。<br>
+c. 项目的路由的设计和配置。<br>
+d. 项目目录结构的设计和配置。<br>
+e. 项目通用功能的有关代码，比如登陆和欢迎页等。<br>
+f.通过调整插件与配置实现 Webpack 打包性能优化<br>
+g.针对生产环境做的单独处理</p>
+</li>
+<li>
+<p>项目开发中的配置<br>
+a. eslint。<br>
+b. style-lint。<br>
+c. prettier。<br>
+d. 单元测试jest或者其他单元测试框架。<br>
+e. 项目文档的自动生成，比如docz。<br>
+f. git相关的，比如git提交的校验，生成changelog<br>
+g. npm相关，除非是开发npm包，否则npm相关的不是那么重要<br>
+h. 与开发有关的工具，比如打包构建结果的包分析、比如相似代码自动生成</p>
+</li>
+<li>
+<p>项目上线脚本，这个应该是可选项？更优的方法应该是使用内部的例如发布平台之类的工具完成，或者通过jekins或者gitlab-ci进行自动化发布，回滚等操作。上线发布回滚的动作可以完全交给非开发人员完成。<br>
+a. 比如由nodejs编写的上线脚本，或者是用于上线的shell脚本。<br>
+b. gitlab-ci的配置文件</p>
+</li>
+</ol>
+<p>……<br>
+总而言之，随着业务发展，我们往往会沉淀出一套更“个性化”的业务方案。这时候我们最直接的做法就是开发出一个该方案的脚手架来，以便今后能复用这些最佳实践与方案。<br>
+那么就需要使用一个工具来帮我们做这些处理，我们使用的就是yoman。<a href="https://yeoman.io/">官网地址</a><br>
+我们可以使用yeoman和yeoman的generator来更加便捷实现我们的脚手架，可以说基本是零成本。<br>
+先说说Yeoman是什么，它想做什么？<br>
+Yeamon帮助你快速的开展一个项目工程，提供最佳实践和工具，来让你保持高效率编码。</p>
+<p>他们自己提供了一个构建生态系统，主要通过‘yo’这个命令来构建一个完整的项目或者项目的一部分。</p>
+<p>通过官方的生成器，他们建立了一个Yeoman的工作流，这个流是由一个强大的,固定的客户端组建，包含工具和框架帮助开发者快速建立牛逼的web应用。他们尽量提供了开发者所需的东西。比如先下载对应模版项目，然后下载模版项目中的package.json中的包</p>
+<p>作为良好文档和深入思考构建过程的思想者，Yeoman包含了检测（静态检测）、测试以及压缩等等一系列工具，让开发者能够更加专注于思考解决方案。</p>
+<h3 id="如何使用">如何使用：</h3>
+<p>1、npm install -g yo //权限不够，请加上 sudo，一般来说mac都需要。<br>
+安装完成之后，你就拥有了1个命令 -- yo 可以选择自定义的，也可以搜索你想要的现成的，这里我们选择自己的。 官网提供的地址：http://yeoman.io/generators/<br>
+那我们开始编写一个自己的generators。<br>
+2、开发自己的generator<br>
+创建项目<br>
+全局安装generator-generator，然后使用创建项目，根据提示输出我们的generator项目的名字，yeoman规定项目名字必须以generator开头，所以我们可以选择generator-xxx作为我们的项目名<br>
+npm i -g generator-generator<br>
+yo generator<br>
+创建好项目之后，我们可以发现已经自动为我们配置好了eslint，jest，husky</p>
+<p>我们主要需要修改的代码位于generators/app内<br>
+● index.js定义了我们使用此generator时的一些操作配置项<br>
+● templates内存放的是要生成的项目的项目模板，项目模板也可以放在git上，然后通过download-git-repo下载到本地<br>
+验证我们创建的项目</p>
+<ol>
+<li>在当前项目执行npm link使其被链接到全局</li>
+<li>然后找一个目录，终端执行yo，此时便可以发现我们的generator已经出现在了选择列表中。然后选择我们的generator运行即可。等待完成，会发现成功的创建了一个叫做dummyfile.txt的文件夹。<br>
+generators/app/index.js<br>
+初始化的文件如下。</li>
+</ol>
+<pre><code>&quot;use strict&quot;;
+const Generator = require(&quot;yeoman-generator&quot;);
+const chalk = require(&quot;chalk&quot;);
+const yosay = require(&quot;yosay&quot;);
+
+module.exports = class extends Generator {
+  prompting() {
+    // Have Yeoman greet the user.
+    this.log(
+      yosay(
+        `Welcome to the fantastic ${chalk.red(&quot;generator-rc-op&quot;)} generator!`
+      )
+    );
+
+    const prompts = [
+      {
+        type: &quot;confirm&quot;,
+        name: &quot;someAnswer&quot;,
+        message: &quot;Would you like to enable this option?&quot;,
+        default: true
+      }
+    ];
+
+    return this.prompt(prompts).then(props =&gt; {
+      // To access props later use this.props.someAnswer;
+      this.props = props;
+    });
+  }
+
+  writing() {
+    this.fs.copy(
+      this.templatePath(&quot;dummyfile.txt&quot;),
+      this.destinationPath(&quot;dummyfile.txt&quot;)
+    );
+  }
+
+  install() {
+    this.installDependencies();
+  }
+};
+</code></pre>
+<p>从文件的内容可以看出主要操作是暴露出一个继承自Generator的类，在类的内部定义了部分生命周期方法，供yoeman在适当的时候调用。我们只需要完善这些方法就可以了。</p>
+<h3 id="yeoman提供的生命周期如下">yeoman提供的生命周期如下：</h3>
+<ol>
+<li>initializing：初始化必要的依赖，或者比如检测新版本</li>
+<li>prompting：用来处理终端的交互</li>
+<li>default：这里指的是自己自定义的方法，而不是名为default的方法，自己定义的方法如果不想被调用，那么需要确保方法名以_为开头。</li>
+<li>writing：将经过ejs模板渲染后的内容写入文件系统。</li>
+<li>conflicts：勇于解决将文件内容写入文件系统时可能造成的冲突</li>
+<li>install：安装项目的依赖，比如npm install 或者 bower install</li>
+<li>end：做一些收尾的工作。</li>
+</ol>
+<p>这些生命周期方法均支持返回Promise来进行异步操作。</p>
+<h3 id="内置常用工具">内置常用工具</h3>
+<p>终端交互：内置了Inquirer提供终端交互<br>
+模板填充：内置了ejs模板<br>
+文件操作<br>
+● this.fs.copyTpl：用于拷贝并且根据数据使用ejs模板渲染文件。此函数接受三个参数，源文件路径，目标文件路径，传给ejs用于渲染目标问价的数据。<br>
+● this.fs.copy：将文件丛源路径复制到目标路径。<br>
+● this.destinationPath() ：此函数返回最终生成项目的路径<br>
+其他<br>
+● this.npmInstall：实现npm isntall</p>
+<pre><code>// 部分代码，完整代码见最下方链接
+writing() {
+    const done = this.async();
+    this.log(&quot;⚙  Finish basic configuration.&quot;, chalk.green(&quot;✔&quot;));
+    this.log(&quot;📂 Generate the project template and configuration...&quot;);
+    let spinner = ora({
+      text: `Download the template from ${GIT_BASE}${TPL_REPOSITORY}...`,
+      spinner: ORA_SPINNER
+    }).start();
+    this._downloadTemplate(TPL_REPOSITORY)
+      .then(() =&gt; {
+        spinner.stopAndPersist({
+          symbol: chalk.green(&quot;   ✔&quot;),
+          text: `Finish downloading the template from ${GIT_BASE}${TPL_REPOSITORY}`
+        });
+        spinner = ora({
+          text: `Copy files into the project folder...`,
+          spinner: ORA_SPINNER
+        }).start();
+        const templateRoot = this.destinationPath(this.dirName, &quot;.tmp&quot;);
+        this.log(`\n${templateRoot}`, &quot;templateRoot&quot;);
+        const resoPath = path.resolve(templateRoot, &quot;../&quot;);
+        this.log(resoPath, &quot;resoPath&quot;);
+        spinner.stopAndPersist({
+          symbol: chalk.green(&quot;   ✔&quot;),
+          text: `Finish copying files into the project folder`
+        });
+        execSync(`cp -R ${resoPath}/.tmp/* ${resoPath}`, { stdio: &quot;inherit&quot; });
+        spinner = ora({
+          text: `Clean tmp files and folders...`,
+          spinner: ORA_SPINNER
+        }).start();
+        fs.removeSync(templateRoot);
+        spinner.stopAndPersist({
+          symbol: chalk.green(&quot;   ✔&quot;),
+          text: `Finish cleaning tmp files and folders`
+        });
+        // ExecSync(`rm -R ${resoPath}/.tmp`, { stdio: &quot;inherit&quot; });
+        // 将新生成的项目的title换成自定义的项目名称
+        ejs.renderFile(
+          `${resoPath}/public/index.html`,
+          { dirName: this.dirName },
+          function(err, str) {
+            // Str =&gt; 输出渲染后的 HTML 字符串
+            fs.writeFile(`${resoPath}/public/index.html`, str);
+          }
+        );
+        // 将新生成的项目的package.json的name换成自定义的项目名称
+        ejs.renderFile(
+          `${resoPath}/package.json`,
+          { dirName: this.dirName },
+          function(err, str) {
+            // Str =&gt; 输出渲染后的 HTML 字符串
+            fs.writeFile(`${resoPath}/package.json`, str);
+          }
+        );
+        done();
+      })
+      .catch(err =&gt; this.env.error(err));
+  }
+</code></pre>
+<h3 id="其他可能用到的工具">其他可能用到的工具</h3>
+<p>● ora：用于创建Spinner，即比如下载模板文件时需要展示的laoding效果。<br>
+● chalk：用于打印彩色的信息<br>
+● update-notifier<br>
+● beeper<br>
+● boxen<br>
+调试<br>
+由于yeoman是通过npm包的形式进行使用的，所以我们可以在我们开发的generator项目的跟目录下，执行npm link 将我们开发的generator链接到全局，这样我们直接使用yo命令查看可以使用的generator，就可以看到我们所开发的generator了，并且是实时生效的</p>
+<h3 id="我的代码是在本地的用的npm-link没有上传到github或npm此处贴出其他大佬的项目代码-快动手试一下吧~">我的代码是在本地的，用的npm link，没有上传到github或npm，此处贴出其他大佬的项目代码。快动手试一下吧～</h3>
+<p><a href="https://github.com/alienzhou/webpack-kickoff-template">模版完整代码</a>   注意要给ejs写入的空位<br>
+<a href="https://github.com/alienzhou/generator-webpack-kickoff">脚手架完整代码</a></p>
+<h3 id="参考文章">参考文章：</h3>
+<p><a href="https://www.yuque.com/kongdepeng/rgpm60/qrluup">前端自动化工具 - yeoman</a><br>
+<a href="https://zhuanlan.zhihu.com/p/66190308">如何快速开发一个自己的项目脚手架？</a></p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[如何用Object.create浅拷贝一个对象]]></title>
         <id>https://weidadeda.github.io/post/ru-he-yong-objectcreate-qian-kao-bei-yi-ge-dui-xiang</id>
@@ -1021,130 +1232,6 @@ select count(1),min(salary),max(salary) from A;
 </code></pre>
 <pre><code>SELECT 字段名 [AS] 别名[,字段名 [AS] 别名,……] FROM 表名; (为字段取别名)
 </code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[docker的安装与使用]]></title>
-        <id>https://weidadeda.github.io/post/docker-de-an-zhuang-yu-shi-yong</id>
-        <link href="https://weidadeda.github.io/post/docker-de-an-zhuang-yu-shi-yong">
-        </link>
-        <updated>2022-01-13T09:14:24.000Z</updated>
-        <content type="html"><![CDATA[<p><a href="http://www.dockerinfo.net/document">docker中文文档</a></p>
-<p>最近Docker突然火得不得了，到处都是谈论Docker的声音，相信大家和小编一样的心情，看这个东西有点高大上，但尝试去阅读Docker文章时又发现概念很模糊、不接地气、难以理解、无从下手…于是三天打鱼两天晒网，最终不了了之，反正公司也没要求用这玩意儿，不费劲了… 这不，当前几天项目要求快速上线并且部署多台服务器环境时，小编一台一台服务器的yum install、vim、restart…想屎的心都有，那时小编心里想要是有一个这么一个U盘，能把整个环境一台一台的Ctrl+V过去，那该多好啊。那时脑子一下子闪过一个念头：Docker不就是我想拥有的那个U盘吗。</p>
-<p>怀着这样的一个念头，小编花了一些时间去查阅Docker相关的书籍、看视频、逛论坛，刚开始学习时非常难受，搞不懂什么是容器什么是镜像什么是鲸鱼船…而涉及到一些原理底层的知识，书籍里的那些概念比代码都能懂，小编硬啃了一段时间并且实操了几次之后，再回过头来，才豁然开朗。念及许多想要学Docker却苦于难以入门的开发者们，正在学习却很挣扎的初学者们，故而把小编这段时间的学习成果，以一个初学者的角度，遵循循序渐进的原则，编成一份通俗易懂的文章，希望能以此引导入门，早日成Docker大神。</p>
-<p>文章提纲：</p>
-<p>1、什么是Docker</p>
-<p>2、Docker对我们有什么用处</p>
-<p>3、Docker安装和使用</p>
-<p>4、彩蛋</p>
-<p>1、什么是Docker<br>
-什么是docker？恐怕90%的人脑子一闪而过的都是那张图：一条鲸鱼背上扛着一堆箱子，图片下方是大大的“docker”。</p>
-<p>docker是什么？</p>
-<p>是鲸鱼？</p>
-<p>还是一堆箱子？</p>
-<p>或者说是载着箱子的鲸鱼？<br>
-这里小编不做解释，先引用一下官方的解释：</p>
-<p>Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的容器中，然后发布到任何流行的 Linux 机器上，也可以实现虚拟化。</p>
-<p>顾名思义，docker是一个容器引擎，容器且不说，什么是引擎？</p>
-<p>我们知道：</p>
-<p>汽车的引擎是发动机，有了发动起，汽车才能跑起来</p>
-<p>游戏需要游戏引擎（如Unity3D..），基于引擎的开发，能让游戏动起来。</p>
-<p>如官言，docker也是一种引擎，基于这个引擎，开发者能让他们开发的应用处于一个有隔离性的、可移植性的容器中，以便于发布于各种机器中而无需考虑兼容性问题。</p>
-<p>因此就不难解释，为什么docker的logo是一条装着一堆箱子的鲸鱼.</p>
-<p>这是因为：docker扮演的是图中鲸鱼的角色，而鲸鱼之上的集装箱就是一个个容器，容器中是我们开发的应用程序（不仅限于web应用），每个容器都有自己独立的环境（环境设置、网络、文件系统…），互不干扰。而每个箱子，又可以打包成一个新的镜像，放到其它服务器的docker环境中直接运行，不再需要重复安装程序运行环境。</p>
-<p>上面的解释插入了两个生疏的概念：</p>
-<p>1、镜像</p>
-<p>2、容器</p>
-<p>我们先讲容器</p>
-<p>容器，顾名思义：就是装东西的器皿，在docker中，容器就是装载我们的应用程序的器皿，在docker的logo中，容器就是一个个箱子。我们知道，运行JavaWeb应用程序需要有Tomcat，那么我们就需要创建一个Tomcat的容器，才能把我们的程序放进去运行。</p>
-<p>那么，容器哪里来的呢</p>
-<p>我们知道，给电脑安装Windows系统需要有Windows镜像，因此给docker安装容器也是需要镜像的，所以，通俗一点，镜像就类似于我们日常中的安装软件，甚至说是操作系统镜像更为形象点。</p>
-<p>那容器和镜像有什么关系？</p>
-<p>网上说是类和对象的关系，没错，但是这样的比喻没什么实际卵用。</p>
-<p>我们知道:要运行一个web程序，需要有个Tomcat环境，需要Tomcat环境，那就下载一个Tomcat解压出来，然后把web程序放入Tomcat的webapps中启动即可，</p>
-<p>那么在docker中要运行一个web程序，就需要有Tomcat容器，需要Tomcat容器，就得去下载Tomcat镜像（也可以自己构建），把镜像pull下来之后，运行起来，就是一个Tomcat容器，此时把web程序至于Tomcat挂载的数据目录webapps中既可以运行。</p>
-<p>所以docker中，容器和镜像的关系更像是一种动静的关系，也就是说，存于仓库中的镜像是一个死的软件，而运行起来的容器则像是一个正在运行的程序（进程）。</p>
-<p>2、Docker有什么用<br>
-对docker有了清晰的了解之后，我们心里可能在想： 这玩儿对我有什么用？ 我在哪里能用得上？ 怎么用才对？</p>
-<p>这里引用几个案例来让大家体会体会。</p>
-<p>1、案例一 前几天，公司一批服务器就要到期了，由于服务器是15年购买的，硬件的性能远比现在新出的云主机低，因此决定把所有服务器都换成新一代服务器，但是小编整准备动手迁移服务器时，内心一阵阵崩溃感涌上心头，仔细一算，每台服务器都要做同样的事情：</p>
-<p>1、安装jdk、Tomcat、nginx 2、配置jdk环境变量和系统变量 3、配置Tomcat 4、配置nginx 5、安装项目所需的视频解码组件 6、导入项目所需的一些特殊字体</p>
-<p>后来决定用docker部署的办法，在每台服务器都把docker安装之后，只需要在其中一台服务器中把Tomcat镜像从镜像仓库拉取下来，把这些配置都设置好，做成一个自己的镜像上传到镜像仓库中，之后在其他几台服务器都下载自己做的镜像，运行于docker中，把代码上传，就万事大吉了。</p>
-<p>2、案例二</p>
-<p>前不久的圣诞活动中，公司临时的活动方案在程序员的加班加点中终于上线，但是一上线之后发现推广海报中的中文名字乱码，领导问责测试人员怎么没做好测试，测试很委屈的说我已经测试无数遍并且测试报告都提交了，解决了所有问题才上线的；没办法只能让服务器同事查看正式服务器中的tomcat配置，发现原来 tomcat用了默认编码方式：iso8859-1，而测试环境中是UTF-8。针对这个问题，项目组决定把开发环境迁移到docker中，在测试环境中测试无误后，把镜像打包发布到正式环境中，解决了环境不同导致的问题。</p>
-<p>3、docker的安装<br>
-感知到docker对我们开发者的好处之后，相信大家也跃跃欲试了吧，下面 就Linux centOS（版本大于等于7.0）系统进行演示docker的安装步骤：</p>
-<p>1、删除可能存在的旧版本</p>
-<pre><code>1 sudo yum remove docker
-2 docker-client
-3 docker-client-latest
-4 docker-common
-5 docker-latest
-6 docker-latest-logrotate
-7 docker-logrotate
-8 docker-selinux
-9 docker-engine-selinux
-10 docker-engine
-</code></pre>
-<p></p>
-<p>2、安装一些必备工具：</p>
-<pre><code>1 yum install -y yum-utils device-mapper-persistent-data lvm2
-</code></pre>
-<p>3、添加Docker源：</p>
-<pre><code>1yum-config-manager
-2 --add-repo
-3 https://download.docker.com/linux/centos/docker-ce.repo
-</code></pre>
-<p>4、更新yum缓存</p>
-<pre><code>1 yum makecache fast
-</code></pre>
-<p>5、安装</p>
-<pre><code>yum install docker-ce
-</code></pre>
-<p>6、创建docker用户</p>
-<p>温馨提示：以下操作不是必备，但是为了养成一个Linux用户的使用的良好习惯，小编不建议直接使用root操作，因此创建一个用户用来操作docker。</p>
-<pre><code>useradd docker_manager
-</code></pre>
-<p>docker_manager是用户名，可以根据喜好起名，创建完用户之后，设置密码</p>
-<pre><code>1 passwd docker_manager
-2
-3 docker_manager_wsdt
-</code></pre>
-<p>会提示输入密码和确认密码,按照提示操作即可</p>
-<p>7、配置docker用户的权限</p>
-<pre><code>visudo
-</code></pre>
-<p>visudo是配置用户权限的文件，在命令行中输入visudo回车之后，会进入文件操作，找到“# %wheel ALL=(ALL) NOPASSWD: ALL”这一行，把前面的“#”去掉，保存文件</p>
-<p>8、授权</p>
-<pre><code>usermod -aG wheel,docker docker_manager
-</code></pre>
-<p>9、启动 Docker CE</p>
-<pre><code>sudo systemctl enable docker
-sudo systemctl start docker
-```　
-此时在命令行中输入“docker info”之后，能够展示docker相关信息，就表示docker安装成功。
-
-</code></pre>
-<p>docker info</p>
-<pre><code>
-10、镜像加速：
-
-编辑daemon.json文件（首次安装daemon.json是个新文件，不要惊讶）
-
-</code></pre>
-<p>vim /etc/docker/daemon.json</p>
-<pre><code>加入以下内容：
-</code></pre>
-<p>1{<br>
-2 &quot;registry-mirrors&quot;: [<br>
-3 &quot;https://registry.docker-cn.com&quot;<br>
-4 ]<br>
-5}</p>
-<pre><code>保存，sudo systemctl restart docker重启即可。
-
-4、总结
-上面针对docker使用了一种比较通俗诙谐的语言来讲述，也是为了方便读者能容易的解读和理解，理解并且成功安装docker之后，你们就会想方设法的要把自己的web项目部署到docker了，这我没说错吧，大家可以网上查找一些资料去学习这一块。
-学习转载：https://www.cnblogs.com/myprogramer/p/10288634.html</code></pre>
 ]]></content>
     </entry>
 </feed>
