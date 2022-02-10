@@ -8,7 +8,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>Gridea</title>
+<title>Airbnb CSS / Sass 规范指南 | Gridea</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1644481767982">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -29,7 +29,8 @@
 
 
 
-  <meta name="description" content="温故而知新">
+  <meta name="description" content="Airbnb CSS / Sass 规范指南" />
+  <meta name="keywords" content="" />
 </head>
 
 <body>
@@ -78,7 +79,7 @@
             
               
             
-            <li class="nav-item nav-item-active">
+            <li class="nav-item ">
               
               
                 <a href="/archives/" target="_self">
@@ -142,10 +143,26 @@
   <div class="main-continer">
     
     <div
-      class="section-layout  gemini">
+      class="section-layout gemini ">
       <div class="section-layout-wrapper">
-        <div id="sidebarMeta" class="sidebar">
-    
+        
+
+<div class="sidebar">
+  
+    <div class="sidebar-box box-shadow-wrapper bg-color right-motion" id="sidebar">
+      
+        <div class="post-list-sidebar">
+          <div class="sidebar-title">
+            <span id="tocSideBar" class="sidebar-title-item sidebar-title-active">文章目录</span>
+            <span id="metaSideBar" class="sidebar-title-item">站点概览</span>
+          </div>
+        </div>
+      
+      <div class="sidebar-body gemini" id="sidebar_body">
+        
+          
+            <div class="post-side-meta" id="post_side_meta">
+              
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="/images/avatar.png"/>
@@ -192,411 +209,539 @@
 
 
 </div>
+            </div>
+            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+              <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto"
+    id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#%E6%9C%AF%E8%AF%AD">术语</a>
+<ul>
+<li><a href="#%E8%A7%84%E5%88%99%E5%A3%B0%E6%98%8E">规则声明</a></li>
+<li><a href="#%E9%80%89%E6%8B%A9%E5%99%A8">选择器</a></li>
+<li><a href="#%E5%B1%9E%E6%80%A7">属性</a></li>
+</ul>
+</li>
+<li><a href="#css%E6%A0%BC%E5%BC%8F">CSS格式</a>
+<ul>
+<li><a href="#bad">Bad</a></li>
+<li><a href="#good">Good</a></li>
+</ul>
+</li>
+<li><a href="#%E6%B3%A8%E9%87%8A">注释</a></li>
+<li><a href="#id-%E9%80%89%E6%8B%A9%E5%99%A8">ID 选择器</a></li>
+<li><a href="#javascript-%E9%92%A9%E5%AD%90">JavaScript 钩子</a></li>
+<li><a href="#%E8%BE%B9%E6%A1%86">边框</a>
+<ul>
+<li><a href="#bad-2">Bad</a></li>
+<li><a href="#good-2">Good</a></li>
+</ul>
+</li>
+<li><a href="#sass">Sass</a></li>
+<li><a href="#%E5%B1%9E%E6%80%A7%E5%A3%B0%E6%98%8E%E7%9A%84%E6%8E%92%E5%BA%8F">属性声明的排序</a>
+<ul>
+<li><a href="#%E5%B1%9E%E6%80%A7%E5%A3%B0%E6%98%8E">属性声明</a></li>
+<li><a href="#include-%E5%A3%B0%E6%98%8E">@include 声明</a></li>
+<li><a href="#%E5%B5%8C%E5%A5%97%E9%80%89%E6%8B%A9%E5%99%A8">嵌套选择器</a></li>
+</ul>
+</li>
+<li><a href="#%E5%8F%98%E9%87%8F">变量</a></li>
+<li><a href="#mixins">Mixins</a></li>
+<li><a href="#%E6%89%A9%E5%B1%95%E6%8C%87%E4%BB%A4">扩展指令</a></li>
+<li><a href="#%E5%B5%8C%E5%A5%97%E9%80%89%E6%8B%A9%E5%99%A8-2">嵌套选择器</a><br>
+*
+<ul>
+<li><a href="#%E5%86%8D%E8%AF%B4%E4%B8%80%E9%81%8D-%E6%B0%B8%E8%BF%9C%E4%B8%8D%E8%A6%81%E5%B5%8C%E5%A5%97-id-%E9%80%89%E6%8B%A9%E5%99%A8-%E6%B0%B8%E8%BF%9C%E4%B8%8D%E8%A6%81%E5%B5%8C%E5%A5%97-id-%E9%80%89%E6%8B%A9%E5%99%A8-%E6%B0%B8%E8%BF%9C%E4%B8%8D%E8%A6%81%E5%B5%8C%E5%A5%97-id-%E9%80%89%E6%8B%A9%E5%99%A8">再说一遍: 永远不要嵌套 ID 选择器！ 永远不要嵌套 ID 选择器！ 永远不要嵌套 ID 选择器！</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
 </div>
+
 <script>
-  let sidebarMeta = document.querySelector('#sidebarMeta');
-  let scheme = 'gemini';
-  let sidebarWrapper = document.querySelector('.sidebar-wrapper');
-  if (sidebarMeta && (scheme === 'pisces' || scheme === 'gemini')) {
-    document.addEventListener('scroll', function(e) {
-      if (document.scrollingElement.scrollTop > parseInt(sidebarMeta.style.marginTop) + 10) {
-        sidebarWrapper.classList.add('home-sidebar-fixed')
-      } else {
-        sidebarWrapper.classList.remove('home-sidebar-fixed')
+
+  let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1;
+  let active = 'active-show', activeClass = 'active-current';
+  let tocWrapper = document.querySelector('#toc_wrapper');
+  let tocContent = tocWrapper.children[0];
+  let autoNumber = tocWrapper && tocWrapper.classList.contains('auto-number');
+
+  function addTocNumber(elem, deep) {
+    if (!elem) {
+      return;
+    }
+    let prop = elem.__proto__;
+
+    if (prop === HTMLUListElement.prototype) {
+      for (let i = 0; i < elem.children.length; i++) {
+        addTocNumber(elem.children[i], deep + (i + 1) + '.');
       }
+    } else if (prop === HTMLLIElement.prototype) {
+      // 保存li元素
+      if (elem.children[0].__proto__ === HTMLAnchorElement.prototype) {
+        lList.push(elem);
+      }
+      for (let i = 0; i < elem.children.length; i++) {
+        let cur = elem.children[i];
+        if (cur.__proto__ === HTMLAnchorElement.prototype) {
+          if (autoNumber) {
+            cur.text = deep + ' ' + cur.text;
+          }
+        } else if (cur.__proto__ === HTMLUListElement.prototype) {
+          addTocNumber(cur, deep);
+        }
+      }
+    }
+  }
+
+  function removeParentActiveClass() {
+    let parents = tocContent.querySelectorAll('.' + active)
+    parents.forEach(function (elem) {
+      elem.classList.remove(active);
     });
   }
-  </script>
-        <div class="section-box box-shadow-wrapper">
-          <section class="section archives-section bg-color posts-expand">
-            
 
-<div class="bg-color">
-  <div class="archive-timeline-box">
-    <div class="archive-timeline-title">
-      
-        <h2>非常好！目前共计26篇日志，继续努力！</h2>
-      
+  function addActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.add(activeClass);
+    }
+  }
+
+  function removeActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.remove(activeClass);
+    }
+  }
+
+  function addActiveLiElemment(elem, parent) {
+    if (!elem || elem === parent) {
+      return;
+    } else {
+      if (elem.__proto__ === HTMLLIElement.prototype) {
+        elem.classList.add(active);
+      }
+      addActiveLiElemment(elem.parentElement, parent);
+    }
+  }
+
+  function showToc() {
+    if (tocWrapper) {
+      postBody = document.querySelector('#post_body');
+      for (let i = 0; i < postBody.children.length; i++) {
+        if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+          hList.push(postBody.children[i]);
+        }
+      }
+      if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+      } else if (tocWrapper.classList.contains('no_compress')) {
+        tocContent.classList.add('expanded');
+      } else {
+        if (hList.length > 10) {
+          active = 'active-hidden'
+          tocContent.classList.add('closed');
+        } else {
+          tocContent.classList.add('expanded');
+        }
+      }
+    }
+  }
+
+  (function () {
+    // 处理不是从#一级标题开始目录
+    if (tocContent.children.length === 1 && tocContent.children[0].__proto__ === HTMLLIElement.prototype) {
+      let con = tocContent.children[0].children[0];
+      tocContent.innerHTML = con.innerHTML;
+    }
+    let markdownItTOC = document.querySelector('.markdownIt-TOC');
+    let innerHeight = window.innerHeight;
+    markdownItTOC.style = `max-height: ${innerHeight - 80 > 0 ? innerHeight - 80 : innerHeight}px`
+    addTocNumber(tocContent, '');
+  })();
+
+  document.addEventListener('scroll', function (e) {
+    if (lList.length <= 0) {
+      return;
+    }
+    let scrollTop = document.scrollingElement.scrollTop + 10;
+    let dir;
+
+    if (lastTop - scrollTop > 0) {
+      dir = 'up';
+    } else {
+      dir = 'down';
+    }
+
+    lastTop = scrollTop;
+    if (scrollTop <= 0) {
+      if (lastIndex >= 0 && lastIndex < hList.length) {
+        lList[lastIndex].classList.remove(activeClass);
+      }
+      return;
+    }
+
+    let current = 0, hasFind = false;
+    for (let i = 0; i < hList.length; i++) {
+      if (hList[i].offsetTop > scrollTop) {
+        current = i;
+        hasFind = true;
+        break;
+      }
+    }
+    if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+      current = hList.length - 1;
+    } else {
+      current--;
+    }
+    if (dir === 'down') {
+      if (current > lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex)
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    } else {
+      if (current < lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex);
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    }
+  });
+
+
+  window.addEventListener('load', function () {
+    showToc();
+    document.querySelector('#sidebar').style = 'display: block;';
+    tocWrapper.classList.add('toc-active');
+    setTimeout(function () {
+      if ("createEvent" in document) {
+        let evt = document.createEvent("HTMLEvents");
+        evt.initEvent("scroll", false, true);
+        document.dispatchEvent(evt);
+      }
+      else {
+        document.fireEvent("scroll");
+      }
+    }, 500)
+  })
+
+</script>
+            </div>
+          
+        
+      </div>
     </div>
+  
+</div>
+<script>
+  const SIDEBAR_TITLE_ACTIVE = 'sidebar-title-active';
+  const SIDEBAR_BODY_ACTIVE = 'sidebar-body-active';
+  const SLIDE_UP_IN = 'slide-up-in';
+
+  let sidebar = document.querySelector('#sidebar'),
+  tocSideBar = document.querySelector('#tocSideBar'),
+  metaSideBar = document.querySelector('#metaSideBar'),
+  postToc = document.querySelector('#post_toc'),
+  postSiteMeta = document.querySelector('#post_side_meta'),
+  sidebarTitle = document.querySelector('.sidebar-title'),
+  sidebarBody = document.querySelector('#sidebar_body');
+
+  tocSideBar && tocSideBar.addEventListener('click', (e) => {
+    toggleSidebar(e);
+  });
+
+  metaSideBar && metaSideBar.addEventListener('click', (e) => {
+    toggleSidebar(e);
+  });
+
+  function toggleSidebar(e) {
+    let currentTitle = document.querySelector("."+SIDEBAR_TITLE_ACTIVE);
+    if (currentTitle == e.srcElement) {
+      return ;
+    }
+    let current, showElement, hideElement;
+    if (e.srcElement == metaSideBar) {
+      showElement = postSiteMeta;
+      hideElement = postToc;
+    } else if (e.srcElement == tocSideBar){
+      showElement = postToc;
+      hideElement = postSiteMeta;
+    }
+    currentTitle.classList.remove(SIDEBAR_TITLE_ACTIVE);
+    e.srcElement.classList.add(SIDEBAR_TITLE_ACTIVE);
+
+    window.Velocity(hideElement, 'stop');
+    window.Velocity(hideElement, 'transition.slideUpOut', {
+      display: 'none',
+      duration: 200,
+      complete: function () {
+        window.Velocity(showElement, 'transition.slideDownIn', {
+          duration: 200
+        });
+      }
+    })
+    hideElement.classList.remove(SIDEBAR_BODY_ACTIVE);
+    showElement.classList.add(SIDEBAR_BODY_ACTIVE);
+  }
+
+  postToc && postToc.addEventListener('transitionend', function() {
+    this.classList.remove(SLIDE_UP_IN);
+  });
+
+  if (sidebarBody) {
+    if (sidebarBody.classList.contains('pisces') || sidebarBody.classList.contains('gemini')) {
+      let hasFix = false;
+      let scrollEl = document.querySelector('.main-continer');
+      let limitTop = document.querySelector('#nav_ul').children.length * 42 + 162;
+      window.addEventListener('scroll', function(e) {
+        if (document.scrollingElement.scrollTop >= limitTop) {
+          if (!hasFix) {
+            sidebar.classList.add('sidebar-fixed');
+            hasFix = true;
+          }
+        } else {
+          if (hasFix) {
+            sidebar.classList.remove('sidebar-fixed');
+            hasFix = false;
+          }
+        }
+      });
+    }
+  }
+  
+</script>
+        <div class="section-box box-shadow-wrapper">
+          <div class="section bg-color post post-page">
+            <header class="post-header">
+  <h1 class="post-title">
+    <a class="post-title-link" href="https://weidadeda.github.io/post/airbnb-css-sass-gui-fan-zhi-nan">
+      Airbnb CSS / Sass 规范指南
+    </a>
+  </h1>
+  <div class="post-meta">
     
-      
-      
-        <div class="node-title">
-          <h2 class="tag-year">2022</h2>
-        </div>    
-        
-      
-      <a href="https://weidadeda.github.io/post/airbnb-css-sass-gui-fan-zhi-nan">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-10
-              <small>Airbnb CSS / Sass 规范指南</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
+    <span class="meta-item pc-show">
+      <i class="fa fa-calendar-o"></i>
+      <span>发布于</span>
+      <span>2022-02-10</span>
+      <span class="post-meta-divider pc-show">|</span>
+    </span>
     
-      
-      
-      <a href="https://weidadeda.github.io/post/qian-duan-chang-yong-de-ming-ming-gui-fan">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-10
-              <small>前端常用的命名规范</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/duan-xin-duan-lian-jie-huan-qi-app">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-10
-              <small>短信短链接唤起APP</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/wei-xin-gong-zhong-hao-huo-qu-openid-deng-yi-xi-lie-liu-cheng">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-10
-              <small>微信公众号获取openid等一系列流程</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/taro-xiao-cheng-xu-zhi-bo-zu-jian-liveplayer-zhu-yi-shi-xiang">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-10
-              <small>Taro 小程序直播组件 LivePlayer 注意事项</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/pu-bu-liu-ji-suan-js-yuan-ma">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-10
-              <small>瀑布流计算js源码</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/c-duan-h5-huo-xiao-cheng-xu-chang-jian-wen-ti-zong-jie">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-09
-              <small>C端H5或小程序常见问题总结</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/js-huo-qu-wen-jian-da-xiao">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-07
-              <small>js获取文件大小 window.performance</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/kai-fa-yi-ge-zi-ji-de-xiang-mu-jiao-shou-jia">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-07
-              <small>用yeoman开发一个自己的项目脚手架</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/ru-he-yong-objectcreate-qian-kao-bei-yi-ge-dui-xiang">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-21
-              <small>如何用Object.create浅拷贝一个对象</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/zi-ding-yi-yi-ge-new-fang-fa">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-20
-              <small>自定义一个new方法</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-19
-              <small>Node.js 常用工具 （util.inherits）</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-18
-              <small>Koa接口参数校验与返回值统一处理</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/koa-zhong-jian-jian-yu-zhi-xing-shun-xu">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-18
-              <small>KOA中间件与执行顺序</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/node-jie-kou-sheng-cheng-jie-kou-wen-dang">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-17
-              <small>node接口生成接口文档</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/sequelize-node-lian-jie-shu-ju-ku-de-orm">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-14
-              <small>Sequelize node连接数据库的ORM</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/sequelize">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-14
-              <small>前端使用Nacos</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/mysql-cha-xun-yu-ju">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-14
-              <small>mysql查询语句</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/docker-de-an-zhuang-yu-shi-yong">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-13
-              <small>docker的安装与使用</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/docker-zhong-shi-yong-redis">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-13
-              <small>docker中使用redis</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/nuxt-fu-wu-duan-xuan-ran-he-yu-xuan-ran-de-qu-bie">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-13
-              <small>nuxt 服务端渲染和预渲染的区别</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/docker-attach-ming-ling">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-12
-              <small>Docker attach 命令</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-12
-              <small>shell $? 获取函数返回值或者上一个命令的退出状态</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-        <div class="node-title">
-          <h2 class="tag-year">2021</h2>
-        </div>    
-        
-      
-      <a href="https://weidadeda.github.io/post/wo-shi-ce-shi">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              04-06
-              <small>mysql 时间戳格式化函数from_unixtime</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-        <div class="node-title">
-          <h2 class="tag-year">2019</h2>
-        </div>    
-        
-      
-      <a href="https://weidadeda.github.io/post/about">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-25
-              <small>关于</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-        <div class="node-title">
-          <h2 class="tag-year">2018</h2>
-        </div>    
-        
-      
-      <a href="https://weidadeda.github.io/post/hello-gridea">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              12-12
-              <small>如何自定义commit规范</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
+    <span class="meta-item">
+      <i class="fa fa-clock-o"></i>
+      <span>6分钟</span>
+    </span>
+    <span class="meta-item">
+      <span class="post-meta-divider">|</span>
+      <i class="fa fa-file-word-o"></i>
+      <span>1402<span class="pc-show">字数</span></span>
+    </span>
     
   </div>
-  
-<div class="page bg-color">
-  <ul class="pagination-ul">
-    
-    
-      
-        <li class="pagination-li pagination-active">
-            <a href="/archives/page/../">
-              1
-            </a>
-        </li>
-      
-    
-    
-  </ul>
-</div>
-</div>
+</header>
+            <div class="post-body next-md-body" id="post_body">
+              <blockquote>
+<p><em>用更合理的方式写 CSS 和 Sass</em> 翻译自<a href="https://github.com/airbnb/css">Airbnb CSS / Sass Styleguide</a></p>
+</blockquote>
+<h3 id="术语">术语</h3>
+<h4 id="规则声明">规则声明</h4>
+<p>我们把一个（或一组）选择器和一组属性称之为 “规则声明”。举个例子：</p>
+<pre><code class="language-css">.listing {
+  font-size: 18px;
+  line-height: 1.2;
+}
+</code></pre>
+<h4 id="选择器">选择器</h4>
+<p>在规则声明中，“选择器” 负责选取 DOM 树中的元素，这些元素将被定义的属性所修饰。选择器可以匹配 HTML 元素，也可以匹配一个元素的类名、ID, 或者元素拥有的属性。以下是选择器的例子：</p>
+<pre><code class="language-css">.my-element-class {
+  /* ... */
+}
 
-          </section>
+[aria-hidden] {
+  /* ... */
+}
+</code></pre>
+<h4 id="属性">属性</h4>
+<p>最后，属性决定了规则声明里被选择的元素将得到何种样式。属性以键值对形式存在，一个规则声明可以包含一或多个属性定义。以下是属性定义的例子：</p>
+<pre><code class="language-css">/* some selector */ {
+  background: #f1f1f1;
+  color: #333;
+}
+</code></pre>
+<h3 id="css格式">CSS格式</h3>
+<ul>
+<li>使用 2 个空格作为缩进。</li>
+<li>类名建议使用破折号代替驼峰法。如果你使用 BEM，也可以使用下划线（参见下面的 <a href="#oocss-and-bem">OOCSS 和 BEM</a>）。</li>
+<li>不要使用 ID 选择器。</li>
+<li>在一个规则声明中应用了多个选择器时，每个选择器独占一行。</li>
+<li>在规则声明的左大括号 { 前加上一个空格。</li>
+<li>在属性的冒号 : 后面加上一个空格，前面不加空格。</li>
+<li>规则声明的右大括号 } 独占一行。</li>
+<li>规则声明之间用空行分隔开。</li>
+</ul>
+<h4 id="bad">Bad</h4>
+<pre><code class="language-css">.avatar{
+    border-radius:50%;
+    border:2px solid white; }
+.no, .nope, .not_good {
+    // ...
+}
+#lol-no {
+  // ...
+}
+</code></pre>
+<h4 id="good">Good</h4>
+<pre><code class="language-css">.avatar {
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+.one,
+.selector,
+.per-line {
+  // ...
+}
+</code></pre>
+<h3 id="注释">注释</h3>
+<ul>
+<li>建议使用行注释 (在 Sass 中是 //) 代替块注释。</li>
+<li>建议注释独占一行。避免行末注释。</li>
+<li>给没有自注释的代码写上详细说明，比如：<br>
+为什么用到了 z-index<br>
+兼容性处理或者针对特定浏览器的 hack</li>
+</ul>
+<h3 id="id-选择器">ID 选择器</h3>
+<p>在 CSS 中，虽然可以通过 ID 选择元素，但大家通常都会把这种方式列为反面教材。ID 选择器给你的规则声明带来了不必要的高优先级，而且 ID 选择器是不可重用的。</p>
+<p>想要了解关于这个主题的更多内容，参见 <a href="https://csswizardry.com/2014/07/hacks-for-dealing-with-specificity/">CSS Wizardry</a> 的文章，文章中有关于如何处理优先级的内容。</p>
+<h3 id="javascript-钩子">JavaScript 钩子</h3>
+<p>避免在 CSS 和 JavaScript 中绑定相同的类。否则开发者在重构时通常会出现以下情况：轻则浪费时间在对照查找每个要改变的类，重则因为害怕破坏功能而不敢作出更改。</p>
+<p>我们推荐在创建用于特定 JavaScript 的类名时，添加 .js- 前缀：</p>
+<pre><code class="language-html">&lt;button class=&quot;btn btn-primary js-request-to-book&quot;&gt;Request to Book&lt;/button&gt;
+</code></pre>
+<h3 id="边框">边框</h3>
+<p>在定义无边框样式时，使用 0 代替 none。</p>
+<h4 id="bad-2">Bad</h4>
+<pre><code class="language-css">.foo {
+  border: none;
+}
+</code></pre>
+<h4 id="good-2">Good</h4>
+<pre><code class="language-css">.foo {
+  border: 0;
+}
+</code></pre>
+<h3 id="sass">Sass</h3>
+<p>语法<br>
+使用 .scss 的语法，不使用 .sass 原本的语法。<br>
+CSS 和 @include 声明按照以下逻辑排序（参见下文）</p>
+<pre><code class="language-html">&lt;a name=&quot;ordering-of-property-declarations&quot;&gt;&lt;/a&gt;
+</code></pre>
+<h3 id="属性声明的排序">属性声明的排序</h3>
+<h4 id="属性声明">属性声明</h4>
+<p>首先列出除去 @include 和嵌套选择器之外的所有属性声明。</p>
+<p><code>.btn-green { background: green; font-weight: bold; // ... }</code></p>
+<h4 id="include-声明">@include 声明</h4>
+<p>紧随后面的是 @include，这样可以使得整个选择器的可读性更高。</p>
+<p><code>.btn-green { background: green; font-weight: bold; @include transition(background 0.5s ease); // ... }</code></p>
+<h4 id="嵌套选择器">嵌套选择器</h4>
+<p>_如果有必要_用到嵌套选择器，把它们放到最后，在规则声明和嵌套选择器之间要加上空白，相邻嵌套选择器之间也要加上空白。嵌套选择器中的内容也要遵循上述指引。</p>
+<p>` .btn { background: green; font-weight: bold; @include transition(background 0.5s ease);</p>
+<p>.icon { margin-right: 10px; } } `</p>
+<h3 id="变量">变量</h3>
+<p>变量名应使用破折号（例如 $my-variable）代替 camelCased 和 snake_cased 风格。对于仅用在当前文件的变量，可以在变量名之前添加下划线前缀（例如 $_my-variable）。</p>
+<h3 id="mixins">Mixins</h3>
+<p>为了让代码遵循 DRY 原则（Don't Repeat Yourself）、增强清晰性或抽象化复杂性，应该使用 mixin，这与那些命名良好的函数的作用是异曲同工的。虽然 mixin 可以不接收参数，但要注意，假如你不压缩负载（比如通过 gzip），这样会导致最终的样式包含不必要的代码重复。</p>
+<h3 id="扩展指令">扩展指令</h3>
+<p>应避免使用 @extend 指令，因为它并不直观，而且具有潜在风险，特别是用在嵌套选择器的时候。即便是在顶层占位符选择器使用扩展，如果选择器的顺序最终会改变，也可能会导致问题。（比如，如果它们存在于其他文件，而加载顺序发生了变化）。其实，使用 @extend 所获得的大部分优化效果，gzip 压缩已经帮助你做到了，因此你只需要通过 mixin 让样式表更符合 DRY 原则就足够了。</p>
+<h3 id="嵌套选择器-2">嵌套选择器</h3>
+<p>请不要让嵌套选择器的深度超过 3 层！</p>
+<pre><code class="language-sass">.page-container {
+  .content {
+    .profile {
+      // STOP!
+    }
+  }
+}
+</code></pre>
+<p>当遇到以上情况的时候，你也许是这样写 CSS 的：</p>
+<ul>
+<li>与 HTML 强耦合的（也是脆弱的）<em>—或者—</em></li>
+<li>过于具体（强大）<em>—或者—</em></li>
+<li>没有重用</li>
+</ul>
+<h5 id="再说一遍-永远不要嵌套-id-选择器-永远不要嵌套-id-选择器-永远不要嵌套-id-选择器">再说一遍: 永远不要嵌套 ID 选择器！ 永远不要嵌套 ID 选择器！ 永远不要嵌套 ID 选择器！</h5>
+<p>如果你始终坚持要使用 ID 选择器（劝你三思），那也不应该嵌套它们。如果你正打算这么做，你需要先重新检查你的标签，或者指明原因。如果你想要写出风格良好的 HTML 和 CSS，你是不应该这样做的。</p>
+
+            </div>
+            <div class="post-footer">
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>本文作者：</strong>
+      王大伟
+    </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://weidadeda.github.io/post/airbnb-css-sass-gui-fan-zhi-nan" title="Airbnb CSS / Sass 规范指南">https://weidadeda.github.io/post/airbnb-css-sass-gui-fan-zhi-nan</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong>
+      本博客所有文章除特别声明外，均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i> BY-NC-SA</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+  <div class="tags">
+    
+  </div>
+  <div class="nav">
+    <div class="nav-prev">
+      
+    </div>
+    <div class="nav-next">
+      
+        <a class="nav-pc-next" title="前端常用的命名规范" href="https://weidadeda.github.io/post/qian-duan-chang-yong-de-ming-ming-gui-fan">前端常用的命名规范</a>
+        <a class="nav-mobile-next" title="前端常用的命名规范" href="https://weidadeda.github.io/post/qian-duan-chang-yong-de-ming-ming-gui-fan">下一篇</a>
+        <i class="fa fa-chevron-right"></i>
+      
+    </div>
+  </div>
+</div>
+            
+  
+    
+      <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+  var gitalk = new Gitalk({
+    clientID: '',
+    clientSecret: '',
+    repo: '',
+    owner: '',
+    admin: [''],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+  gitalk.render('gitalk-container')
+</script>
+    
+    
+  
+
+          </div>
         </div>
       </div>
     </div>
@@ -1306,6 +1451,36 @@
   // 代码高亮
   hljs.initHighlightingOnLoad();
 
+</script>
+    <div class="light-box" id="light_box"></div>
+<script>
+  let imgs = document.querySelectorAll('.post-body img');
+  let lightBox = document.querySelector('#light_box');
+  lightBox.addEventListener('mousedown', (e) => {
+    e.preventDefault()
+  })
+  lightBox.addEventListener('mousewheel', (e) => {
+    e.preventDefault()
+  })
+  let width = window.innerWidth * 0.8;
+  lightBox.onclick = () => {
+    let img = lightBox.querySelector('img');
+    lightBox.style = '';
+    img && img.remove();
+  }
+  imgs.forEach(item => {
+    item.onclick = function (e) {
+      let lightImg = document.createElement('img');
+      lightImg.src = this.src;
+      lightBox.style = `height: 100%; opacity: 1; background-color: rgba(0, 0, 0, 0.5);cursor: zoom-out;`;
+      lightImg.style = `width: ${width}px; border: 1px solid #fff; border-radius: 2px;`;
+      lightImg.onclick = function () {
+        lightBox.style = '';
+        this.remove();
+      }
+      lightBox.append(lightImg);
+    }
+  })
 </script>
   </div>
 </body>
@@ -3990,7 +4165,6 @@ if (!commitRE.test(msg)) {
 </script> -->
 
 <script src="/media/js/mouse/peace.js"></script>
-
 
 
 </html>

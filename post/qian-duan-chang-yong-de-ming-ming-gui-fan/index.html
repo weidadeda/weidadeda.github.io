@@ -8,7 +8,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>Gridea</title>
+<title>前端常用的命名规范 | Gridea</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1644481767982">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -29,7 +29,8 @@
 
 
 
-  <meta name="description" content="温故而知新">
+  <meta name="description" content="前端常用的命名规范" />
+  <meta name="keywords" content="" />
 </head>
 
 <body>
@@ -78,7 +79,7 @@
             
               
             
-            <li class="nav-item nav-item-active">
+            <li class="nav-item ">
               
               
                 <a href="/archives/" target="_self">
@@ -142,10 +143,25 @@
   <div class="main-continer">
     
     <div
-      class="section-layout  gemini">
+      class="section-layout gemini ">
       <div class="section-layout-wrapper">
-        <div id="sidebarMeta" class="sidebar">
-    
+        
+
+<div class="sidebar">
+  
+    <div class="sidebar-box box-shadow-wrapper bg-color right-motion" id="sidebar">
+      
+        <div class="post-list-sidebar">
+          <div class="sidebar-title">
+            <span id="tocSideBar" class="sidebar-title-item sidebar-title-active">文章目录</span>
+            <span id="metaSideBar" class="sidebar-title-item">站点概览</span>
+          </div>
+        </div>
+      
+      <div class="sidebar-body gemini" id="sidebar_body">
+        
+          
+            
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="/images/avatar.png"/>
@@ -192,411 +208,194 @@
 
 
 </div>
+          
+        
+      </div>
+    </div>
+  
 </div>
 <script>
-  let sidebarMeta = document.querySelector('#sidebarMeta');
-  let scheme = 'gemini';
-  let sidebarWrapper = document.querySelector('.sidebar-wrapper');
-  if (sidebarMeta && (scheme === 'pisces' || scheme === 'gemini')) {
-    document.addEventListener('scroll', function(e) {
-      if (document.scrollingElement.scrollTop > parseInt(sidebarMeta.style.marginTop) + 10) {
-        sidebarWrapper.classList.add('home-sidebar-fixed')
-      } else {
-        sidebarWrapper.classList.remove('home-sidebar-fixed')
-      }
-    });
-  }
-  </script>
-        <div class="section-box box-shadow-wrapper">
-          <section class="section archives-section bg-color posts-expand">
-            
+  const SIDEBAR_TITLE_ACTIVE = 'sidebar-title-active';
+  const SIDEBAR_BODY_ACTIVE = 'sidebar-body-active';
+  const SLIDE_UP_IN = 'slide-up-in';
 
-<div class="bg-color">
-  <div class="archive-timeline-box">
-    <div class="archive-timeline-title">
-      
-        <h2>非常好！目前共计26篇日志，继续努力！</h2>
-      
-    </div>
+  let sidebar = document.querySelector('#sidebar'),
+  tocSideBar = document.querySelector('#tocSideBar'),
+  metaSideBar = document.querySelector('#metaSideBar'),
+  postToc = document.querySelector('#post_toc'),
+  postSiteMeta = document.querySelector('#post_side_meta'),
+  sidebarTitle = document.querySelector('.sidebar-title'),
+  sidebarBody = document.querySelector('#sidebar_body');
+
+  tocSideBar && tocSideBar.addEventListener('click', (e) => {
+    toggleSidebar(e);
+  });
+
+  metaSideBar && metaSideBar.addEventListener('click', (e) => {
+    toggleSidebar(e);
+  });
+
+  function toggleSidebar(e) {
+    let currentTitle = document.querySelector("."+SIDEBAR_TITLE_ACTIVE);
+    if (currentTitle == e.srcElement) {
+      return ;
+    }
+    let current, showElement, hideElement;
+    if (e.srcElement == metaSideBar) {
+      showElement = postSiteMeta;
+      hideElement = postToc;
+    } else if (e.srcElement == tocSideBar){
+      showElement = postToc;
+      hideElement = postSiteMeta;
+    }
+    currentTitle.classList.remove(SIDEBAR_TITLE_ACTIVE);
+    e.srcElement.classList.add(SIDEBAR_TITLE_ACTIVE);
+
+    window.Velocity(hideElement, 'stop');
+    window.Velocity(hideElement, 'transition.slideUpOut', {
+      display: 'none',
+      duration: 200,
+      complete: function () {
+        window.Velocity(showElement, 'transition.slideDownIn', {
+          duration: 200
+        });
+      }
+    })
+    hideElement.classList.remove(SIDEBAR_BODY_ACTIVE);
+    showElement.classList.add(SIDEBAR_BODY_ACTIVE);
+  }
+
+  postToc && postToc.addEventListener('transitionend', function() {
+    this.classList.remove(SLIDE_UP_IN);
+  });
+
+  if (sidebarBody) {
+    if (sidebarBody.classList.contains('pisces') || sidebarBody.classList.contains('gemini')) {
+      let hasFix = false;
+      let scrollEl = document.querySelector('.main-continer');
+      let limitTop = document.querySelector('#nav_ul').children.length * 42 + 162;
+      window.addEventListener('scroll', function(e) {
+        if (document.scrollingElement.scrollTop >= limitTop) {
+          if (!hasFix) {
+            sidebar.classList.add('sidebar-fixed');
+            hasFix = true;
+          }
+        } else {
+          if (hasFix) {
+            sidebar.classList.remove('sidebar-fixed');
+            hasFix = false;
+          }
+        }
+      });
+    }
+  }
+  
+</script>
+        <div class="section-box box-shadow-wrapper">
+          <div class="section bg-color post post-page">
+            <header class="post-header">
+  <h1 class="post-title">
+    <a class="post-title-link" href="https://weidadeda.github.io/post/qian-duan-chang-yong-de-ming-ming-gui-fan">
+      前端常用的命名规范
+    </a>
+  </h1>
+  <div class="post-meta">
     
-      
-      
-        <div class="node-title">
-          <h2 class="tag-year">2022</h2>
-        </div>    
-        
-      
-      <a href="https://weidadeda.github.io/post/airbnb-css-sass-gui-fan-zhi-nan">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-10
-              <small>Airbnb CSS / Sass 规范指南</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
+    <span class="meta-item pc-show">
+      <i class="fa fa-calendar-o"></i>
+      <span>发布于</span>
+      <span>2022-02-10</span>
+      <span class="post-meta-divider pc-show">|</span>
+    </span>
     
-      
-      
-      <a href="https://weidadeda.github.io/post/qian-duan-chang-yong-de-ming-ming-gui-fan">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-10
-              <small>前端常用的命名规范</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/duan-xin-duan-lian-jie-huan-qi-app">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-10
-              <small>短信短链接唤起APP</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/wei-xin-gong-zhong-hao-huo-qu-openid-deng-yi-xi-lie-liu-cheng">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-10
-              <small>微信公众号获取openid等一系列流程</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/taro-xiao-cheng-xu-zhi-bo-zu-jian-liveplayer-zhu-yi-shi-xiang">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-10
-              <small>Taro 小程序直播组件 LivePlayer 注意事项</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/pu-bu-liu-ji-suan-js-yuan-ma">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-10
-              <small>瀑布流计算js源码</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/c-duan-h5-huo-xiao-cheng-xu-chang-jian-wen-ti-zong-jie">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-09
-              <small>C端H5或小程序常见问题总结</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/js-huo-qu-wen-jian-da-xiao">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-07
-              <small>js获取文件大小 window.performance</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/kai-fa-yi-ge-zi-ji-de-xiang-mu-jiao-shou-jia">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              02-07
-              <small>用yeoman开发一个自己的项目脚手架</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/ru-he-yong-objectcreate-qian-kao-bei-yi-ge-dui-xiang">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-21
-              <small>如何用Object.create浅拷贝一个对象</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/zi-ding-yi-yi-ge-new-fang-fa">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-20
-              <small>自定义一个new方法</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-19
-              <small>Node.js 常用工具 （util.inherits）</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-18
-              <small>Koa接口参数校验与返回值统一处理</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/koa-zhong-jian-jian-yu-zhi-xing-shun-xu">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-18
-              <small>KOA中间件与执行顺序</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/node-jie-kou-sheng-cheng-jie-kou-wen-dang">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-17
-              <small>node接口生成接口文档</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/sequelize-node-lian-jie-shu-ju-ku-de-orm">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-14
-              <small>Sequelize node连接数据库的ORM</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/sequelize">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-14
-              <small>前端使用Nacos</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/mysql-cha-xun-yu-ju">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-14
-              <small>mysql查询语句</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/docker-de-an-zhuang-yu-shi-yong">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-13
-              <small>docker的安装与使用</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/docker-zhong-shi-yong-redis">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-13
-              <small>docker中使用redis</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/nuxt-fu-wu-duan-xuan-ran-he-yu-xuan-ran-de-qu-bie">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-13
-              <small>nuxt 服务端渲染和预渲染的区别</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/docker-attach-ming-ling">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-12
-              <small>Docker attach 命令</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-      <a href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-12
-              <small>shell $? 获取函数返回值或者上一个命令的退出状态</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-        <div class="node-title">
-          <h2 class="tag-year">2021</h2>
-        </div>    
-        
-      
-      <a href="https://weidadeda.github.io/post/wo-shi-ce-shi">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              04-06
-              <small>mysql 时间戳格式化函数from_unixtime</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-        <div class="node-title">
-          <h2 class="tag-year">2019</h2>
-        </div>    
-        
-      
-      <a href="https://weidadeda.github.io/post/about">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-25
-              <small>关于</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
-    
-      
-      
-        <div class="node-title">
-          <h2 class="tag-year">2018</h2>
-        </div>    
-        
-      
-      <a href="https://weidadeda.github.io/post/hello-gridea">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              12-12
-              <small>如何自定义commit规范</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
+    <span class="meta-item">
+      <i class="fa fa-clock-o"></i>
+      <span>1分钟</span>
+    </span>
+    <span class="meta-item">
+      <span class="post-meta-divider">|</span>
+      <i class="fa fa-file-word-o"></i>
+      <span>89<span class="pc-show">字数</span></span>
+    </span>
     
   </div>
-  
-<div class="page bg-color">
-  <ul class="pagination-ul">
-    
-    
-      
-        <li class="pagination-li pagination-active">
-            <a href="/archives/page/../">
-              1
-            </a>
-        </li>
-      
-    
-    
-  </ul>
-</div>
-</div>
+</header>
+            <div class="post-body next-md-body" id="post_body">
+              <ul>
+<li>目录 全小写中划线</li>
+<li>文件 全小写中划线</li>
+<li>类名 大驼峰</li>
+<li>变量 小驼峰</li>
+<li>常量 全大写 下划线风格</li>
+<li>特殊变量</li>
+<li>css类名 小写中划线</li>
+<li>单词拼音不允许</li>
+<li>复杂函数和公用函数必须加注释</li>
+<li>函数的参数最多不能超过三个</li>
+<li>url 全小写 中划线</li>
+</ul>
 
-          </section>
+            </div>
+            <div class="post-footer">
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>本文作者：</strong>
+      王大伟
+    </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://weidadeda.github.io/post/qian-duan-chang-yong-de-ming-ming-gui-fan" title="前端常用的命名规范">https://weidadeda.github.io/post/qian-duan-chang-yong-de-ming-ming-gui-fan</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong>
+      本博客所有文章除特别声明外，均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i> BY-NC-SA</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+  <div class="tags">
+    
+  </div>
+  <div class="nav">
+    <div class="nav-prev">
+      
+        <i class="fa fa-chevron-left"></i>
+        <a class="nav-pc-next" title="Airbnb CSS / Sass 规范指南" href="https://weidadeda.github.io/post/airbnb-css-sass-gui-fan-zhi-nan">Airbnb CSS / Sass 规范指南</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title="Airbnb CSS / Sass 规范指南" href="https://weidadeda.github.io/post/airbnb-css-sass-gui-fan-zhi-nan">上一篇</a>
+      
+    </div>
+    <div class="nav-next">
+      
+        <a class="nav-pc-next" title="短信短链接唤起APP" href="https://weidadeda.github.io/post/duan-xin-duan-lian-jie-huan-qi-app">短信短链接唤起APP</a>
+        <a class="nav-mobile-next" title="短信短链接唤起APP" href="https://weidadeda.github.io/post/duan-xin-duan-lian-jie-huan-qi-app">下一篇</a>
+        <i class="fa fa-chevron-right"></i>
+      
+    </div>
+  </div>
+</div>
+            
+  
+    
+      <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+  var gitalk = new Gitalk({
+    clientID: '',
+    clientSecret: '',
+    repo: '',
+    owner: '',
+    admin: [''],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+  gitalk.render('gitalk-container')
+</script>
+    
+    
+  
+
+          </div>
         </div>
       </div>
     </div>
@@ -1306,6 +1105,36 @@
   // 代码高亮
   hljs.initHighlightingOnLoad();
 
+</script>
+    <div class="light-box" id="light_box"></div>
+<script>
+  let imgs = document.querySelectorAll('.post-body img');
+  let lightBox = document.querySelector('#light_box');
+  lightBox.addEventListener('mousedown', (e) => {
+    e.preventDefault()
+  })
+  lightBox.addEventListener('mousewheel', (e) => {
+    e.preventDefault()
+  })
+  let width = window.innerWidth * 0.8;
+  lightBox.onclick = () => {
+    let img = lightBox.querySelector('img');
+    lightBox.style = '';
+    img && img.remove();
+  }
+  imgs.forEach(item => {
+    item.onclick = function (e) {
+      let lightImg = document.createElement('img');
+      lightImg.src = this.src;
+      lightBox.style = `height: 100%; opacity: 1; background-color: rgba(0, 0, 0, 0.5);cursor: zoom-out;`;
+      lightImg.style = `width: ${width}px; border: 1px solid #fff; border-radius: 2px;`;
+      lightImg.onclick = function () {
+        lightBox.style = '';
+        this.remove();
+      }
+      lightBox.append(lightImg);
+    }
+  })
 </script>
   </div>
 </body>
@@ -3990,7 +3819,6 @@ if (!commitRE.test(msg)) {
 </script> -->
 
 <script src="/media/js/mouse/peace.js"></script>
-
 
 
 </html>
