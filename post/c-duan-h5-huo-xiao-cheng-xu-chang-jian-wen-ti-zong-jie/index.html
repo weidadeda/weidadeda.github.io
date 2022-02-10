@@ -8,7 +8,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>如何用Object.create浅拷贝一个对象 | Gridea</title>
+<title>C端H5或小程序常见问题总结 | Gridea</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1644460172699">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -29,7 +29,7 @@
 
 
 
-  <meta name="description" content="如何用Object.create浅拷贝一个对象" />
+  <meta name="description" content="C端H5或小程序常见问题总结" />
   <meta name="keywords" content="" />
 </head>
 
@@ -161,7 +161,8 @@
       <div class="sidebar-body gemini" id="sidebar_body">
         
           
-            
+            <div class="post-side-meta" id="post_side_meta">
+              
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="/images/avatar.png"/>
@@ -208,6 +209,216 @@
 
 
 </div>
+            </div>
+            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+              <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto"
+    id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#1%E9%83%A8%E5%88%86%E6%9C%BA%E5%9E%8B%E6%8B%8D%E7%85%A7%E4%B8%8A%E4%BC%A0%E5%9B%BE%E7%89%87%E6%97%8B%E8%BD%AC%E9%97%AE%E9%A2%98">1.部分机型拍照上传图片旋转问题：</a></li>
+<li><a href="#2swiper3d%E4%B8%A4%E8%BE%B9%E7%95%99%E7%99%BD%E6%95%88%E6%9E%9C">2.swiper3D两边留白效果：</a></li>
+<li><a href="#3%E5%B0%8F%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%B7%B3%E8%BD%AC%E5%8D%81%E5%B1%82%E9%99%90%E5%88%B6%E4%B8%8D%E8%A6%81%E4%B8%80%E7%9B%B4%E7%94%A8navigateto%E8%BF%99%E6%A0%B7%E5%B1%9E%E4%BA%8E%E4%B8%80%E7%9B%B4%E5%89%8D%E8%BF%9B%E5%A6%82%E6%9E%9C%E9%9C%80%E8%A6%81%E8%B7%B3%E8%BD%AC%E5%9B%9E%E9%A6%96%E9%A1%B5%E6%88%96%E8%80%85%E5%85%B6%E4%BB%96%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8relaunch%E9%80%BB%E8%BE%91%E5%A4%8D%E6%9D%82%E6%97%B6%E5%8F%AF%E8%87%AA%E5%B7%B1%E5%86%99%E9%A1%B6%E9%83%A8%E5%AF%BC%E8%88%AA%E6%A0%8F%E5%8C%85%E6%8B%AC%E8%BF%94%E5%9B%9E%E6%8C%89%E9%92%AE">3.小程序的跳转十层限制，不要一直用navigateTo，这样属于一直前进，如果需要跳转回首页或者其他可以使用reLaunch，逻辑复杂时可自己写顶部导航栏包括返回按钮。</a></li>
+<li><a href="#4%E4%BF%9D%E5%AD%98%E6%B5%B7%E6%8A%A5%E5%88%B0%E6%9C%AC%E5%9C%B0%E6%8E%A8%E8%8D%90%E4%B8%80%E6%B3%A2%E7%94%9F%E6%88%90%E5%B0%8F%E7%A8%8B%E5%BA%8F%E6%B5%B7%E6%8A%A5%E7%9A%84%E6%8F%92%E4%BB%B6%E9%9D%9E%E5%B8%B8%E7%AE%80%E5%8D%95%E6%96%B9%E4%BE%BF">4.保存海报到本地：推荐一波生成小程序海报的插件，非常简单方便</a></li>
+<li><a href="#5input%E5%85%89%E6%A0%87%E6%B0%B8%E8%BF%9C%E5%81%9C%E7%95%99%E5%9C%A8%E6%9C%80%E5%90%8E">5.input光标永远停留在最后：</a></li>
+<li><a href="#6%E5%B0%8F%E7%A8%8B%E5%BA%8F%E8%8E%B7%E5%8F%96%E7%94%A8%E6%88%B7%E6%8E%88%E6%9D%83%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E7%94%A8%E6%88%B7%E5%AE%9A%E4%BD%8D%E7%94%A8%E6%88%B7%E7%9B%B8%E5%86%8C%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E7%AD%89%E6%97%B6%E9%9C%80%E8%A6%81%E5%A4%84%E7%90%86%E6%8B%92%E7%BB%9D%E6%97%B6%E7%9A%84%E6%83%85%E5%86%B5-%E7%94%9F%E6%88%90%E6%B5%B7%E6%8A%A5%E5%88%B0%E8%87%AA%E5%B7%B1%E7%9B%B8%E5%86%8C%E7%9A%84%E6%97%B6%E5%80%99%E5%A6%82%E6%9E%9C%E7%94%A8%E6%88%B7%E5%9C%A8%E6%8E%88%E6%9D%83%E7%9A%84%E6%97%B6%E5%80%99%E7%82%B9%E5%87%BB%E4%BA%86%E6%8B%92%E7%BB%9D%E5%A6%82%E6%9E%9C%E4%B8%8D%E5%85%BC%E5%AE%B9%E6%8B%92%E7%BB%9D%E6%8E%88%E6%9D%83%E5%88%99%E7%9B%B4%E6%8E%A5%E7%94%9F%E6%88%90%E5%A4%B1%E8%B4%A5">6.小程序获取用户授权（用户信息/用户定位/用户相册访问权限等）时需要处理拒绝时的情况。生成海报到自己相册的时候如果用户在授权的时候点击了拒绝，如果不兼容拒绝授权则直接生成失败。</a></li>
+<li><a href="#7%E7%9B%91%E5%90%AC%E7%A7%BB%E5%8A%A8%E7%AB%AF%E9%94%AE%E7%9B%98%E5%BC%B9%E5%87%BA%E5%92%8C%E6%94%B6%E8%B5%B7%E4%BA%8B%E4%BB%B6">7.监听移动端键盘弹出和收起事件。</a></li>
+<li><a href="#8%E7%A7%BB%E5%8A%A8%E7%AB%AF%E4%BB%A3%E7%A0%81%E8%BF%94%E5%9B%9E%E4%B8%8A%E4%B8%80%E9%A1%B5windowlocationback%E5%A4%B1%E6%95%88">8.移动端代码返回上一页（window.location.back()失效）</a></li>
+<li><a href="#9%E5%8D%95%E9%A1%B5%E9%9D%A2%E5%BA%94%E7%94%A8%E8%B7%B3%E8%BD%AC%E8%B7%AF%E7%94%B1%E4%B9%8B%E5%90%8E%E5%86%8D%E6%AC%A1%E4%BD%BF%E7%94%A8echarts%E6%97%B6%E4%B8%8D%E5%B1%95%E7%A4%BA">9.单页面应用跳转路由之后再次使用echarts时不展示</a></li>
+<li><a href="#10-%E8%A7%86%E9%A2%91%E9%BB%91%E8%BE%B9%E9%97%AE%E9%A2%98">10. 视频黑边问题</a></li>
+<li><a href="#11-%E6%89%8B%E6%9C%BA%E9%94%81%E5%B1%8F%E6%97%B6%E5%80%92%E8%AE%A1%E6%97%B6%E5%81%9C%E6%AD%A2">11. 手机锁屏时倒计时停止</a></li>
+<li><a href="#12%E7%A7%BB%E5%8A%A8%E7%AB%AF%E5%AE%9E%E7%8E%B0%E7%9C%81-%E5%B8%82-%E5%8C%BA-%E8%A1%97%E9%81%93%E5%9B%9B%E7%BA%A7%E8%81%94%E5%8A%A8">12.移动端实现省-市-区-街道四级联动</a></li>
+<li><a href="#13ios%E5%86%85webview%E4%B8%ADvue%E9%A1%B9%E7%9B%AE%E4%BC%9A%E5%87%BA%E7%8E%B0%E5%A4%A7%E5%9D%97%E7%99%BD%E8%89%B2%E9%81%AE%E7%BD%A9">13.ios内webview中vue项目会出现大块白色遮罩</a></li>
+<li><a href="#14%E5%9C%A8ios%E4%B8%8Aa%E9%A1%B5%E9%9D%A2%E5%88%86%E4%BA%AB%E6%9C%8B%E5%8F%8B%E5%9C%88%E4%B9%8B%E5%90%8E%E8%B7%B3%E8%BD%AC%E5%88%B0-b-%E9%A1%B5%E9%9D%A2%E6%88%96%E8%BF%9B%E8%A1%8C%E5%88%AB%E7%9A%84%E6%93%8D%E4%BD%9C">14.在ios上A页面分享朋友圈之后，跳转到 B 页面（或进行别的操作）</a></li>
+<li><a href="#15-%E4%BB%8Evue%E9%A1%B5%E9%9D%A2%E8%B7%B3%E8%BD%AC%E5%88%B0%E9%9D%9Evue%E9%A1%B5%E9%9D%A2%E7%82%B9%E5%87%BB%E8%BF%94%E5%9B%9Eios%E8%AE%BE%E5%A4%87%E4%B8%8A%E9%A1%B5%E9%9D%A2%E6%95%B0%E6%8D%AE%E4%B8%8D%E5%88%B7%E6%96%B0">15. 从vue页面跳转到非vue页面，点击返回，ios设备上页面数据不刷新。</a></li>
+<li><a href="#16-app%E7%82%B9%E5%87%BB%E8%87%AA%E5%B8%A6%E8%BF%94%E5%9B%9E%E6%8C%89%E9%92%AE%E5%85%B3%E9%97%AD%E9%A1%B5%E9%9D%A2%E4%BB%A5%E5%8F%8A%E7%A6%81%E7%94%A8%E8%BF%94%E5%9B%9E%E7%9A%84%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95">16. app点击自带返回按钮关闭页面以及禁用返回的踩坑记录</a></li>
+<li><a href="#17-wxchooseimage%E6%96%B9%E6%B3%95%E5%9C%A8%E5%AE%89%E5%8D%93%E4%B8%8Eios%E4%B8%8A%E5%8F%96%E5%88%B0%E7%9A%84base64%E6%A0%BC%E5%BC%8F%E4%B8%8D%E4%B8%80%E6%A0%B7%E5%AE%89%E5%8D%93%E6%B2%A1%E6%9C%89dataimagejpgbase64%E5%89%8D%E7%BC%80%E9%9C%80%E8%A6%81%E5%8D%95%E7%8B%AC%E5%A4%84%E7%90%86">17. wx.chooseImage方法在安卓与ios上取到的base64格式不一样，安卓没有data:image/jpg;base64前缀，需要单独处理</a></li>
+<li><a href="#18-%E6%89%8B%E6%9C%BA%E5%86%85h5%E7%82%B9%E5%87%BBinput%E6%97%A0%E6%B3%95%E5%94%A4%E8%B5%B7%E8%87%AA%E5%B8%A6%E9%94%AE%E7%9B%98%E5%8F%AF%E4%BB%A5%E7%BB%99input%E6%B7%BB%E5%8A%A0click%E4%BA%8B%E4%BB%B6%E6%89%8B%E5%8A%A8%E8%A7%A6%E5%8F%91focus%E4%BA%8B%E4%BB%B6">18. 手机内h5点击input无法唤起自带键盘：可以给input添加click事件手动触发focus事件。</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+</div>
+
+<script>
+
+  let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1;
+  let active = 'active-show', activeClass = 'active-current';
+  let tocWrapper = document.querySelector('#toc_wrapper');
+  let tocContent = tocWrapper.children[0];
+  let autoNumber = tocWrapper && tocWrapper.classList.contains('auto-number');
+
+  function addTocNumber(elem, deep) {
+    if (!elem) {
+      return;
+    }
+    let prop = elem.__proto__;
+
+    if (prop === HTMLUListElement.prototype) {
+      for (let i = 0; i < elem.children.length; i++) {
+        addTocNumber(elem.children[i], deep + (i + 1) + '.');
+      }
+    } else if (prop === HTMLLIElement.prototype) {
+      // 保存li元素
+      if (elem.children[0].__proto__ === HTMLAnchorElement.prototype) {
+        lList.push(elem);
+      }
+      for (let i = 0; i < elem.children.length; i++) {
+        let cur = elem.children[i];
+        if (cur.__proto__ === HTMLAnchorElement.prototype) {
+          if (autoNumber) {
+            cur.text = deep + ' ' + cur.text;
+          }
+        } else if (cur.__proto__ === HTMLUListElement.prototype) {
+          addTocNumber(cur, deep);
+        }
+      }
+    }
+  }
+
+  function removeParentActiveClass() {
+    let parents = tocContent.querySelectorAll('.' + active)
+    parents.forEach(function (elem) {
+      elem.classList.remove(active);
+    });
+  }
+
+  function addActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.add(activeClass);
+    }
+  }
+
+  function removeActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.remove(activeClass);
+    }
+  }
+
+  function addActiveLiElemment(elem, parent) {
+    if (!elem || elem === parent) {
+      return;
+    } else {
+      if (elem.__proto__ === HTMLLIElement.prototype) {
+        elem.classList.add(active);
+      }
+      addActiveLiElemment(elem.parentElement, parent);
+    }
+  }
+
+  function showToc() {
+    if (tocWrapper) {
+      postBody = document.querySelector('#post_body');
+      for (let i = 0; i < postBody.children.length; i++) {
+        if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+          hList.push(postBody.children[i]);
+        }
+      }
+      if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+      } else if (tocWrapper.classList.contains('no_compress')) {
+        tocContent.classList.add('expanded');
+      } else {
+        if (hList.length > 10) {
+          active = 'active-hidden'
+          tocContent.classList.add('closed');
+        } else {
+          tocContent.classList.add('expanded');
+        }
+      }
+    }
+  }
+
+  (function () {
+    // 处理不是从#一级标题开始目录
+    if (tocContent.children.length === 1 && tocContent.children[0].__proto__ === HTMLLIElement.prototype) {
+      let con = tocContent.children[0].children[0];
+      tocContent.innerHTML = con.innerHTML;
+    }
+    let markdownItTOC = document.querySelector('.markdownIt-TOC');
+    let innerHeight = window.innerHeight;
+    markdownItTOC.style = `max-height: ${innerHeight - 80 > 0 ? innerHeight - 80 : innerHeight}px`
+    addTocNumber(tocContent, '');
+  })();
+
+  document.addEventListener('scroll', function (e) {
+    if (lList.length <= 0) {
+      return;
+    }
+    let scrollTop = document.scrollingElement.scrollTop + 10;
+    let dir;
+
+    if (lastTop - scrollTop > 0) {
+      dir = 'up';
+    } else {
+      dir = 'down';
+    }
+
+    lastTop = scrollTop;
+    if (scrollTop <= 0) {
+      if (lastIndex >= 0 && lastIndex < hList.length) {
+        lList[lastIndex].classList.remove(activeClass);
+      }
+      return;
+    }
+
+    let current = 0, hasFind = false;
+    for (let i = 0; i < hList.length; i++) {
+      if (hList[i].offsetTop > scrollTop) {
+        current = i;
+        hasFind = true;
+        break;
+      }
+    }
+    if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+      current = hList.length - 1;
+    } else {
+      current--;
+    }
+    if (dir === 'down') {
+      if (current > lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex)
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    } else {
+      if (current < lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex);
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    }
+  });
+
+
+  window.addEventListener('load', function () {
+    showToc();
+    document.querySelector('#sidebar').style = 'display: block;';
+    tocWrapper.classList.add('toc-active');
+    setTimeout(function () {
+      if ("createEvent" in document) {
+        let evt = document.createEvent("HTMLEvents");
+        evt.initEvent("scroll", false, true);
+        document.dispatchEvent(evt);
+      }
+      else {
+        document.fireEvent("scroll");
+      }
+    }, 500)
+  })
+
+</script>
+            </div>
           
         
       </div>
@@ -295,8 +506,8 @@
           <div class="section bg-color post post-page">
             <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/ru-he-yong-objectcreate-qian-kao-bei-yi-ge-dui-xiang">
-      如何用Object.create浅拷贝一个对象
+    <a class="post-title-link" href="https://weidadeda.github.io/post/c-duan-h5-huo-xiao-cheng-xu-chang-jian-wen-ti-zong-jie">
+      C端H5或小程序常见问题总结
     </a>
   </h1>
   <div class="post-meta">
@@ -304,28 +515,190 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2022-01-21</span>
+      <span>2022-02-09</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>1分钟</span>
+      <span>8分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>144<span class="pc-show">字数</span></span>
+      <span>1822<span class="pc-show">字数</span></span>
     </span>
     
   </div>
 </header>
             <div class="post-body next-md-body" id="post_body">
-              <p>// 首先得介绍一下深拷贝和浅拷贝（虽然大家都知道，但毕竟写文章，还是得照顾下不知道的同学）<br>
-// 其次问下大家object.assign属于浅拷贝还是深拷贝<br>
-// Object.assign() 方法只能拷贝源对象的可枚举的自身属性，同时拷贝时无法拷贝属性的特性们，而且访问器属性会被转换成数据属性，也无法拷贝源对象的原型<br>
-// Object.getOwnPropertyDescriptors方法配合 Object.create() 方法可以实现浅拷贝。<br>
-// <code>// Object.create( // Object.getPrototypeOf(obj), // Object.getOwnPropertyDescriptors(obj) // ); //</code></p>
+              <h3 id="1部分机型拍照上传图片旋转问题">1.部分机型拍照上传图片旋转问题：</h3>
+<p>直接从图片后面加参数‘?x-oss-process=image/auto-orient,1/resize,m_fixed’（加上参数之后会自动旋转回来，其他参数可参考阿里OSS官方文档https://help.aliyun.com/document_detail/44691.html?spm=a2c4g.11186623.6.1390.750ac1f6HTe92Q）</p>
+<h3 id="2swiper3d两边留白效果">2.swiper3D两边留白效果：</h3>
+<p>（小程序h5均适用），代码如下，需要注意的是必须给swiper父级元素加overflow-x:hidden</p>
+<pre><code>.swiper-container {
+  height: 100%;
+  width: 600px;
+  perspective: 1600px;
+  overflow: visible;
+  img {
+    width: 100%;
+    height: 720px;
+    border-radius: 20px;
+  }
+}
+.swiper-slide {
+  padding: 0 24px;
+  box-sizing: border-box;
+  text-align: center;
+  transition: transform 0.5s;
+  transform-origin: 50% 50%;
+  transform: scale(0.9);
+  &amp;.swiper-slide-active {
+    transform: scale(1);
+  }
+}
+</code></pre>
+<h3 id="3小程序的跳转十层限制不要一直用navigateto这样属于一直前进如果需要跳转回首页或者其他可以使用relaunch逻辑复杂时可自己写顶部导航栏包括返回按钮">3.小程序的跳转十层限制，不要一直用navigateTo，这样属于一直前进，如果需要跳转回首页或者其他可以使用reLaunch，逻辑复杂时可自己写顶部导航栏包括返回按钮。</h3>
+<h3 id="4保存海报到本地推荐一波生成小程序海报的插件非常简单方便">4.保存海报到本地：推荐一波生成小程序海报的插件，非常简单方便</h3>
+<p>taro-plugin-canvas (Taro环境使用)与wxa-plugin-canvas（普通小程序使用）<br>
+tip:如果遇到非常规的情况，需要手写canvas并且宽高尺寸乘2保证清晰度。</p>
+<h3 id="5input光标永远停留在最后">5.input光标永远停留在最后：</h3>
+<pre><code>var el = document.getElementById(&quot;IPTname&quot;);
+var range = document.createRange();
+range.selectNodeContents(el);
+range.collapse(false);
+var sel = window.getSelection();
+sel.removeAllRanges();
+sel.addRange(range);
+</code></pre>
+<h3 id="6小程序获取用户授权用户信息用户定位用户相册访问权限等时需要处理拒绝时的情况-生成海报到自己相册的时候如果用户在授权的时候点击了拒绝如果不兼容拒绝授权则直接生成失败">6.小程序获取用户授权（用户信息/用户定位/用户相册访问权限等）时需要处理拒绝时的情况。生成海报到自己相册的时候如果用户在授权的时候点击了拒绝，如果不兼容拒绝授权则直接生成失败。</h3>
+<h3 id="7监听移动端键盘弹出和收起事件">7.监听移动端键盘弹出和收起事件。</h3>
+<p>在ios设备上,操作表单输入时,键盘弹出时会把页面顶起来,键盘收起时并不会把页面恢复成原来的样子,造成页面样式错乱,利用focusout和focusin事件,可以间接地监听到键盘的收起和弹出事件,然后操作页面滚动到想要的位置.</p>
+<p>focusout触发时机:  当元素即将失去焦点时，focusout 事件被触发。focusout 事件和 blur 事件之间的主要区别在于后者不会冒泡。</p>
+<p>focusin触发时机:    当元素即将接收 focus 事件时，focusin 事件被触发。 这个事件和 focus 事件的主要区别在于后者不会冒泡。</p>
+<p>监听方式:</p>
+<pre><code>let scrollTop = 0
+//键盘收起
+document.body.addEventListener('focusout',()=&gt;{
+   document.body.scrollTop=document.documentElement.scrollTop=scrollTop
+})
+//键盘弹出
+document.body.addEventListener('focusin',()=&gt;{
+   scrollTop = document.body.scrollTop || document.documentElement.scrollTop
+})
+</code></pre>
+<h3 id="8移动端代码返回上一页windowlocationback失效">8.移动端代码返回上一页（window.location.back()失效）</h3>
+<p>尼玛。。移动端返回上一页有时候用window.location.back()不好使，无解。可以使用window.location.href = document.referrer。</p>
+<h3 id="9单页面应用跳转路由之后再次使用echarts时不展示">9.单页面应用跳转路由之后再次使用echarts时不展示</h3>
+<p>首次使用不展示，可以延迟加载，但是当路由跳转回来之后延迟都不管用，那么需要在init Echarts之前动态设置容器宽高，并且清空父元素，因为再次回来的时候之前的echarts实例已经是存在的了，可在调试中查看详情。</p>
+<h3 id="10-视频黑边问题">10. 视频黑边问题</h3>
+<p>给video标签（原生video标签）加一个object-fit:fill属性即可解决。要强调的是，千万不要使用Taro的Video标签，很坑，解决了黑边，全屏时又会导致视频变形，不用object:fill的话也能解决黑边，但是全屏时视频的退出全屏样式又会被覆盖。</p>
+<h3 id="11-手机锁屏时倒计时停止">11. 手机锁屏时倒计时停止</h3>
+<pre><code>window.addEventListener('visibilitychange',() =&gt; {
+   if (
+     //hidden为锁屏时或页面不展示时，可重新获取时间开始倒计时。
+      document.visibilityState =='hidden'
+   ) 
+})
+</code></pre>
+<h3 id="12移动端实现省-市-区-街道四级联动">12.移动端实现省-市-区-街道四级联动</h3>
+<p>需求是要实现地区四级联动，但是vant的插件只支持三级地区联动，就很尴尬，只能自己写，但是自己写的话UI与交互体验会很差，所以就想办法去和后端对接。其实很简单，写出来只是提醒大家可以这么实现，减少思考与踩坑的时间。三级联动选择完之后会返回地区编码，eg:Array&lt;{code:'110101',name:'东城区'}&gt;,然后去请求后端的接口将地区编码传过去，就能得到其街道的相关信息，然后简单过滤一下，放在Picker选择器中就可以实现。接下来就可以写业务逻辑了。</p>
+<h3 id="13ios内webview中vue项目会出现大块白色遮罩">13.ios内webview中vue项目会出现大块白色遮罩</h3>
+<p>问题描述：</p>
+<p>A页面——&gt;B页面——&gt;ios自带的返回——&gt;白屏出现(像个魔鬼)——&gt;点击或滑动页面——&gt;问题解决</p>
+<p>原因是，经过排查，发现在ios 机器上使用webview 开发Vue项目时候，go history (-1)，无法将body 的高度拉掉，使得遮住，触发轻点击，方可消除该遮罩</p>
+<p>解决的理论：用于最重要的html 容器是container，然而因为设置html、body高度是100%，从而造成了 container 撑开父级，但浏览器默认滚动的scroll 并不是 container，而是body，某些因素，造成返回history 后，无法复原（ios 的锅），为此，将 container(app.vue中包裹的div，也可以是#app) 进行了绝对定位，并让它重新成为 scroll 的对象，从而解决问题。</p>
+<pre><code>html, body {
+
+ width: 100%;
+
+ height: 100%;
+ min-height: 100vh;
+
+ margin: 0;
+
+ padding: 0;
+
+ position: relative;
+
+}
+
+.container {
+
+ width: 100%;
+
+height: 100vh;
+ min-height: 100vh;
+
+ background: #fff;
+
+ overflow: scroll;
+
+ -webkit-overflow-scrolling: touch;
+
+ position: absolute;
+
+ left:0;
+
+ top:0;
+
+}
+</code></pre>
+<h3 id="14在ios上a页面分享朋友圈之后跳转到-b-页面或进行别的操作">14.在ios上A页面分享朋友圈之后，跳转到 B 页面（或进行别的操作）</h3>
+<p>注：离开 app的 A 页面去微信，再次回到 app 的时候跳转到 B 页面</p>
+<p>visibilitychange：当用户最小化窗口或者切换选项卡的时候，api 就会发送visibilitychange事件，让开发者知道页面状态已更改。你可以检测事件并执行某些操作或行为。</p>
+<pre><code>//这个方法在分享被触发的时候执行
+initVisibilityChange() {
+      if (typeof document.visibilityState != &quot;undefined&quot;) {
+        this.visibleChange = &quot;visibilitychange&quot;;
+        this.vibibleState = &quot;visibilityState&quot;;
+      } else if (
+        typeof (document as any).webkitVisibilityState != &quot;undefined&quot;
+      ) {
+        this.visibleChange = &quot;webkitvisibilitychange&quot;;
+        this.vibibleState = &quot;webkitVisibilityState&quot;;
+      }
+      if (this.visibleChange) {
+        document.addEventListener(
+          this.visibleChange,
+          this.onVisibilityChanged,
+          false
+        );
+      }
+    },
+      /**
+     * 从微信返回app可以在这里面处理事情
+     */
+    onVisibilityChanged(event: any) {
+      var hidden = event.target.webkitHidden;
+      if ((document as any)[this.vibibleState] == &quot;visible&quot;) {
+          this.goRun(); // 做自己需要的逻辑处理
+          this.removeVisibilityChange();
+      }
+    },
+     // 移除app后台监听事件
+    removeVisibilityChange() {
+      document.removeEventListener(
+        this.visibleChange,
+        this.onVisibilityChanged,
+        false
+      );
+    },
+</code></pre>
+<h3 id="15-从vue页面跳转到非vue页面点击返回ios设备上页面数据不刷新">15. 从vue页面跳转到非vue页面，点击返回，ios设备上页面数据不刷新。</h3>
+<p>比如A页面定义了一个变量为true，点击跳转到非vue项目页面（php），点击返回，查看这个变量，在安卓上依然为ture，但是在ios上就变成了false。</p>
+<p>解决方法：</p>
+<pre><code>window.onpageshow=function(e){
+　　if(e.persisted) {
+　　　　window.location.reload()
+　　}
+};
+</code></pre>
+<h3 id="16-app点击自带返回按钮关闭页面以及禁用返回的踩坑记录">16. app点击自带返回按钮关闭页面以及禁用返回的踩坑记录</h3>
+<p>http://note.youdao.com/s/4qUINhV0 （比较多，有道云链接发出来，希望对大家有帮助）</p>
+<h3 id="17-wxchooseimage方法在安卓与ios上取到的base64格式不一样安卓没有dataimagejpgbase64前缀需要单独处理">17. wx.chooseImage方法在安卓与ios上取到的base64格式不一样，安卓没有data:image/jpg;base64前缀，需要单独处理</h3>
+<h3 id="18-手机内h5点击input无法唤起自带键盘可以给input添加click事件手动触发focus事件">18. 手机内h5点击input无法唤起自带键盘：可以给input添加click事件手动触发focus事件。</h3>
 
             </div>
             <div class="post-footer">
@@ -336,7 +709,7 @@
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://weidadeda.github.io/post/ru-he-yong-objectcreate-qian-kao-bei-yi-ge-dui-xiang" title="如何用Object.create浅拷贝一个对象">https://weidadeda.github.io/post/ru-he-yong-objectcreate-qian-kao-bei-yi-ge-dui-xiang</a>
+      <a href="https://weidadeda.github.io/post/c-duan-h5-huo-xiao-cheng-xu-chang-jian-wen-ti-zong-jie" title="C端H5或小程序常见问题总结">https://weidadeda.github.io/post/c-duan-h5-huo-xiao-cheng-xu-chang-jian-wen-ti-zong-jie</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -349,15 +722,11 @@
   <div class="nav">
     <div class="nav-prev">
       
-        <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="用yeoman开发一个自己的项目脚手架" href="https://weidadeda.github.io/post/kai-fa-yi-ge-zi-ji-de-xiang-mu-jiao-shou-jia">用yeoman开发一个自己的项目脚手架</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="用yeoman开发一个自己的项目脚手架" href="https://weidadeda.github.io/post/kai-fa-yi-ge-zi-ji-de-xiang-mu-jiao-shou-jia">上一篇</a>
-      
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="自定义一个new方法" href="https://weidadeda.github.io/post/zi-ding-yi-yi-ge-new-fang-fa">自定义一个new方法</a>
-        <a class="nav-mobile-next" title="自定义一个new方法" href="https://weidadeda.github.io/post/zi-ding-yi-yi-ge-new-fang-fa">下一篇</a>
+        <a class="nav-pc-next" title="js获取文件大小 window.performance" href="https://weidadeda.github.io/post/js-huo-qu-wen-jian-da-xiao">js获取文件大小 window.performance</a>
+        <a class="nav-mobile-next" title="js获取文件大小 window.performance" href="https://weidadeda.github.io/post/js-huo-qu-wen-jian-da-xiao">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>

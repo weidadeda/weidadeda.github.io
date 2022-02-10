@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://weidadeda.github.io</id>
     <title>Gridea</title>
-    <updated>2022-02-07T10:12:07.072Z</updated>
+    <updated>2022-02-10T02:29:36.002Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://weidadeda.github.io"/>
     <link rel="self" href="https://weidadeda.github.io/atom.xml"/>
@@ -10,6 +10,181 @@
     <logo>https://weidadeda.github.io/images/avatar.png</logo>
     <icon>https://weidadeda.github.io/favicon.ico</icon>
     <rights>All rights reserved 2022, Gridea</rights>
+    <entry>
+        <title type="html"><![CDATA[C端H5或小程序常见问题总结]]></title>
+        <id>https://weidadeda.github.io/post/c-duan-h5-huo-xiao-cheng-xu-chang-jian-wen-ti-zong-jie</id>
+        <link href="https://weidadeda.github.io/post/c-duan-h5-huo-xiao-cheng-xu-chang-jian-wen-ti-zong-jie">
+        </link>
+        <updated>2022-02-09T07:59:28.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="1部分机型拍照上传图片旋转问题">1.部分机型拍照上传图片旋转问题：</h3>
+<p>直接从图片后面加参数‘?x-oss-process=image/auto-orient,1/resize,m_fixed’（加上参数之后会自动旋转回来，其他参数可参考阿里OSS官方文档https://help.aliyun.com/document_detail/44691.html?spm=a2c4g.11186623.6.1390.750ac1f6HTe92Q）</p>
+<h3 id="2swiper3d两边留白效果">2.swiper3D两边留白效果：</h3>
+<p>（小程序h5均适用），代码如下，需要注意的是必须给swiper父级元素加overflow-x:hidden</p>
+<pre><code>.swiper-container {
+  height: 100%;
+  width: 600px;
+  perspective: 1600px;
+  overflow: visible;
+  img {
+    width: 100%;
+    height: 720px;
+    border-radius: 20px;
+  }
+}
+.swiper-slide {
+  padding: 0 24px;
+  box-sizing: border-box;
+  text-align: center;
+  transition: transform 0.5s;
+  transform-origin: 50% 50%;
+  transform: scale(0.9);
+  &amp;.swiper-slide-active {
+    transform: scale(1);
+  }
+}
+</code></pre>
+<h3 id="3小程序的跳转十层限制不要一直用navigateto这样属于一直前进如果需要跳转回首页或者其他可以使用relaunch逻辑复杂时可自己写顶部导航栏包括返回按钮">3.小程序的跳转十层限制，不要一直用navigateTo，这样属于一直前进，如果需要跳转回首页或者其他可以使用reLaunch，逻辑复杂时可自己写顶部导航栏包括返回按钮。</h3>
+<h3 id="4保存海报到本地推荐一波生成小程序海报的插件非常简单方便">4.保存海报到本地：推荐一波生成小程序海报的插件，非常简单方便</h3>
+<p>taro-plugin-canvas (Taro环境使用)与wxa-plugin-canvas（普通小程序使用）<br>
+tip:如果遇到非常规的情况，需要手写canvas并且宽高尺寸乘2保证清晰度。</p>
+<h3 id="5input光标永远停留在最后">5.input光标永远停留在最后：</h3>
+<pre><code>var el = document.getElementById(&quot;IPTname&quot;);
+var range = document.createRange();
+range.selectNodeContents(el);
+range.collapse(false);
+var sel = window.getSelection();
+sel.removeAllRanges();
+sel.addRange(range);
+</code></pre>
+<h3 id="6小程序获取用户授权用户信息用户定位用户相册访问权限等时需要处理拒绝时的情况-生成海报到自己相册的时候如果用户在授权的时候点击了拒绝如果不兼容拒绝授权则直接生成失败">6.小程序获取用户授权（用户信息/用户定位/用户相册访问权限等）时需要处理拒绝时的情况。生成海报到自己相册的时候如果用户在授权的时候点击了拒绝，如果不兼容拒绝授权则直接生成失败。</h3>
+<h3 id="7监听移动端键盘弹出和收起事件">7.监听移动端键盘弹出和收起事件。</h3>
+<p>在ios设备上,操作表单输入时,键盘弹出时会把页面顶起来,键盘收起时并不会把页面恢复成原来的样子,造成页面样式错乱,利用focusout和focusin事件,可以间接地监听到键盘的收起和弹出事件,然后操作页面滚动到想要的位置.</p>
+<p>focusout触发时机:  当元素即将失去焦点时，focusout 事件被触发。focusout 事件和 blur 事件之间的主要区别在于后者不会冒泡。</p>
+<p>focusin触发时机:    当元素即将接收 focus 事件时，focusin 事件被触发。 这个事件和 focus 事件的主要区别在于后者不会冒泡。</p>
+<p>监听方式:</p>
+<pre><code>let scrollTop = 0
+//键盘收起
+document.body.addEventListener('focusout',()=&gt;{
+   document.body.scrollTop=document.documentElement.scrollTop=scrollTop
+})
+//键盘弹出
+document.body.addEventListener('focusin',()=&gt;{
+   scrollTop = document.body.scrollTop || document.documentElement.scrollTop
+})
+</code></pre>
+<h3 id="8移动端代码返回上一页windowlocationback失效">8.移动端代码返回上一页（window.location.back()失效）</h3>
+<p>尼玛。。移动端返回上一页有时候用window.location.back()不好使，无解。可以使用window.location.href = document.referrer。</p>
+<h3 id="9单页面应用跳转路由之后再次使用echarts时不展示">9.单页面应用跳转路由之后再次使用echarts时不展示</h3>
+<p>首次使用不展示，可以延迟加载，但是当路由跳转回来之后延迟都不管用，那么需要在init Echarts之前动态设置容器宽高，并且清空父元素，因为再次回来的时候之前的echarts实例已经是存在的了，可在调试中查看详情。</p>
+<h3 id="10-视频黑边问题">10. 视频黑边问题</h3>
+<p>给video标签（原生video标签）加一个object-fit:fill属性即可解决。要强调的是，千万不要使用Taro的Video标签，很坑，解决了黑边，全屏时又会导致视频变形，不用object:fill的话也能解决黑边，但是全屏时视频的退出全屏样式又会被覆盖。</p>
+<h3 id="11-手机锁屏时倒计时停止">11. 手机锁屏时倒计时停止</h3>
+<pre><code>window.addEventListener('visibilitychange',() =&gt; {
+   if (
+     //hidden为锁屏时或页面不展示时，可重新获取时间开始倒计时。
+      document.visibilityState =='hidden'
+   ) 
+})
+</code></pre>
+<h3 id="12移动端实现省-市-区-街道四级联动">12.移动端实现省-市-区-街道四级联动</h3>
+<p>需求是要实现地区四级联动，但是vant的插件只支持三级地区联动，就很尴尬，只能自己写，但是自己写的话UI与交互体验会很差，所以就想办法去和后端对接。其实很简单，写出来只是提醒大家可以这么实现，减少思考与踩坑的时间。三级联动选择完之后会返回地区编码，eg:Array&lt;{code:'110101',name:'东城区'}&gt;,然后去请求后端的接口将地区编码传过去，就能得到其街道的相关信息，然后简单过滤一下，放在Picker选择器中就可以实现。接下来就可以写业务逻辑了。</p>
+<h3 id="13ios内webview中vue项目会出现大块白色遮罩">13.ios内webview中vue项目会出现大块白色遮罩</h3>
+<p>问题描述：</p>
+<p>A页面——&gt;B页面——&gt;ios自带的返回——&gt;白屏出现(像个魔鬼)——&gt;点击或滑动页面——&gt;问题解决</p>
+<p>原因是，经过排查，发现在ios 机器上使用webview 开发Vue项目时候，go history (-1)，无法将body 的高度拉掉，使得遮住，触发轻点击，方可消除该遮罩</p>
+<p>解决的理论：用于最重要的html 容器是container，然而因为设置html、body高度是100%，从而造成了 container 撑开父级，但浏览器默认滚动的scroll 并不是 container，而是body，某些因素，造成返回history 后，无法复原（ios 的锅），为此，将 container(app.vue中包裹的div，也可以是#app) 进行了绝对定位，并让它重新成为 scroll 的对象，从而解决问题。</p>
+<pre><code>html, body {
+
+ width: 100%;
+
+ height: 100%;
+ min-height: 100vh;
+
+ margin: 0;
+
+ padding: 0;
+
+ position: relative;
+
+}
+
+.container {
+
+ width: 100%;
+
+height: 100vh;
+ min-height: 100vh;
+
+ background: #fff;
+
+ overflow: scroll;
+
+ -webkit-overflow-scrolling: touch;
+
+ position: absolute;
+
+ left:0;
+
+ top:0;
+
+}
+</code></pre>
+<h3 id="14在ios上a页面分享朋友圈之后跳转到-b-页面或进行别的操作">14.在ios上A页面分享朋友圈之后，跳转到 B 页面（或进行别的操作）</h3>
+<p>注：离开 app的 A 页面去微信，再次回到 app 的时候跳转到 B 页面</p>
+<p>visibilitychange：当用户最小化窗口或者切换选项卡的时候，api 就会发送visibilitychange事件，让开发者知道页面状态已更改。你可以检测事件并执行某些操作或行为。</p>
+<pre><code>//这个方法在分享被触发的时候执行
+initVisibilityChange() {
+      if (typeof document.visibilityState != &quot;undefined&quot;) {
+        this.visibleChange = &quot;visibilitychange&quot;;
+        this.vibibleState = &quot;visibilityState&quot;;
+      } else if (
+        typeof (document as any).webkitVisibilityState != &quot;undefined&quot;
+      ) {
+        this.visibleChange = &quot;webkitvisibilitychange&quot;;
+        this.vibibleState = &quot;webkitVisibilityState&quot;;
+      }
+      if (this.visibleChange) {
+        document.addEventListener(
+          this.visibleChange,
+          this.onVisibilityChanged,
+          false
+        );
+      }
+    },
+      /**
+     * 从微信返回app可以在这里面处理事情
+     */
+    onVisibilityChanged(event: any) {
+      var hidden = event.target.webkitHidden;
+      if ((document as any)[this.vibibleState] == &quot;visible&quot;) {
+          this.goRun(); // 做自己需要的逻辑处理
+          this.removeVisibilityChange();
+      }
+    },
+     // 移除app后台监听事件
+    removeVisibilityChange() {
+      document.removeEventListener(
+        this.visibleChange,
+        this.onVisibilityChanged,
+        false
+      );
+    },
+</code></pre>
+<h3 id="15-从vue页面跳转到非vue页面点击返回ios设备上页面数据不刷新">15. 从vue页面跳转到非vue页面，点击返回，ios设备上页面数据不刷新。</h3>
+<p>比如A页面定义了一个变量为true，点击跳转到非vue项目页面（php），点击返回，查看这个变量，在安卓上依然为ture，但是在ios上就变成了false。</p>
+<p>解决方法：</p>
+<pre><code>window.onpageshow=function(e){
+　　if(e.persisted) {
+　　　　window.location.reload()
+　　}
+};
+</code></pre>
+<h3 id="16-app点击自带返回按钮关闭页面以及禁用返回的踩坑记录">16. app点击自带返回按钮关闭页面以及禁用返回的踩坑记录</h3>
+<p>http://note.youdao.com/s/4qUINhV0 （比较多，有道云链接发出来，希望对大家有帮助）</p>
+<h3 id="17-wxchooseimage方法在安卓与ios上取到的base64格式不一样安卓没有dataimagejpgbase64前缀需要单独处理">17. wx.chooseImage方法在安卓与ios上取到的base64格式不一样，安卓没有data:image/jpg;base64前缀，需要单独处理</h3>
+<h3 id="18-手机内h5点击input无法唤起自带键盘可以给input添加click事件手动触发focus事件">18. 手机内h5点击input无法唤起自带键盘：可以给input添加click事件手动触发focus事件。</h3>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[js获取文件大小 window.performance]]></title>
         <id>https://weidadeda.github.io/post/js-huo-qu-wen-jian-da-xiao</id>
@@ -1365,55 +1540,6 @@ console.log(&quot;All users:&quot;, JSON.stringify(users, null, 2));
 <pre><code>SELECT * FROM ...
 </code></pre>
 <p>嗯，写一些建表与查询的流程，照着官网抄也没什么意思。使用这个我们可以很轻松的操作数据库，使我们写node接口的时候效率翻倍～</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[前端使用Nacos]]></title>
-        <id>https://weidadeda.github.io/post/sequelize</id>
-        <link href="https://weidadeda.github.io/post/sequelize">
-        </link>
-        <updated>2022-01-14T07:36:06.000Z</updated>
-        <content type="html"><![CDATA[<p>官网介绍：一个更易于构建云原生应用的动态服务发现、配置管理和服务管理平台。<br>
-<a href="https://nacos.io/zh-cn/docs/what-is-nacos.html">Nacos中文文档</a></p>
-<blockquote>
-<p>概览<br>
-欢迎来到 Nacos 的世界！<br>
-Nacos 致力于帮助您发现、配置和管理微服务。Nacos 提供了一组简单易用的特性集，帮助您快速实现动态服务发现、服务配置、服务元数据及流量管理。<br>
-Nacos 帮助您更敏捷和容易地构建、交付和管理微服务平台。 Nacos 是构建以“服务”为中心的现代应用架构 (例如微服务范式、云原生范式) 的服务基础设施。</p>
-</blockquote>
-<p>这个东西主要用于微服务，但我作为一个前端，只用了它的配置管理功能，虽然有点大材小用，但确实方便,而且还可以通过网页去直接查看数据结构。</p>
-<p>假设前端要搞一个平台，但是并没有后端支持，那么权限管理以及一些必要的数据获取该怎么做呢，我们想到的肯定是node起服务，然后写接口，然后连接数据库。从而实现数据的增删改查。</p>
-<p>但有一种更简单的方式，就是在服务器的docker中下载一个nacos,把数据放到nacos中管理，这样数据依然在我们的服务器上，并且不需要我们自己去写接口，nacos提供了openApi，我们直接调用接口就可以，是不是很方便呢。下面开始安装：</p>
-<h3 id="nacos-docker-快速开始">Nacos Docker 快速开始</h3>
-<p>操作步骤<br>
-Clone 项目</p>
-<pre><code>git clone https://github.com/nacos-group/nacos-docker.git
-cd nacos-docker
-</code></pre>
-<p>单机模式 Derby</p>
-<pre><code>docker-compose -f example/standalone-derby.yaml up
-</code></pre>
-<p>单机模式 MySQL</p>
-<p>如果希望使用MySQL5.7</p>
-<pre><code>docker-compose -f example/standalone-mysql-5.7.yaml up
-</code></pre>
-<p>如果希望使用MySQL8</p>
-<pre><code>docker-compose -f example/standalone-mysql-8.yaml up
-</code></pre>
-<p>集群模式</p>
-<pre><code>docker-compose -f example/cluster-hostname.yaml up 
-</code></pre>
-<p>服务注册</p>
-<p>curl -X POST 'http://127.0.0.1:8848/nacos/v1/ns/instance?serviceName=nacos.naming.serviceName&amp;ip=20.18.7.10&amp;port=8080'<br>
-服务发现</p>
-<p>curl -X GET 'http://127.0.0.1:8848/nacos/v1/ns/instance/list?serviceName=nacos.naming.serviceName'<br>
-发布配置</p>
-<p>curl -X POST &quot;http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=nacos.cfg.dataId&amp;group=test&amp;content=helloWorld&quot;<br>
-获取配置</p>
-<p>curl -X GET &quot;http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=nacos.cfg.dataId&amp;group=test&quot;<br>
-Nacos 控制台</p>
-<p>link：http://127.0.0.1:8848/nacos/（因为是在服务器上，所以可以直接使用对应的域名或者ip来访问）</p>
-<h3 id="注意这里要用openapi提供的字段信息多了tenant字段-有哪里不明白的可以看下开头的官方文档哈">注意，这里要用openApi提供的字段信息，多了tenant字段。有哪里不明白的可以看下开头的官方文档哈。</h3>
 ]]></content>
     </entry>
 </feed>
