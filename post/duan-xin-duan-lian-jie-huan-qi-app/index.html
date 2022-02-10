@@ -8,7 +8,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>Node.js 常用工具 （util.inherits） | Gridea</title>
+<title>短信短链接唤起APP | Gridea</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1644479996996">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -29,7 +29,7 @@
 
 
 
-  <meta name="description" content="Node.js 常用工具 （util.inherits）" />
+  <meta name="description" content="短信短链接唤起APP" />
   <meta name="keywords" content="" />
 </head>
 
@@ -295,8 +295,8 @@
           <div class="section bg-color post post-page">
             <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits">
-      Node.js 常用工具 （util.inherits）
+    <a class="post-title-link" href="https://weidadeda.github.io/post/duan-xin-duan-lian-jie-huan-qi-app">
+      短信短链接唤起APP
     </a>
   </h1>
   <div class="post-meta">
@@ -304,74 +304,24 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2022-01-19</span>
+      <span>2022-02-10</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>2分钟</span>
+      <span>0分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>429<span class="pc-show">字数</span></span>
+      <span>0<span class="pc-show">字数</span></span>
     </span>
     
   </div>
 </header>
             <div class="post-body next-md-body" id="post_body">
-              <p>util 是一个Node.js 核心模块，提供常用函数的集合，用于弥补核心JavaScript 的功能 过于精简的不足。</p>
-<p>util.inherits<br>
-util.inherits(constructor, superConstructor)是一个实现对象间原型继承 的函数。</p>
-<p>JavaScript 的面向对象特性是基于原型的，与常见的基于类的不同。JavaScript 没有 提供对象继承的语言级别特性，而是通过原型复制来实现的。</p>
-<p>在这里我们只介绍util.inherits 的用法，示例如下：</p>
-<pre><code>var util = require('util'); 
-function Base() { 
-    this.name = 'base'; 
-    this.base = 1991; 
-    this.sayHello = function() { 
-    console.log('Hello ' + this.name); 
-    }; 
-} 
-Base.prototype.showName = function() { 
-    console.log(this.name);
-}; 
-function Sub() { 
-    this.name = 'sub'; 
-} 
-util.inherits(Sub, Base); 
-var objBase = new Base(); 
-objBase.showName(); 
-objBase.sayHello(); 
-console.log(objBase); 
-var objSub = new Sub(); 
-objSub.showName(); 
-//objSub.sayHello(); 
-console.log(objSub);
-</code></pre>
-<p>我们定义了一个基础对象Base 和一个继承自Base 的Sub，Base 有三个在构造函数 内定义的属性和一个原型中定义的函数，通过util.inherits 实现继承。运行结果如下：</p>
-<pre><code>base 
-Hello base 
-{ name: 'base', base: 1991, sayHello: [Function] } 
-sub 
-{ name: 'sub' }
-</code></pre>
-<p>注意：Sub 仅仅继承了Base 在原型中定义的函数，而构造函数内部创造的 base 属 性和 sayHello 函数都没有被 Sub 继承。</p>
-<p>同时，在原型中定义的属性不会被console.log 作 为对象的属性输出。如果我们去掉 objSub.sayHello(); 这行的注释，将会看到：</p>
-<pre><code>node.js:201 
-throw e; // process.nextTick error, or 'error' event on first tick 
-^ 
-TypeError: Object #&lt;Sub&gt; has no method 'sayHello' 
-at Object.&lt;anonymous&gt; (/home/byvoid/utilinherits.js:29:8) 
-at Module._compile (module.js:441:26) 
-at Object..js (module.js:459:10) 
-at Module.load (module.js:348:31) 
-at Function._load (module.js:308:12) 
-at Array.0 (module.js:479:10) 
-at EventEmitter._tickCallback (node.js:192:40)
-</code></pre>
-<p>转载自https://www.cnblogs.com/yuwenjing0727/p/8135608.html</p>
+              <figure data-type="image" tabindex="1"><img src="https://weidadeda.github.io/post-images/1644479995097.png" alt="" loading="lazy"></figure>
 
             </div>
             <div class="post-footer">
@@ -382,7 +332,7 @@ at EventEmitter._tickCallback (node.js:192:40)
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits" title="Node.js 常用工具 （util.inherits）">https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits</a>
+      <a href="https://weidadeda.github.io/post/duan-xin-duan-lian-jie-huan-qi-app" title="短信短链接唤起APP">https://weidadeda.github.io/post/duan-xin-duan-lian-jie-huan-qi-app</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -395,15 +345,11 @@ at EventEmitter._tickCallback (node.js:192:40)
   <div class="nav">
     <div class="nav-prev">
       
-        <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="自定义一个new方法" href="https://weidadeda.github.io/post/zi-ding-yi-yi-ge-new-fang-fa">自定义一个new方法</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="自定义一个new方法" href="https://weidadeda.github.io/post/zi-ding-yi-yi-ge-new-fang-fa">上一篇</a>
-      
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="Koa接口参数校验与返回值统一处理" href="https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li">Koa接口参数校验与返回值统一处理</a>
-        <a class="nav-mobile-next" title="Koa接口参数校验与返回值统一处理" href="https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li">下一篇</a>
+        <a class="nav-pc-next" title="微信公众号获取openid等一系列流程" href="https://weidadeda.github.io/post/wei-xin-gong-zhong-hao-huo-qu-openid-deng-yi-xi-lie-liu-cheng">微信公众号获取openid等一系列流程</a>
+        <a class="nav-mobile-next" title="微信公众号获取openid等一系列流程" href="https://weidadeda.github.io/post/wei-xin-gong-zhong-hao-huo-qu-openid-deng-yi-xi-lie-liu-cheng">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>

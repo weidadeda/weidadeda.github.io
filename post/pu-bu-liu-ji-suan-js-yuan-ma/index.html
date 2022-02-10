@@ -8,7 +8,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>Node.js 常用工具 （util.inherits） | Gridea</title>
+<title>瀑布流计算js源码 | Gridea</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1644479996996">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -29,7 +29,7 @@
 
 
 
-  <meta name="description" content="Node.js 常用工具 （util.inherits）" />
+  <meta name="description" content="瀑布流计算js源码" />
   <meta name="keywords" content="" />
 </head>
 
@@ -295,8 +295,8 @@
           <div class="section bg-color post post-page">
             <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits">
-      Node.js 常用工具 （util.inherits）
+    <a class="post-title-link" href="https://weidadeda.github.io/post/pu-bu-liu-ji-suan-js-yuan-ma">
+      瀑布流计算js源码
     </a>
   </h1>
   <div class="post-meta">
@@ -304,74 +304,155 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2022-01-19</span>
+      <span>2022-02-10</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>2分钟</span>
+      <span>3分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>429<span class="pc-show">字数</span></span>
+      <span>677<span class="pc-show">字数</span></span>
     </span>
     
   </div>
 </header>
             <div class="post-body next-md-body" id="post_body">
-              <p>util 是一个Node.js 核心模块，提供常用函数的集合，用于弥补核心JavaScript 的功能 过于精简的不足。</p>
-<p>util.inherits<br>
-util.inherits(constructor, superConstructor)是一个实现对象间原型继承 的函数。</p>
-<p>JavaScript 的面向对象特性是基于原型的，与常见的基于类的不同。JavaScript 没有 提供对象继承的语言级别特性，而是通过原型复制来实现的。</p>
-<p>在这里我们只介绍util.inherits 的用法，示例如下：</p>
-<pre><code>var util = require('util'); 
-function Base() { 
-    this.name = 'base'; 
-    this.base = 1991; 
-    this.sayHello = function() { 
-    console.log('Hello ' + this.name); 
-    }; 
-} 
-Base.prototype.showName = function() { 
-    console.log(this.name);
-}; 
-function Sub() { 
-    this.name = 'sub'; 
-} 
-util.inherits(Sub, Base); 
-var objBase = new Base(); 
-objBase.showName(); 
-objBase.sayHello(); 
-console.log(objBase); 
-var objSub = new Sub(); 
-objSub.showName(); 
-//objSub.sayHello(); 
-console.log(objSub);
+              <p>遇到问题时的解决方法及使用注意事项：</p>
+<p>1、下拉刷新会导致瀑布流顺序错乱，重新new一下瀑布流即可。</p>
+<p>2、图片宽高必须要让服务端返，前端去获取数据太多会导致性能非常慢。</p>
+<p>3、dom加载时获取小程序的某个dom的宽度（列宽）为空，放在wx.nextTick中即可。还获取不到，就需要看自己要获取的dom是否已加载。</p>
+<p>4、此代码抗揍，如果出问题先从自身找问题，再仔细阅读一遍此代码。</p>
+<pre><code>class Waterfall {
+  constructor(options) {
+    this.initWaterfall(options);
+  }
+    /**
+   * 初始化瀑布流
+   * @param {Object} options
+   * @param {Array&lt;Object&gt;} options.columns {width} - 此参数主要定义每列的宽度
+   */
+  initWaterfall(options) {
+    this.columns = options.columns;
+    this.formatedData = [];
+    for (let column of options.columns) {
+      this.formatedData.push({
+        width: column.width,
+        height: 0
+      });
+    }
+  }
+  imageUrlFeild = 'imageUrl'
+ 
+  /**
+   * 格式化从数据中获取图片url的方法
+   * @param {Function | String | Number} fn - 若为函数，则需要返回瀑布流每项数据对应的图片字段
+   */
+ 
+  formatGetImageUrlMethod(fn) {
+    this.imageUrlFeild = typeof fn === 'function' ? fn() : fn
+  }
+ 
+  /**
+   * 向瀑布流中填充数据
+   * @param {Object}  resource - 单个瀑布流项的数据源
+   */
+  getResourceInfo(resource) {
+    const _self = this
+    return new Promise(resolve =&gt; {
+      if (resource[_self.imageUrlFeild]) {
+        // getImageInfo方法在小程序中使用，h5中暂未测试，不过一般都是让服务端直接返回图片宽高，所以这个方法一般用不到，如果需要用到的话，必须加一层loading阻止用户操作
+        wx.getImageInfo({
+          src: resource[_self.imageUrlFeild],
+          success(res) {
+            resolve(res)
+          },
+          fail() {
+            resolve()
+          }
+        })
+      } else {
+        resolve()
+      }
+    })
+  }
+ 
+  /**
+   * 向瀑布流中补充数据
+   * @param {Boolean} extraVal 瀑布流的卡片中图片之外的内容
+   * @param {Array&lt;resource&gt;}  resources
+   */
+ 
+  async addResources(resources, extraVal) {
+    // let promiseArray = []
+    let newResourcesArray = Array.apply(null, Array(this.columns.length)).map(
+      _ =&gt; []
+    )
+    for (let resource of resources) {
+      // promiseArray.push(this.getResourceInfo(resource))
+      // let imageInfo
+      // imageInfo = await this.getResourceInfo(resource)
+      const width = Number(resource.width) || 100;
+      const height = Number(resource.height) || 100;
+      // 获取最短列的索引
+      const index = this.getShortestColumn();
+      // 卡片宽度
+      const imageWidth = this.formatedData[index].width;
+      // 附加的卡片高度在这里是写死的，每个项目会有不同高度
+      const extraHeight = extraVal ? extraVal : 0;
+      // 获取卡片高度
+      const cardHeight = imageWidth / (width / height) + extraHeight;
+      // 当前列总高度
+      this.formatedData[index].height += cardHeight;
+      // 返回卡片高度
+      resource.cardHeight = cardHeight;
+      // 返回图片高度
+      resource.computedHeight = cardHeight - extraVal;
+      // 返回当前列的数组
+      newResourcesArray[index].push(resource);
+    }
+    return newResourcesArray
+  }
+ 
+  /**
+   * 最重要的地方
+   * 获取当前数据中填充最短的列
+   * 返回最短列的索引
+   */
+  getShortestColumn() {
+    let minHeight = Infinity
+    let minHeightColumnIndex = 0
+    for (let index = this.formatedData.length - 1; index &gt; -1; index--) {
+      //从后往前遍历，防止每列的高度相同的情况
+      const height = this.formatedData[index].height
+      if (height &lt;= minHeight) {
+        minHeightColumnIndex = index
+        minHeight = height
+      }
+    }
+    return minHeightColumnIndex
+  }
+}
+ 
+export default Waterfall;
+ 
+ 
+// 例：双列瀑布流
+let newList = new Waterfall({
+      columns: [
+        {
+          width: 列宽
+        },
+        {
+          width: 列宽
+        }
+      ]
+    });
+newList.addResources(lists, 卡片内除图片的额外高度).then(res =&gt; {});
 </code></pre>
-<p>我们定义了一个基础对象Base 和一个继承自Base 的Sub，Base 有三个在构造函数 内定义的属性和一个原型中定义的函数，通过util.inherits 实现继承。运行结果如下：</p>
-<pre><code>base 
-Hello base 
-{ name: 'base', base: 1991, sayHello: [Function] } 
-sub 
-{ name: 'sub' }
-</code></pre>
-<p>注意：Sub 仅仅继承了Base 在原型中定义的函数，而构造函数内部创造的 base 属 性和 sayHello 函数都没有被 Sub 继承。</p>
-<p>同时，在原型中定义的属性不会被console.log 作 为对象的属性输出。如果我们去掉 objSub.sayHello(); 这行的注释，将会看到：</p>
-<pre><code>node.js:201 
-throw e; // process.nextTick error, or 'error' event on first tick 
-^ 
-TypeError: Object #&lt;Sub&gt; has no method 'sayHello' 
-at Object.&lt;anonymous&gt; (/home/byvoid/utilinherits.js:29:8) 
-at Module._compile (module.js:441:26) 
-at Object..js (module.js:459:10) 
-at Module.load (module.js:348:31) 
-at Function._load (module.js:308:12) 
-at Array.0 (module.js:479:10) 
-at EventEmitter._tickCallback (node.js:192:40)
-</code></pre>
-<p>转载自https://www.cnblogs.com/yuwenjing0727/p/8135608.html</p>
 
             </div>
             <div class="post-footer">
@@ -382,7 +463,7 @@ at EventEmitter._tickCallback (node.js:192:40)
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits" title="Node.js 常用工具 （util.inherits）">https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits</a>
+      <a href="https://weidadeda.github.io/post/pu-bu-liu-ji-suan-js-yuan-ma" title="瀑布流计算js源码">https://weidadeda.github.io/post/pu-bu-liu-ji-suan-js-yuan-ma</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -396,14 +477,14 @@ at EventEmitter._tickCallback (node.js:192:40)
     <div class="nav-prev">
       
         <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="自定义一个new方法" href="https://weidadeda.github.io/post/zi-ding-yi-yi-ge-new-fang-fa">自定义一个new方法</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="自定义一个new方法" href="https://weidadeda.github.io/post/zi-ding-yi-yi-ge-new-fang-fa">上一篇</a>
+        <a class="nav-pc-next" title="Taro 小程序直播组件 LivePlayer 注意事项" href="https://weidadeda.github.io/post/taro-xiao-cheng-xu-zhi-bo-zu-jian-liveplayer-zhu-yi-shi-xiang">Taro 小程序直播组件 LivePlayer 注意事项</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title="Taro 小程序直播组件 LivePlayer 注意事项" href="https://weidadeda.github.io/post/taro-xiao-cheng-xu-zhi-bo-zu-jian-liveplayer-zhu-yi-shi-xiang">上一篇</a>
       
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="Koa接口参数校验与返回值统一处理" href="https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li">Koa接口参数校验与返回值统一处理</a>
-        <a class="nav-mobile-next" title="Koa接口参数校验与返回值统一处理" href="https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li">下一篇</a>
+        <a class="nav-pc-next" title="C端H5或小程序常见问题总结" href="https://weidadeda.github.io/post/c-duan-h5-huo-xiao-cheng-xu-chang-jian-wen-ti-zong-jie">C端H5或小程序常见问题总结</a>
+        <a class="nav-mobile-next" title="C端H5或小程序常见问题总结" href="https://weidadeda.github.io/post/c-duan-h5-huo-xiao-cheng-xu-chang-jian-wen-ti-zong-jie">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>

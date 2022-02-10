@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://weidadeda.github.io</id>
     <title>Gridea</title>
-    <updated>2022-02-10T02:29:36.002Z</updated>
+    <updated>2022-02-10T08:00:03.384Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://weidadeda.github.io"/>
     <link rel="self" href="https://weidadeda.github.io/atom.xml"/>
@@ -11,12 +11,339 @@
     <icon>https://weidadeda.github.io/favicon.ico</icon>
     <rights>All rights reserved 2022, Gridea</rights>
     <entry>
+        <title type="html"><![CDATA[短信短链接唤起APP]]></title>
+        <id>https://weidadeda.github.io/post/duan-xin-duan-lian-jie-huan-qi-app</id>
+        <link href="https://weidadeda.github.io/post/duan-xin-duan-lian-jie-huan-qi-app">
+        </link>
+        <updated>2022-02-10T07:59:08.000Z</updated>
+        <content type="html"><![CDATA[<figure data-type="image" tabindex="1"><img src="https://weidadeda.github.io/post-images/1644479995097.png" alt="" loading="lazy"></figure>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[微信公众号获取openid等一系列流程]]></title>
+        <id>https://weidadeda.github.io/post/wei-xin-gong-zhong-hao-huo-qu-openid-deng-yi-xi-lie-liu-cheng</id>
+        <link href="https://weidadeda.github.io/post/wei-xin-gong-zhong-hao-huo-qu-openid-deng-yi-xi-lie-liu-cheng">
+        </link>
+        <updated>2022-02-10T07:49:25.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="先说下为什么要获取-openid">先说下为什么要获取 openid?</h3>
+<p>因为用户管理类接口可以通过openid可以获取用户的一些信息的.</p>
+<h3 id="说到-openid-必须先说微信授权登录的过程">说到 openid 必须先说微信授权登录的过程</h3>
+<figure data-type="image" tabindex="1"><img src="https://weidadeda.github.io/post-images/1644479416142.png" alt="" loading="lazy"></figure>
+<ul>
+<li>
+<p>前端需要在进入路由的是beaforEach的时候，先去判断链接上有没有 openid</p>
+</li>
+<li>
+<p>如果没有，就去跳转到服务端给的一个地址。如果有，就继续往下走（next())</p>
+</li>
+<li>
+<p>这个时候服务端会往下面的链接（https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&amp;redirect_uri=REDIRECT_URI&amp;response_type=code&amp;scope=SCOPE&amp;state=STATE#wechat_redirect来获取code）上跳转，去引导用户去点击授权，用户授权之后就会重定向到 redirect_uri（服务端的地址）</p>
+</li>
+<li>
+<p>利用 code 获取 openid 之后(服务端去做)，服务端会跳转到前端页面(带上openid)</p>
+</li>
+</ul>
+<p>下面作为了解：</p>
+<p>微信授权使用的是 OAuth2.0授权方式。主要有以下简略的步骤：<br>
+第一步：用户同意授权，获取 code<br>
+　　第二步：通过 code获取网页授权access_token<br>
+　　第三步：刷新access_token（如果需要）<br>
+　　第四步：拉取用户信息(需scope为 snsapi_userinfo)</p>
+<h3 id="下面来具体api表示下怎么获取的-code-和-openid-吧">下面来具体api表示下怎么获取的 code 和 openid 吧</h3>
+<h3 id="一获取code">一：获取code:</h3>
+<p>通过https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&amp;redirect_uri=REDIRECT_URI&amp;response_type=code&amp;scope=SCOPE&amp;state=STATE#wechat_redirect来获取code<br>
+参数：<br>
+APPID：应用唯一标识<br>
+redirect_uri：授权后重定向的回调链接地址，用户同意后，code 会自动添加到后面。（请使用urlEncode对链接进行处理 （$url = urlencode('')） ）<br>
+scope：是应用授权作用域 （一般有两种：一种是静默方式（snsapi_base); 一种是非静默方式（snsapi_userinfo），需要用户去手动同意才能获取用户信息）</p>
+<p>微信中尤其提醒：由于授权操作安全等级较高，所以在发起授权请求时，微信会对授权链接做正则强匹配校验，如果链接的参数顺序不对，授权页面将无法正常访问</p>
+<p>** code 是微信自动生成的。并且放在redirect_uri（重定向后的回调链接地址）后面,并且带上code和state参数</p>
+<p>上面提到了 code。那么 code又是什么呢？<br>
+code:作为换取 access_token的票据，每次用户授权带上的 code 都不一样。5分钟未被使用自动过期（过期的这里下面有讲）</p>
+<h3 id="二然后授权成功之后-得到-code-就用-code-去获取access_token">二：然后授权成功之后。得到 code。就用 code 去获取access_token</h3>
+<p>https://api.weixin.qq.com/sns/oauth2/access_token?appid=wx41cb8dbd827a16e9&amp;secret=d4624c36b6795d1d99dcf0547af5443d&amp;code=00137323023ab55775be09d6d8e75ffA&amp;grant_type=authorization_code<br>
+参数说明：<br>
+appid：应用唯一标识<br>
+code：上一步已经获取到了<br>
+secret：应用密钥AppSecret，在微信开放平台提交应用审核通过后获得</p>
+<p>正确的返回<br>
+&quot;access_token&quot;:&quot;ACCESS_TOKEN&quot;, // 接口调用凭证 &quot;expires_in&quot;:7200, // access_token接口调用凭证超时时间 &quot;refresh_token&quot;:&quot;REFRESH_TOKEN&quot;, // 用户刷新access_token &quot;openid&quot;:&quot;OPENID&quot;, // 授权用户唯一标识 &quot;scope&quot;:&quot;SCOPE&quot;, // 作用域 等</p>
+<h3 id="三通过access_token-openid获取用户信息">三：通过access_token、openid获取用户信息</h3>
+<p>https://api.weixin.qq.com/sns/userinfo?access_token=ACCESS_TOKEN&amp;openid=OPENID<br>
+就会得到用户的信息：<br>
+得到参数：<br>
+openid：用户的唯一标识<br>
+nickname：用户昵称<br>
+sex： 男女<br>
+等。。。<br>
+特别注意：<br>
+1、Appsecret 是应用接口使用密钥，泄漏后将可能导致应用数据泄漏、应用的用户数据泄漏等高风险后果；存储在客户端，极有可能被恶意窃取（如反编译获取Appsecret）； 2、access_token 为用户授权第三方应用发起接口调用的凭证（相当于用户登录态），存储在客户端，可能出现恶意获取access_token 后导致的用户数据泄漏、用户微信相关接口功能被恶意发起等行为； 3、refresh_token 为用户授权第三方应用的长效凭证，仅用于刷新access_token，但泄漏后相当于access_token 泄漏，风险同上。 建议将secret、用户数据（如access_token）放在App云端服务器，由云端中转接口调用请求。</p>
+<h3 id="最后总结下详细的步骤">最后总结下详细的步骤：</h3>
+<ul>
+<li>1．用户关注微信公众账号。</li>
+<li>2．微信公众账号提供用户请求授权页面URL。</li>
+<li>3．用户点击授权页面URL，将向服务器发起请求</li>
+<li>4．服务器询问用户是否同意授权给微信公众账号(scope为snsapi_base时无此步骤)</li>
+<li>5．用户同意(scope为snsapi_base时无此步骤)</li>
+<li>6．服务器将CODE通过回调传给微信公众账号</li>
+<li>7．微信公众账号获得CODE</li>
+<li>8．微信公众账号通过CODE向服务器请求Access Token</li>
+<li>9．服务器返回Access Token和OpenID给微信公众账号</li>
+<li>10．微信公众账号通过Access Token向服务器请求用户信息(scope为snsapi_base时无此步骤)</li>
+<li>11．服务器将用户信息回送给微信公众账号(scope为snsapi_base时无此步骤)</li>
+</ul>
+<p>公众号链接(官网更权威)：<br>
+https://developers.weixin.qq.com/doc/oplatform/Website_App/WeChat_Login/Wechat_Login.html</p>
+<p>https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/Wechat_webpage_authorization.html</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Taro 小程序直播组件 LivePlayer 注意事项]]></title>
+        <id>https://weidadeda.github.io/post/taro-xiao-cheng-xu-zhi-bo-zu-jian-liveplayer-zhu-yi-shi-xiang</id>
+        <link href="https://weidadeda.github.io/post/taro-xiao-cheng-xu-zhi-bo-zu-jian-liveplayer-zhu-yi-shi-xiang">
+        </link>
+        <updated>2022-02-10T07:46:16.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="1-直播组件优先开通实时音频和视频管理后台申请对应的证书">1、直播组件优先开通实时音频和视频（管理后台），申请对应的证书</h3>
+<h3 id="2-直播组件需要做系统权限验证麦克风和相机引导用户打开权限不然部分手机加载失败-insertliveplayerfailaccess-denied-因为权限有三个状态undefined-denied-authorizedauthorized代表系统权限已开">2、直播组件需要做【系统】权限验证，（麦克风和相机）,引导用户打开权限，不然部分手机加载失败（ insertLivePlayer:fail:access denied） 因为权限有三个状态(undefined、denied、authorized)，authorized代表系统权限已开</h3>
+<pre><code>export const getSystemInfo = (keys: Tkey[], content = '') =&gt; {
+  return new Promise((resolve) =&gt; {
+    const systemInfo = wx.getAppAuthorizeSetting();
+    console.log('system', systemInfo);
+    if (!systemInfo) {
+      return resolve({ code: -1, msg: '获取系统权限失败~' });
+    }
+    keys.forEach((item) =&gt; {
+      if (systemInfo[item] !== 'authorized') {
+        Taro.showModal({
+          content,
+          success: (res) =&gt; {
+            if (res.confirm) {
+              wx.openAppAuthorizeSetting({
+                success: () =&gt; {
+                  return resolve({ code: 100, msg: '打开系统授权页成功~' });
+                },
+                fail: () =&gt; {
+                  return resolve({ code: 101, msg: '打开系统授权页失败~' });
+                }
+              });
+            } else {
+              return resolve({ code: 403, msg: '用户点击取消~' });
+            }
+          }
+        });
+        return resolve({ code: 401, msg: '权限没打开~' });
+      }
+    });
+    return resolve({ code: 0, msg: '用户已开通对应权限~' });
+  });
+};
+ 
+// 获取系统权限
+      const res: any = await getSystemInfo(
+        ['cameraAuthorized', 'microphoneAuthorized'],
+        '检测到您没有打开麦克风和相机权限，部分功能将没法使用~'
+      );
+</code></pre>
+<h3 id="3-直播组件同层渲染在全屏下失效需要单独处理全屏做coverviewcoverimage做原生覆盖能力处理不是全屏就同层渲染全屏处理时候顶层容器和直接子节点需要设置-visiblityvisiblepositionrelativez-index99999-必须得处理不然android-的coverview覆盖不了原生直播组件">3、直播组件同层渲染在全屏下失效，需要单独处理，全屏做CoverView\CoverImage做原生覆盖能力处理，不是全屏就同层渲染，全屏处理时候顶层容器和直接子节点需要设置 visiblity:visible;position:relative;z-index:99999; 必须得处理，不然android 的CoverView覆盖不了原生直播组件。</h3>
+<pre><code>.cover-main{
+    position: absolute;
+    visibility: visible;
+    z-index: 999999;
+}
+ 
+&lt;CoverView className={style['cover-main']}&gt;
+                &lt;CoverView className={style['cover-main']}&gt;
+                  &lt;CoverView className={style['live-control']} onClick={showTips}&gt;&lt;/CoverView&gt;
+ 
+        {fullScreenFlag &amp;&amp; (
+        &lt;&gt;
+            {/*广告*/}
+            &lt;Curtain /&gt;
+
+            {/* 封面*/}
+            {startStatus === false ? (
+            &lt;CoverView className={style.cannot_see}&gt;
+                &lt;CoverImage className={style.cannot_see_img} src={readyImg}&gt;&lt;/CoverImage&gt;
+            &lt;/CoverView&gt;
+            ) : teachStatus === false ? (
+            &lt;CoverView className={style.cannot_see}&gt;
+                &lt;CoverImage className={style.cannot_see_img} src={outImg}&gt;&lt;/CoverImage&gt;
+            &lt;/CoverView&gt;
+            ) : null}
+
+            {/* 倒计时*/}
+            {time &gt;= 1800 ? &lt;CountDown time={time} /&gt; : null}
+        &lt;/&gt;
+        )}
+
+        {/*控制*/}
+        &lt;CoverView
+        className={`${style.control} ${tips ? style['up-ani'] : style['down-ani']}`}
+        &gt;
+        &lt;CoverView className={style.info}&gt;
+            &lt;CoverView&gt;直播&lt;/CoverView&gt;
+        &lt;/CoverView&gt;
+        &lt;CoverView className={style['full-screen']} onClick={handleFullScreen}&gt;
+            &lt;CoverImage
+            className={style.icon}
+            src={fullScreenFlag ? tuichuquanping : quanping}
+            &gt;&lt;/CoverImage&gt;
+            &lt;CoverView&gt;{fullScreenFlag ? '小屏播放' : '全屏播放'}&lt;/CoverView&gt;
+        &lt;/CoverView&gt;
+        &lt;/CoverView&gt;
+    &lt;/CoverView&gt;
+    &lt;/CoverView&gt;
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[瀑布流计算js源码]]></title>
+        <id>https://weidadeda.github.io/post/pu-bu-liu-ji-suan-js-yuan-ma</id>
+        <link href="https://weidadeda.github.io/post/pu-bu-liu-ji-suan-js-yuan-ma">
+        </link>
+        <updated>2022-02-10T07:35:44.000Z</updated>
+        <content type="html"><![CDATA[<p>遇到问题时的解决方法及使用注意事项：</p>
+<p>1、下拉刷新会导致瀑布流顺序错乱，重新new一下瀑布流即可。</p>
+<p>2、图片宽高必须要让服务端返，前端去获取数据太多会导致性能非常慢。</p>
+<p>3、dom加载时获取小程序的某个dom的宽度（列宽）为空，放在wx.nextTick中即可。还获取不到，就需要看自己要获取的dom是否已加载。</p>
+<p>4、此代码抗揍，如果出问题先从自身找问题，再仔细阅读一遍此代码。</p>
+<pre><code>class Waterfall {
+  constructor(options) {
+    this.initWaterfall(options);
+  }
+    /**
+   * 初始化瀑布流
+   * @param {Object} options
+   * @param {Array&lt;Object&gt;} options.columns {width} - 此参数主要定义每列的宽度
+   */
+  initWaterfall(options) {
+    this.columns = options.columns;
+    this.formatedData = [];
+    for (let column of options.columns) {
+      this.formatedData.push({
+        width: column.width,
+        height: 0
+      });
+    }
+  }
+  imageUrlFeild = 'imageUrl'
+ 
+  /**
+   * 格式化从数据中获取图片url的方法
+   * @param {Function | String | Number} fn - 若为函数，则需要返回瀑布流每项数据对应的图片字段
+   */
+ 
+  formatGetImageUrlMethod(fn) {
+    this.imageUrlFeild = typeof fn === 'function' ? fn() : fn
+  }
+ 
+  /**
+   * 向瀑布流中填充数据
+   * @param {Object}  resource - 单个瀑布流项的数据源
+   */
+  getResourceInfo(resource) {
+    const _self = this
+    return new Promise(resolve =&gt; {
+      if (resource[_self.imageUrlFeild]) {
+        // getImageInfo方法在小程序中使用，h5中暂未测试，不过一般都是让服务端直接返回图片宽高，所以这个方法一般用不到，如果需要用到的话，必须加一层loading阻止用户操作
+        wx.getImageInfo({
+          src: resource[_self.imageUrlFeild],
+          success(res) {
+            resolve(res)
+          },
+          fail() {
+            resolve()
+          }
+        })
+      } else {
+        resolve()
+      }
+    })
+  }
+ 
+  /**
+   * 向瀑布流中补充数据
+   * @param {Boolean} extraVal 瀑布流的卡片中图片之外的内容
+   * @param {Array&lt;resource&gt;}  resources
+   */
+ 
+  async addResources(resources, extraVal) {
+    // let promiseArray = []
+    let newResourcesArray = Array.apply(null, Array(this.columns.length)).map(
+      _ =&gt; []
+    )
+    for (let resource of resources) {
+      // promiseArray.push(this.getResourceInfo(resource))
+      // let imageInfo
+      // imageInfo = await this.getResourceInfo(resource)
+      const width = Number(resource.width) || 100;
+      const height = Number(resource.height) || 100;
+      // 获取最短列的索引
+      const index = this.getShortestColumn();
+      // 卡片宽度
+      const imageWidth = this.formatedData[index].width;
+      // 附加的卡片高度在这里是写死的，每个项目会有不同高度
+      const extraHeight = extraVal ? extraVal : 0;
+      // 获取卡片高度
+      const cardHeight = imageWidth / (width / height) + extraHeight;
+      // 当前列总高度
+      this.formatedData[index].height += cardHeight;
+      // 返回卡片高度
+      resource.cardHeight = cardHeight;
+      // 返回图片高度
+      resource.computedHeight = cardHeight - extraVal;
+      // 返回当前列的数组
+      newResourcesArray[index].push(resource);
+    }
+    return newResourcesArray
+  }
+ 
+  /**
+   * 最重要的地方
+   * 获取当前数据中填充最短的列
+   * 返回最短列的索引
+   */
+  getShortestColumn() {
+    let minHeight = Infinity
+    let minHeightColumnIndex = 0
+    for (let index = this.formatedData.length - 1; index &gt; -1; index--) {
+      //从后往前遍历，防止每列的高度相同的情况
+      const height = this.formatedData[index].height
+      if (height &lt;= minHeight) {
+        minHeightColumnIndex = index
+        minHeight = height
+      }
+    }
+    return minHeightColumnIndex
+  }
+}
+ 
+export default Waterfall;
+ 
+ 
+// 例：双列瀑布流
+let newList = new Waterfall({
+      columns: [
+        {
+          width: 列宽
+        },
+        {
+          width: 列宽
+        }
+      ]
+    });
+newList.addResources(lists, 卡片内除图片的额外高度).then(res =&gt; {});
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[C端H5或小程序常见问题总结]]></title>
         <id>https://weidadeda.github.io/post/c-duan-h5-huo-xiao-cheng-xu-chang-jian-wen-ti-zong-jie</id>
         <link href="https://weidadeda.github.io/post/c-duan-h5-huo-xiao-cheng-xu-chang-jian-wen-ti-zong-jie">
         </link>
         <updated>2022-02-09T07:59:28.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="1部分机型拍照上传图片旋转问题">1.部分机型拍照上传图片旋转问题：</h3>
+        <content type="html"><![CDATA[<p>开发C端时遇到的一些问题与解决方法，都记录下来，希望对你也有帮助。</p>
+<h3 id="1部分机型拍照上传图片旋转问题">1.部分机型拍照上传图片旋转问题：</h3>
 <p>直接从图片后面加参数‘?x-oss-process=image/auto-orient,1/resize,m_fixed’（加上参数之后会自动旋转回来，其他参数可参考阿里OSS官方文档https://help.aliyun.com/document_detail/44691.html?spm=a2c4g.11186623.6.1390.750ac1f6HTe92Q）</p>
 <h3 id="2swiper3d两边留白效果">2.swiper3D两边留白效果：</h3>
 <p>（小程序h5均适用），代码如下，需要注意的是必须给swiper父级元素加overflow-x:hidden</p>
@@ -183,6 +510,152 @@ initVisibilityChange() {
 <p>http://note.youdao.com/s/4qUINhV0 （比较多，有道云链接发出来，希望对大家有帮助）</p>
 <h3 id="17-wxchooseimage方法在安卓与ios上取到的base64格式不一样安卓没有dataimagejpgbase64前缀需要单独处理">17. wx.chooseImage方法在安卓与ios上取到的base64格式不一样，安卓没有data:image/jpg;base64前缀，需要单独处理</h3>
 <h3 id="18-手机内h5点击input无法唤起自带键盘可以给input添加click事件手动触发focus事件">18. 手机内h5点击input无法唤起自带键盘：可以给input添加click事件手动触发focus事件。</h3>
+<h3 id="19-canvas绘制圆角矩形方法">19. canvas绘制圆角矩形方法</h3>
+<pre><code>// x、y、w、h与canvas的rect方法参数相同
+//r代表圆角大小，1、2、3、4分别代表上左、上右、下右、下左
+function drawRoundRect(ctx, x, y, w, h, r1, r2, r3, r4) {
+  ctx.beginPath()
+  ctx.moveTo(x + r1, y)
+  ctx.arcTo(x + w, y, x + w, y + h, r2)
+  ctx.arcTo(x + w, y + h, x, y + h, r3)
+  ctx.arcTo(x, y + h, x, y, r4)
+  ctx.arcTo(x, y, x + w, y, r1)
+  ctx.closePath()
+}
+</code></pre>
+<h3 id="20-post导出文件处理">20. POST导出文件处理</h3>
+<ul>
+<li>fetch请求方法中，增加类型处理，预设请求传入字段控制，返回为：response.blob()；</li>
+<li>返回值处理：</li>
+</ul>
+<pre><code>const blob = new Blob([data], {type: &quot;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&quot;})
+    const a = document.createElement(&quot;a&quot;);
+    const filename ={
+      exportDetail: '推广人员用户明细',
+      exportRecord: '推广人员跟进记录明细'
+    }
+    a.href = URL.createObjectURL(data)
+    a.download = filename[type] // 这里填保存成的文件名
+    a.click()
+    URL.revokeObjectURL(a.href)
+　　 a.remove();
+</code></pre>
+<h3 id="21-解决css瀑布流只能竖向展示问题非排名或排序时可用">21. 解决css瀑布流只能竖向展示问题(非排名或排序时可用)</h3>
+<pre><code class="language-css">// 父元素
+column-count: 2;
+width: 100%;
+// 子元素
+break-inside: avoid;
+</code></pre>
+<pre><code class="language-js">const oldList = lists;
+const newList = [].concat(
+  ...Array.from(
+    oldList.reduce(
+      (total, cur, index) =&gt; {
+        total[index % 2].push(cur);
+        return total;
+      },
+      { 0: [], 1: [], length: 2 }
+    )
+  )
+);
+</code></pre>
+<h3 id="22-mpvue的坑">22. mpvue的坑</h3>
+<ul>
+<li>
+<p>一定要遵循mpvue官方文档建议，不要将v-for用在组件上面，或者在v-for内嵌套组件，这样成倍增加wx.setData的数据量</p>
+</li>
+<li>
+<p>在开发上拉加载更多的需求时不要使用小程序原生的scroll-view，直接使用page的onReachBottom事件</p>
+</li>
+<li>
+<p>使用swiper时，不要嵌套过多swiper-item，不要在swiper-item中放入太多元素，有瀑布流等无限加载列表需求时，禁止使用swiper，会导致小程序卡死闪退</p>
+</li>
+<li>
+<p>slot只能使用匿名，具名slot及scoped slot不能使用</p>
+</li>
+<li>
+<p>在定义组件data时，不要将与view无关的数据定义到data中，直接定义到外部，特别时监听scroll事件的时候</p>
+</li>
+<li>
+<p>wx对象的方法全部都挂在mpvue对象下，不需要直接调用wx的方法，特别是在兼容h5的时候</p>
+</li>
+<li>
+<p>button open-type是获取用户手机号等需要绑定事件的类型时，不要使用click.stop或catch:tap，这样会导致不会触发获取用户手机号的回调方法</p>
+</li>
+<li>
+<p>所有组件的created生命周期只在小程序加载的时候统一执行，即使使用了v-if也不能在每次加载组件的时候触发</p>
+</li>
+<li>
+<p>如果要自定义tabbar最好自己实现一个，不要使用原生的custom定义，原生custom限制太多且不能使用mpvue实现</p>
+</li>
+</ul>
+<h3 id="23-taro-hooks子组件条件渲染">23. Taro hooks子组件条件渲染</h3>
+<p>若是希望子组件props未被重新赋值的情况下不渲染，使用memo包裹，它实现了class中PureComponent的效果，浅比较了一次。</p>
+<pre><code>// 子组件
+import Taro, { memo } from &quot;@tarojs/taro&quot;;
+import { View } from &quot;@tarojs/components&quot;;
+ 
+const Index = ({ data }) =&gt; {
+  return (
+    &lt;View&gt;
+      {console.log(&quot;Test -- rander2&quot;, data)}
+      {data.map((item, index) =&gt; {
+        return &lt;View key={index}&gt;{item}&lt;/View&gt;;
+      })}
+    &lt;/View&gt;
+  );
+};
+ 
+export default memo(Index);
+</code></pre>
+<p>若是希望在某些特定的prop改变的时候更新子组件</p>
+<pre><code>// utils
+import Taro from &quot;@tarojs/taro&quot;;
+ 
+/**
+  * 子组件条件渲染
+  * @param {Function} render - 要渲染的组件函数
+  * @param {Array}  observe - 渲染依据，从props接收的数据key，
+  */
+export const compareRender = (render, observe=[]) =&gt; {
+  const compare = (prevProps, nextProps) =&gt; {
+    let keep = true;
+    for (let i = 0; i &lt; observe.length; i++) {
+      if (prevProps[observe[i]] !== nextProps[observe[i]]) {
+        keep = false;
+        break;
+      }
+    }
+    return keep;
+  };
+  return Taro.memo(render, compare);
+};
+</code></pre>
+<pre><code>// 子组件
+import Taro from &quot;@tarojs/taro&quot;;
+import { View } from &quot;@tarojs/components&quot;;
+ 
+import { compareRender } from &quot;@utils&quot;;
+ 
+const Index = ({ data }) =&gt; {
+  return (
+    &lt;View&gt;
+      {console.log(&quot;Test -- rander&quot;, data)}
+      {data.map((item, index) =&gt; {
+        return &lt;View key={index}&gt;{item}&lt;/View&gt;;
+      })}
+    &lt;/View&gt;
+  );
+};
+ 
+export default compareRender(Index, [&quot;data&quot;]);
+</code></pre>
+<h3 id="24-关于在dva副作用中多个请求同步执行的优化">24. 关于在dva副作用中多个请求同步执行的优化</h3>
+<p>经测试：<br>
+const res1 = yield call(req1); const res2 = yield call (req2); const res3 = yield call (req3);  三个请求同步执行，平均耗时大约为120ms，页面加载、数据等待时间较长。<br>
+优化：<br>
+const [ res1, res2, res3] =  yield [ call(req1), call(req2), call(req3) ],  并发请求，平均耗时大约为20ms</p>
 ]]></content>
     </entry>
     <entry>
@@ -824,722 +1297,6 @@ at Array.0 (module.js:479:10)
 at EventEmitter._tickCallback (node.js:192:40)
 </code></pre>
 <p>转载自https://www.cnblogs.com/yuwenjing0727/p/8135608.html</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Koa接口参数校验与返回值统一处理]]></title>
-        <id>https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li</id>
-        <link href="https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li">
-        </link>
-        <updated>2022-01-18T11:03:04.000Z</updated>
-        <content type="html"><![CDATA[<p><a href="https://github.com/node-modules/parameter">parameter地址</a><br>
-// Koa接口参数校验与返回值统一处理  将参数校验变成一个路由中间件，正确的话继续执行，错误的话抛出错误异常。<br>
-// 在第一个中间件中自定义返回格式这里叫ctx.DATA（ctx上自定义一个对象，对象包含code默认200,msg默认‘成功’,data默认空对象）<br>
-// 这里对错误异常做了处理，抛出的是带code码以及与code码对应的msg和错误原因data的对象，此时我们将错误信息赋值给ctx.DATA.data。app中先写一个捕获错误的中间件，这样抛出的错误我们能够捕获到，然后从这里我们给body赋值，这样错误时返回的就是code码和message都有的返回值<br>
-// 当成功查找到数据库中的数据时，我们只需要将数据给ctx.DATA.data，那么返回值就是code码为200，msg为成功，data为正确数据的对象了。万一出现了登陆失败，我们也可以改变ctx.DATA.message为登陆失败，改变code码等</p>
-<pre><code>/**
- * 数据校验
- * wiki：https://github.com/node-modules/parameter/blob/master/example.js
- * @type {Parameter}
- */
-// const { HttpError } = require('../../utils/tool/error')
-const util = require('util')
-// const ERROR_MSG = require('./errorMsg')
-const ERROR_MSG = Object.freeze({
-  // en
-  // 0: 'fail',
-  // 1: 'validation error',
-  // 200: 'ok',
-  // 400: 'invalid param',
-  // 401: 'unauthorized',
-  // 403: 'forbidden',
-  // 404: 'not found',
-  // 500: 'internal server error',
-  // 503: 'service busy',
-
-  // zh-cn
-  0: '失败',
-  1: '验证码错误',
-  200: '成功',
-  400: '请求出错',
-  401: '未授权的请求',
-  403: '禁止：禁止执行访问',
-  404: '找不到：请检查URL以确保路径正确',
-  500: '服务器的内部错误',
-  503: '服务不可用'
-})
-
-function CustomError(code, msg) {
-  Error.call(this, '')
-
-  this.code = code
-  this.msg = msg || ERROR_MSG[code] || 'unknown error'
-
-  this.getCodeMsg = function() {
-    return {
-      code: this.code,
-      msg: this.msg
-    }
-  }
-}
-
-util.inherits(CustomError, Error)
-
-function HttpError(code, msg) {
-  if ([0, 1, 200, 400, 401, 403, 404, 500, 503].indexOf(code) &lt; 0) {
-    throw Error('not an invalid http code')
-  }
-
-  CustomError.call(this, code, msg)
-}
-
-util.inherits(HttpError, CustomError)
-
-const Parameter = require('parameter')
-const parm = new Parameter()
-
-// 自定义校验
-parm.addRule('name', function(e, v) {
-  let sta = /^[a-z]$/.test(v)
-  return sta || '只能输入一个字母'
-})
-
-// 路由校验列表
-const ruleList = {
-  // 登录
-  'post/api/login': {
-    mobile: { type: 'string', required: true },
-    password: { type: 'string', required: true }
-  },
-  // 获取配置
-  'get/api/setting': {
-    id: { type: 'string', required: true }
-  },
-  // 保存配置
-  'post/api/setting': {
-    id: { type: 'number', required: true },
-    title: { type: 'string', required: false },
-    report_fix_id: { type: 'string', required: false },
-    fix_url: { type: 'string', required: false },
-    env: { type: 'string', required: false },
-    report: { type: 'number', required: false },
-    report_interval: { type: 'number', required: false }
-  },
-  // CICD
-  'post/api/deploy': {
-    name: { type: 'string', required: true },
-    branch: { type: 'string', required: false },
-    env: { type: 'string', required: false }
-  },
-  // 用户详情
-  'get/api/user-details': {
-    user_id: { type: 'string', required: true }
-  }
-}
-
-/**
- * 校验方法
- * @param ctx
- * @param next
- * @returns {Promise&lt;void&gt;}
- */
-const parameter = async (ctx, next) =&gt; {
-  let errors, data
-  let method = 'get'
-  if (ctx.request.method === 'GET') {
-    data = ctx.query
-  } else {
-    method = 'post'
-    data = ctx.request.body
-  }
-  console.log(method, data)
-  try {
-    let name = ctx.req._parsedUrl.pathname
-    errors = parm.validate(ruleList[method + name], data)
-  } catch (e) {
-    throw new HttpError(0, e.toString())
-  }
-  if (errors &amp;&amp; errors.length) {
-    ctx.DATA.data = errors
-    throw new HttpError(0, '数据校验未通过')
-  }
-  await next()
-}
-module.exports = parameter
-</code></pre>
-<p>router.js</p>
-<pre><code>// 数据校验
-const router = require('koa-router')()
-const parameter = require('../utils/parameter')
-// project
-router.get('/api/user-details', parameter, userDetail)
-router.get('/api/setting', parameter, getSetting)
-router.post('/api/setting', parameter, setSetting)
-// common
-router.post('/api/login', parameter, login)
-// devops
-router.post('/api/deploy', parameter, checkToken, deploy)
-// swagger
-router.get('/api/swagger.json', async function (ctx) {
-  ctx.set('Content-Type', 'application/json')
-  ctx.body = openapiSpecification
-})
-// index
-router.get('/', index)
-
-module.exports = router
-</code></pre>
-<p>app.js</p>
-<pre><code>const Koa = require('koa')
-const app = new Koa()
-const views = require('koa-views')
-const json = require('koa-json')
-const favicon = require('koa-favicon')
-const koaBody = require('koa-body')
-const logger = require('koa-logger')
-const colors = require('colors')
-const { resolve } = require('path')
-const { koaSwagger } = require('koa2-swagger-ui')
-const mysql = require('mysql2')
-
-const conf = require('./config')
-const index = require('./routes')
-
-// 允许上传文件
-app.use(
-  koaBody({
-    multipart: true,
-    formidable: {
-      maxFileSize: 1000 * 1024 * 1024 // 设置上传文件大小最大限制
-    }
-  })
-)
-
-// 网站图标
-app.use(favicon(resolve(__dirname, './public', 'favicon.ico')))
-
-// 返回美化json
-app.use(json())
-
-// koa-logger
-app.use(logger())
-
-// 资源文件
-app.use(require('koa-static')(resolve(__dirname, './public')))
-
-// 模板引擎
-app.use(views(resolve(__dirname, './views'), { map: { html: 'nunjucks' } }))
-
-// sql特殊字符处理
-const toEscapeString = val =&gt; {
-  return mysql.escape(val)
-}
-const toEscapeObject = dat =&gt; {
-  for (let key in dat) {
-    typeof dat[key] === 'string' &amp;&amp; (dat[key] = toEscapeString(dat[key]))
-    typeof dat[key] === 'object' &amp;&amp; toEscapeObject(dat[key])
-  }
-  return dat
-}
-
-// 加入cookie.get、set及自定义返回格式
-app.use(async (ctx, next) =&gt; {
-  ctx.cookie = {
-    set: (k, v, opt) =&gt; {
-      opt = Object.assign({}, conf.cookieOptions, opt)
-      return ctx.cookies.set(k, v, opt)
-    },
-    get: (k, opt) =&gt; {
-      opt = Object.assign({}, conf.cookieOptions, opt)
-      return ctx.cookies.get(k, opt)
-    }
-  }
-
-  let msg = {
-    0: '失败',
-    1: '验证码错误',
-    200: '成功',
-    400: '请求出错',
-    401: '未授权的请求',
-    403: '禁止：禁止执行访问',
-    404: '找不到：请检查URL以确保路径正确',
-    500: '服务器的内部错误',
-    503: '服务不可用'
-  }
-  ctx.json = dat =&gt; {
-    !dat.message &amp;&amp; (dat.message = msg[dat.code])
-    return dat
-  }
-
-  // 自定义返回格式
-  ctx.DATA = {
-    data: {},
-    message: '',
-    code: 200
-  }
-
-  // 状态统一判断
-  ctx.state = res =&gt; {
-    return !(res &amp;&amp; res.length ? res[0] : res)
-  }
-  await next()
-})
-
-// swagger
-app.use(
-  koaSwagger({
-    routePrefix: '/swagger', // host at /swagger instead of default /docs
-    swaggerOptions: {
-      url: '/api/swagger.json' // example path to json 其实就是之后swagger-jsdoc生成的文档地址
-    }
-  })
-)
-// 错误捕获
-app.use((ctx, next) =&gt; {
-  return next().catch(err =&gt; {
-    console.log(err)
-    let msg = err ? err.msg || err.toString() : 'unknown error'
-    let code = err ? (err.code &gt;= 0 ? err.code : 500) : 500
-    ctx.DATA.code = code
-    ctx.DATA.message = msg
-    ctx.body = ctx.DATA
-    ctx.status =
-      [200, 400, 401, 403, 404, 500, 503].indexOf(code) &gt;= 0 ? code : 200
-  })
-})
-// routes
-app.use(index.routes(), index.allowedMethods())
-
-app.proxy = true
-
-// koa error-handling 服务端、http错误
-app.on('error', (err, ctx) =&gt; {
-  console.error('server error', err, ctx)
-})
-
-module.exports = app
-</code></pre>
-<p>controller层的接口文件</p>
-<pre><code>const resData = {
-    os_type_data,
-    ip_data,
-    browser_data,
-    channel_group_data,
-    client_id_group_data,
-    sortArrFormat,
-    userActions
-  }
-  // 正常返回写法，一个个的定义很麻烦
-  // const successData = {
-  //   code: 0,
-  //   data: resData,
-  //   status: '请求成功'
-  // }
-  // ctx.body = successData
-  
-  // 直接把结果赋值，code码和message不用管
-  ctx.DATA.data = resData
-  ctx.body = ctx.json(ctx.DATA)
-</code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[KOA中间件与执行顺序]]></title>
-        <id>https://weidadeda.github.io/post/koa-zhong-jian-jian-yu-zhi-xing-shun-xu</id>
-        <link href="https://weidadeda.github.io/post/koa-zhong-jian-jian-yu-zhi-xing-shun-xu">
-        </link>
-        <updated>2022-01-18T06:59:26.000Z</updated>
-        <content type="html"><![CDATA[<p><a href="https://www.itying.com/koa/article-index-id-90.html">koa2中文文档</a></p>
-<h3 id="一-什么是koa的中间件">一、什么是Koa的中间件</h3>
-<p>通俗的讲：中间件就是匹配路由之前或者匹配路由完成做的一系列的操作，我们就可以把它叫做中间件。</p>
-<p>在express中间件（Middleware） 是一个函数，它可以访问请求对象（request object (req)）, 响应对象（response object (res)）, 和 web 应用中处理请求-响应循环流程中的中间件，一般被命名为 next 的变量。在Koa中中间件和express有点类似。</p>
-<p>中间件的功能包括：</p>
-<p>执行任何代码。<br>
-修改请求和响应对象。<br>
-终结请求-响应循环。<br>
-调用堆栈中的下一个中间件。</p>
-<p>如果我的get、post回调函数中，没有next参数，那么就匹配上第一个路由，就不会往下匹配了。如果想往下匹配的话，那么需要写next()</p>
-<h3 id="二-koa应用可使用如下几种中间件">二、Koa应用可使用如下几种中间件：</h3>
-<p>应用级中间件<br>
-路由级中间件<br>
-错误处理中间件<br>
-第三方中间件</p>
-<h3 id="三-使用">三、使用</h3>
-<ul>
-<li>
-<ol>
-<li>async和await<br>
-在koa中使用关键词 async 标记的函数是异步函数，<br>
-在异步函数中使用 await next(); 处理下一个异步函数。</li>
-</ol>
-</li>
-<li>
-<ol start="2">
-<li>app.use(async func())<br>
-koa的使用方法很简单，将一系列要处理的操作封装到一个个异步函数中，然后用Koa的实例app通过 app.use(async func()) 的形式调用</li>
-</ol>
-</li>
-</ul>
-<p>一个koa应用程序如下：</p>
-<pre><code>// 导入koa，和koa 1.x不同，在koa2中，我们导入的是一个class，因此用大写的Koa表示:
-const Koa = require('koa');
-const app = new Koa(); // 创建一个Koa对象表示web app本身:
-
-// 对于任何请求，app将调用该异步函数处理请求：
-app.use(async (ctx, next) =&gt; {
-    await next();
-    ctx.response.type = 'text/html';
-    ctx.response.body = '&lt;h1&gt;Hello, koa2!&lt;/h1&gt;';
-});
-
-// 在端口3000监听:
-app.listen(3000);
-console.log('app started at port 3000...');
-</code></pre>
-<p>可以看到 app.use() 括号里面的参数是一个函数。函数用了异步修饰符 async ，在这个函数内部，又通过关键字 await next() 调用下一个app.use的异步函数。如果这个函数是最后一个需要执行的函数，则内部不需要再写await next（）。</p>
-<h3 id="四-koa中间件的执行顺序">四、koa中间件的执行顺序</h3>
-<p>Express的中间件是顺序执行，从第一个中间件执行到最后一个中间件，发出响应。<br>
-Koa是从第一个中间件开始执行,遇到 await next() 就进入下一个中间件，一直到执行到最后一个中间件。然后再逆序执行上一个中间件 await next() 后面的代码，一直到第一个中间件 await next() 后面的代码执行完毕才发出响应。</p>
-<p>koa把很多async函数组成一个处理链，每个async函数都可以做一些自己的事情，然后用await next()来调用下一个async函数。我们把每个async函数称为middleware，这些middleware可以组合起来，完成很多有用的功能。</p>
-<p>例子：</p>
-<pre><code>app.use(async (ctx, next) =&gt; {
-    console.log('1'); 
-    await next(); // 调用下一个middleware
-    console.log('5')
-});
-
-app.use(async (ctx, next) =&gt; {
-    console.log('2');
-    await next(); // 调用下一个middleware
-    console.log('4');
-});
-
-app.use(async (ctx, next) =&gt; {
-    console.log('3');
-});
-</code></pre>
-<p>输出结果： 12345</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[node接口生成接口文档]]></title>
-        <id>https://weidadeda.github.io/post/node-jie-kou-sheng-cheng-jie-kou-wen-dang</id>
-        <link href="https://weidadeda.github.io/post/node-jie-kou-sheng-cheng-jie-kou-wen-dang">
-        </link>
-        <updated>2022-01-17T03:21:22.000Z</updated>
-        <content type="html"><![CDATA[<p>先看下效果<br>
-<img src="https://weidadeda.github.io/post-images/1642391805862.png" alt="" loading="lazy"><br>
-这里我用的是koa2+swagger</p>
-<h3 id="安装">安装</h3>
-<pre><code>// koa2-swagger-ui UI视图组件  swagger-jsdoc 识别写的 /***/ 转 json
-npm install koa2-swagger-ui swagger-jsdoc --save
-</code></pre>
-<p><a href="https://www.npmjs.com/package/koa2-swagger-ui">koa2-swagger-ui npm地址</a> （创建接口文档）<br>
-<a href="https://www.npmjs.com/package/swagger-jsdoc">swagger-jsdoc npm地址</a> （这个库读取带有jsdoc注释的源代码，并生成OpenAPI (Swagger)规范。）<br>
-<a href="https://www.jianshu.com/p/5365ef83252a">OpenAPI 规范摘要</a></p>
-<h3 id="配置">配置</h3>
-<p>router.js</p>
-<pre><code>const router = require('koa-router')() //引入路由函数
-const swaggerJSDoc = require('swagger-jsdoc')
-const path = require('path')
-const swaggerDefinition = {
-  openapi: '3.0.1',
-    info: {
-        title: 'blog项目访问地址',
-        version: '1.0.0',
-        description: 'API',
-    },
-    basePath: '/', // Base path (optional)
-    tags: [
-      {
-        name: 'manage',
-        description: '管理系统'
-      },
-      {
-        name: 'client',
-        description: '日志上报'
-      }
-    ],
-    schemes: ['http', 'https'],
-    securityDefinitions: {
-    server_auth: {
-      type: 'oauth2',
-      description: '登录账号密码鉴权',
-      tokenUrl: '',
-      flow: 'password',
-      scopes: {
-        token: 'modify pets in your account'
-      }
-    },
-    token: {
-      type: 'apiKey',
-      name: 'token',
-      in: 'header'
-    }
-  }
-};
-const options = {
-    swaggerDefinition,
-    apis: [path.join(__dirname, './controllers/*.js')], // 包含上述注释的文件（）
-};
-const swaggerSpec = swaggerJSDoc(options)
-// 通过路由获取生成的注解文件
-router.get('/swagger.json', async function (ctx) {
-    ctx.set('Content-Type', 'application/json');
-    ctx.body = swaggerSpec;
-})
-module.exports = router
-</code></pre>
-<p>app.js 入口文件</p>
-<pre><code>const swagger = require('./router')  // router中做了swagger配置
-const { koaSwagger } = require('koa2-swagger-ui')
-
-// 接口文档配置
-app.use(swagger.routes(), swagger.allowedMethods())
-app.use(koaSwagger({
-  routePrefix: '/swagger', // 接口文档访问地址
-  swaggerOptions: {
-    url: '/swagger.json', // example path to json 其实就是之后swagger-jsdoc生成的文档地址
-  }
-}))
-</code></pre>
-<p>启动项目，访问项目接口地址 + swagger ，我的地址是 http://localhost:4002/swagger</p>
-<h3 id="注释生成文档">注释生成文档</h3>
-<p>在controller层文件每个接口上写注释，注释是以@swagger开头的，swagger-jsdoc 会识别@swagger，然后解析下面的注释，解析完给koa2-swagger-ui显示成页面，总的流程就是这样。<br>
-get方式</p>
-<pre><code>// 获取博客列表
-/**
- * @swagger
- * /api/blog/list:
- *   get:
- *     summary: 获取博客列表
- *     description: 获取博客列表
- *     tags:
- *       - blogs
- *     parameters:
- *       - name: author
- *         in: query
- *         required: false
- *         description: 作者
- *         type: string
- *       - name: keyword
- *         in: query
- *         required: false
- *         description: 搜索关键字
- *         type: string
- *     responses:
- *       200:
- *         description: 成功获取
- */
-router.get('/list', async (ctx, next) =&gt; {
-  const query = ctx.query
-  let author = query.author || ''
-  const keyword = query.keyword || ''
-
-  const listData = await getList(author, keyword)
-  ctx.body = new SuccessModel(listData)
-})
-</code></pre>
-<p>post方式</p>
-<pre><code>/**
- * @swagger
- * definitions:
- *  loginparam:
- *    properties:
- *      username:
- *        type: &quot;string&quot;
- *        default: &quot;shangsan&quot;
- *        description: 用户名
- *      password:
- *        type: &quot;string&quot;
- *        default: &quot;123&quot;
- *        description: 密码
- */
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     ProjectDetail:
- *       type: object
- *       properties:
- *         id:
- *           type: integer
- *           format: int64
- *         petId:
- *           type: integer
- *           format: int64
- *         quantity:
- *           type: integer
- *           format: int32
- *         shipDate:
- *           type: string
- *           format: date-time
- */
-
-/**
- * @swagger
- * /api/user/login:
- *   post:
- *     summary: 登录
- *     description: 登录
- *     tags:
- *       - user
- *     consumes:
- *      - application/json
- *      - application/xml
- *     produces:
- *      - application/json
- *      - application/xml
- *     parameters:
- *       - name: body
- *         in: body
- *         schema:
- *          $ref: '#/definitions/loginparam' （请求参数这里单独抽出，在上面定义）
- *     responses:
- *       200:
- *         description: 发布成功
- *          content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProjectDetail'（返回参数也是单独抽出定义，这里是随便举个例子）
- *       402:
- *          description: 信息填写不全
- *       403:
- *          description: 参数类型错误
- */
-
-router.post('/login', async (ctx, next) =&gt; {
-    // 业务逻辑
-})
-</code></pre>
-<p>返回示例<br>
-<img src="https://weidadeda.github.io/post-images/1642412213197.png" alt="" loading="lazy"><br>
-基本的接口文档就生成啦，快试一下吧～</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Sequelize node连接数据库的ORM]]></title>
-        <id>https://weidadeda.github.io/post/sequelize-node-lian-jie-shu-ju-ku-de-orm</id>
-        <link href="https://weidadeda.github.io/post/sequelize-node-lian-jie-shu-ju-ku-de-orm">
-        </link>
-        <updated>2022-01-14T07:36:06.000Z</updated>
-        <content type="html"><![CDATA[<p><a href="https://www.sequelize.com.cn/">Sequelize 中文文档</a><br>
-可以先看文档，文档很全，它的语句帮我们做了很多处理，而且很精简，让我们不用死记硬背sql语句，也不用去库里建表。</p>
-<h3 id="连接数据库">连接数据库</h3>
-<pre><code>连接到数据库
-要连接到数据库,必须创建一个 Sequelize 实例. 这可以通过将连接参数分别传递到 Sequelize 构造函数或通过传递一个连接 URI 来完成：
-
-const { Sequelize } = require('sequelize');
-
-// 方法 1: 传递一个连接 URI
-const sequelize = new Sequelize('sqlite::memory:') // Sqlite 示例
-const sequelize = new Sequelize('postgres://user:pass@example.com:5432/dbname') // Postgres 示例
-
-// 方法 2: 分别传递参数 (sqlite)
-const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: 'path/to/database.sqlite'
-});
-
-// 方法 3: 分别传递参数 (其它数据库)
-const sequelize = new Sequelize('database', 'username', 'password', {
-  host: 'localhost',
-  dialect: /* 选择 'mysql' | 'mariadb' | 'postgres' | 'mssql' 其一 */
-});
-</code></pre>
-<h3 id="定义模型-定义表结构">定义模型 （定义表结构）</h3>
-<pre><code>module.exports = function(sequelize, DataTypes) {
-  return sequelize.define(
-    'project',
-    {
-      id: {
-        type: DataTypes.INTEGER(11),
-        allowNull: false,
-        primaryKey: true,
-        autoIncrement: true
-      },
-      name: { type: DataTypes.STRING(255), allowNull: true },
-      title: { type: DataTypes.STRING(255), allowNull: true },
-      report_fix_id: { type: DataTypes.STRING(1000), allowNull: true },
-      fix_url: { type: DataTypes.STRING(2000), allowNull: true },
-      ignore_key: {
-        type: DataTypes.STRING(2000),
-        allowNull: true,
-        comment: '简化打印对象中比较大的对象'
-      },
-      env: {
-        type: DataTypes.STRING(255),
-        allowNull: true,
-        comment: '哪些环境能上报日志'
-      },
-      report_interval: {
-        type: DataTypes.INTEGER(11),
-        allowNull: true,
-        comment: '上报时间间隔'
-      },
-      ctime: {
-        type: DataTypes.INTEGER(10),
-        allowNull: true,
-        get() {
-          return moment
-            .unix(this.getDataValue('ctime'))
-            .format('YYYY/MM/DD HH:mm:ss')
-        }
-      },
-      del: { type: DataTypes.INTEGER(1), allowNull: true, defaultValue: '0' }
-    },
-    {
-      tableName: 'project'
-    }
-  )
-}
-</code></pre>
-<h3 id="模型同步-真正从数据库创建">模型同步 （真正从数据库创建）</h3>
-<p>定义模型时,你要告诉 Sequelize 有关数据库中表的一些信息. 但是,如果该表实际上不存在于数据库中怎么办？ 如果存在,但具有不同的列,较少的列或任何其他差异,该怎么办？</p>
-<p>这就是模型同步的来源.可以通过调用一个异步函数(返回一个Promise)model.sync(options). 通过此调用,Sequelize 将自动对数据库执行 SQL 查询. 请注意,这仅更改数据库中的表,而不更改 JavaScript 端的模型.</p>
-<p>User.sync() - 如果表不存在,则创建该表(如果已经存在,则不执行任何操作)</p>
-<h4 id="usersync-force-true-将创建表如果表已经存在则将其首先删除-这个不要用也最好别试">User.sync({ force: true }) - 将创建表,如果表已经存在,则将其首先删除 （这个不要用，也最好别试）</h4>
-<p>User.sync({ alter: true }) - 这将检查数据库中表的当前状态(它具有哪些列,它们的数据类型等),然后在表中进行必要的更改以使其与模型匹配.</p>
-<pre><code>sequelize
-  .authenticate()
-  .then(() =&gt; {
-    console.log('数据库连接成功'.green)
-    // sequelize.sync({ alter: true })
-  })
-  .catch(err =&gt; {
-    console.log('数据库连接失败'.red)
-  })
-</code></pre>
-<h3 id="创建实例修改内容insert">创建实例（修改内容INSERT）</h3>
-<p>尽管模型是一个类,但是你不应直接使用 new 运算符来创建实例. 相反,应该使用 build 方法：</p>
-<pre><code>const jane = User.build({ name: &quot;Jane&quot; });
-console.log(jane instanceof User); // true
-console.log(jane.name); // &quot;Jane&quot;
-</code></pre>
-<p>但是,以上代码根本无法与数据库通信(请注意,它甚至不是异步的)！ 这是因为 build 方法仅创建一个对象,该对象 表示 可以 映射到数据库的数据. 为了将这个实例真正保存(即持久保存)在数据库中,应使用 save 方法：</p>
-<pre><code>await jane.save();
-console.log('Jane 已保存到数据库!');
-</code></pre>
-<p>请注意,从上面代码段中的 await 用法来看,save 是一种异步方法. 实际上,几乎每个 Sequelize 方法都是异步的. build 是极少数例外之一.</p>
-<p>非常有用的捷径: create 方法<br>
-Sequelize提供了 create 方法,该方法将上述的 build 方法和 save 方法合并为一个方法：</p>
-<pre><code>const jane = await User.create({ name: &quot;Jane&quot; });
-// Jane 现在存在于数据库中！
-console.log(jane instanceof User); // true
-console.log(jane.name); // &quot;Jane&quot;
-</code></pre>
-<h3 id="简单-select-查询">简单 SELECT 查询</h3>
-<p>你可以使用 findAll 方法从数据库中读取整个表：</p>
-<pre><code>// 查询所有用户
-const users = await User.findAll();
-console.log(users.every(user =&gt; user instanceof User)); // true
-console.log(&quot;All users:&quot;, JSON.stringify(users, null, 2));
-</code></pre>
-<p>相当于sql语句</p>
-<pre><code>SELECT * FROM ...
-</code></pre>
-<p>嗯，写一些建表与查询的流程，照着官网抄也没什么意思。使用这个我们可以很轻松的操作数据库，使我们写node接口的时候效率翻倍～</p>
 ]]></content>
     </entry>
 </feed>

@@ -8,7 +8,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>Node.js 常用工具 （util.inherits） | Gridea</title>
+<title>Taro 小程序直播组件 LivePlayer 注意事项 | Gridea</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1644479996996">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -29,7 +29,7 @@
 
 
 
-  <meta name="description" content="Node.js 常用工具 （util.inherits）" />
+  <meta name="description" content="Taro 小程序直播组件 LivePlayer 注意事项" />
   <meta name="keywords" content="" />
 </head>
 
@@ -161,7 +161,8 @@
       <div class="sidebar-body gemini" id="sidebar_body">
         
           
-            
+            <div class="post-side-meta" id="post_side_meta">
+              
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="/images/avatar.png"/>
@@ -208,6 +209,201 @@
 
 
 </div>
+            </div>
+            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+              <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto"
+    id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#1-%E7%9B%B4%E6%92%AD%E7%BB%84%E4%BB%B6%E4%BC%98%E5%85%88%E5%BC%80%E9%80%9A%E5%AE%9E%E6%97%B6%E9%9F%B3%E9%A2%91%E5%92%8C%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%90%8E%E5%8F%B0%E7%94%B3%E8%AF%B7%E5%AF%B9%E5%BA%94%E7%9A%84%E8%AF%81%E4%B9%A6">1、直播组件优先开通实时音频和视频（管理后台），申请对应的证书</a></li>
+<li><a href="#2-%E7%9B%B4%E6%92%AD%E7%BB%84%E4%BB%B6%E9%9C%80%E8%A6%81%E5%81%9A%E7%B3%BB%E7%BB%9F%E6%9D%83%E9%99%90%E9%AA%8C%E8%AF%81%E9%BA%A6%E5%85%8B%E9%A3%8E%E5%92%8C%E7%9B%B8%E6%9C%BA%E5%BC%95%E5%AF%BC%E7%94%A8%E6%88%B7%E6%89%93%E5%BC%80%E6%9D%83%E9%99%90%E4%B8%8D%E7%84%B6%E9%83%A8%E5%88%86%E6%89%8B%E6%9C%BA%E5%8A%A0%E8%BD%BD%E5%A4%B1%E8%B4%A5-insertliveplayerfailaccess-denied-%E5%9B%A0%E4%B8%BA%E6%9D%83%E9%99%90%E6%9C%89%E4%B8%89%E4%B8%AA%E7%8A%B6%E6%80%81undefined-denied-authorizedauthorized%E4%BB%A3%E8%A1%A8%E7%B3%BB%E7%BB%9F%E6%9D%83%E9%99%90%E5%B7%B2%E5%BC%80">2、直播组件需要做【系统】权限验证，（麦克风和相机）,引导用户打开权限，不然部分手机加载失败（ insertLivePlayer:fail:access denied） 因为权限有三个状态(undefined、denied、authorized)，authorized代表系统权限已开</a></li>
+<li><a href="#3-%E7%9B%B4%E6%92%AD%E7%BB%84%E4%BB%B6%E5%90%8C%E5%B1%82%E6%B8%B2%E6%9F%93%E5%9C%A8%E5%85%A8%E5%B1%8F%E4%B8%8B%E5%A4%B1%E6%95%88%E9%9C%80%E8%A6%81%E5%8D%95%E7%8B%AC%E5%A4%84%E7%90%86%E5%85%A8%E5%B1%8F%E5%81%9Acoverviewcoverimage%E5%81%9A%E5%8E%9F%E7%94%9F%E8%A6%86%E7%9B%96%E8%83%BD%E5%8A%9B%E5%A4%84%E7%90%86%E4%B8%8D%E6%98%AF%E5%85%A8%E5%B1%8F%E5%B0%B1%E5%90%8C%E5%B1%82%E6%B8%B2%E6%9F%93%E5%85%A8%E5%B1%8F%E5%A4%84%E7%90%86%E6%97%B6%E5%80%99%E9%A1%B6%E5%B1%82%E5%AE%B9%E5%99%A8%E5%92%8C%E7%9B%B4%E6%8E%A5%E5%AD%90%E8%8A%82%E7%82%B9%E9%9C%80%E8%A6%81%E8%AE%BE%E7%BD%AE-visiblityvisiblepositionrelativez-index99999-%E5%BF%85%E9%A1%BB%E5%BE%97%E5%A4%84%E7%90%86%E4%B8%8D%E7%84%B6android-%E7%9A%84coverview%E8%A6%86%E7%9B%96%E4%B8%8D%E4%BA%86%E5%8E%9F%E7%94%9F%E7%9B%B4%E6%92%AD%E7%BB%84%E4%BB%B6">3、直播组件同层渲染在全屏下失效，需要单独处理，全屏做CoverView\CoverImage做原生覆盖能力处理，不是全屏就同层渲染，全屏处理时候顶层容器和直接子节点需要设置 visiblity:visible;position:relative;z-index:99999; 必须得处理，不然android 的CoverView覆盖不了原生直播组件。</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+</div>
+
+<script>
+
+  let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1;
+  let active = 'active-show', activeClass = 'active-current';
+  let tocWrapper = document.querySelector('#toc_wrapper');
+  let tocContent = tocWrapper.children[0];
+  let autoNumber = tocWrapper && tocWrapper.classList.contains('auto-number');
+
+  function addTocNumber(elem, deep) {
+    if (!elem) {
+      return;
+    }
+    let prop = elem.__proto__;
+
+    if (prop === HTMLUListElement.prototype) {
+      for (let i = 0; i < elem.children.length; i++) {
+        addTocNumber(elem.children[i], deep + (i + 1) + '.');
+      }
+    } else if (prop === HTMLLIElement.prototype) {
+      // 保存li元素
+      if (elem.children[0].__proto__ === HTMLAnchorElement.prototype) {
+        lList.push(elem);
+      }
+      for (let i = 0; i < elem.children.length; i++) {
+        let cur = elem.children[i];
+        if (cur.__proto__ === HTMLAnchorElement.prototype) {
+          if (autoNumber) {
+            cur.text = deep + ' ' + cur.text;
+          }
+        } else if (cur.__proto__ === HTMLUListElement.prototype) {
+          addTocNumber(cur, deep);
+        }
+      }
+    }
+  }
+
+  function removeParentActiveClass() {
+    let parents = tocContent.querySelectorAll('.' + active)
+    parents.forEach(function (elem) {
+      elem.classList.remove(active);
+    });
+  }
+
+  function addActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.add(activeClass);
+    }
+  }
+
+  function removeActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.remove(activeClass);
+    }
+  }
+
+  function addActiveLiElemment(elem, parent) {
+    if (!elem || elem === parent) {
+      return;
+    } else {
+      if (elem.__proto__ === HTMLLIElement.prototype) {
+        elem.classList.add(active);
+      }
+      addActiveLiElemment(elem.parentElement, parent);
+    }
+  }
+
+  function showToc() {
+    if (tocWrapper) {
+      postBody = document.querySelector('#post_body');
+      for (let i = 0; i < postBody.children.length; i++) {
+        if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+          hList.push(postBody.children[i]);
+        }
+      }
+      if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+      } else if (tocWrapper.classList.contains('no_compress')) {
+        tocContent.classList.add('expanded');
+      } else {
+        if (hList.length > 10) {
+          active = 'active-hidden'
+          tocContent.classList.add('closed');
+        } else {
+          tocContent.classList.add('expanded');
+        }
+      }
+    }
+  }
+
+  (function () {
+    // 处理不是从#一级标题开始目录
+    if (tocContent.children.length === 1 && tocContent.children[0].__proto__ === HTMLLIElement.prototype) {
+      let con = tocContent.children[0].children[0];
+      tocContent.innerHTML = con.innerHTML;
+    }
+    let markdownItTOC = document.querySelector('.markdownIt-TOC');
+    let innerHeight = window.innerHeight;
+    markdownItTOC.style = `max-height: ${innerHeight - 80 > 0 ? innerHeight - 80 : innerHeight}px`
+    addTocNumber(tocContent, '');
+  })();
+
+  document.addEventListener('scroll', function (e) {
+    if (lList.length <= 0) {
+      return;
+    }
+    let scrollTop = document.scrollingElement.scrollTop + 10;
+    let dir;
+
+    if (lastTop - scrollTop > 0) {
+      dir = 'up';
+    } else {
+      dir = 'down';
+    }
+
+    lastTop = scrollTop;
+    if (scrollTop <= 0) {
+      if (lastIndex >= 0 && lastIndex < hList.length) {
+        lList[lastIndex].classList.remove(activeClass);
+      }
+      return;
+    }
+
+    let current = 0, hasFind = false;
+    for (let i = 0; i < hList.length; i++) {
+      if (hList[i].offsetTop > scrollTop) {
+        current = i;
+        hasFind = true;
+        break;
+      }
+    }
+    if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+      current = hList.length - 1;
+    } else {
+      current--;
+    }
+    if (dir === 'down') {
+      if (current > lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex)
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    } else {
+      if (current < lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex);
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    }
+  });
+
+
+  window.addEventListener('load', function () {
+    showToc();
+    document.querySelector('#sidebar').style = 'display: block;';
+    tocWrapper.classList.add('toc-active');
+    setTimeout(function () {
+      if ("createEvent" in document) {
+        let evt = document.createEvent("HTMLEvents");
+        evt.initEvent("scroll", false, true);
+        document.dispatchEvent(evt);
+      }
+      else {
+        document.fireEvent("scroll");
+      }
+    }, 500)
+  })
+
+</script>
+            </div>
           
         
       </div>
@@ -295,8 +491,8 @@
           <div class="section bg-color post post-page">
             <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits">
-      Node.js 常用工具 （util.inherits）
+    <a class="post-title-link" href="https://weidadeda.github.io/post/taro-xiao-cheng-xu-zhi-bo-zu-jian-liveplayer-zhu-yi-shi-xiang">
+      Taro 小程序直播组件 LivePlayer 注意事项
     </a>
   </h1>
   <div class="post-meta">
@@ -304,74 +500,114 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2022-01-19</span>
+      <span>2022-02-10</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>2分钟</span>
+      <span>3分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>429<span class="pc-show">字数</span></span>
+      <span>528<span class="pc-show">字数</span></span>
     </span>
     
   </div>
 </header>
             <div class="post-body next-md-body" id="post_body">
-              <p>util 是一个Node.js 核心模块，提供常用函数的集合，用于弥补核心JavaScript 的功能 过于精简的不足。</p>
-<p>util.inherits<br>
-util.inherits(constructor, superConstructor)是一个实现对象间原型继承 的函数。</p>
-<p>JavaScript 的面向对象特性是基于原型的，与常见的基于类的不同。JavaScript 没有 提供对象继承的语言级别特性，而是通过原型复制来实现的。</p>
-<p>在这里我们只介绍util.inherits 的用法，示例如下：</p>
-<pre><code>var util = require('util'); 
-function Base() { 
-    this.name = 'base'; 
-    this.base = 1991; 
-    this.sayHello = function() { 
-    console.log('Hello ' + this.name); 
-    }; 
-} 
-Base.prototype.showName = function() { 
-    console.log(this.name);
-}; 
-function Sub() { 
-    this.name = 'sub'; 
-} 
-util.inherits(Sub, Base); 
-var objBase = new Base(); 
-objBase.showName(); 
-objBase.sayHello(); 
-console.log(objBase); 
-var objSub = new Sub(); 
-objSub.showName(); 
-//objSub.sayHello(); 
-console.log(objSub);
+              <h3 id="1-直播组件优先开通实时音频和视频管理后台申请对应的证书">1、直播组件优先开通实时音频和视频（管理后台），申请对应的证书</h3>
+<h3 id="2-直播组件需要做系统权限验证麦克风和相机引导用户打开权限不然部分手机加载失败-insertliveplayerfailaccess-denied-因为权限有三个状态undefined-denied-authorizedauthorized代表系统权限已开">2、直播组件需要做【系统】权限验证，（麦克风和相机）,引导用户打开权限，不然部分手机加载失败（ insertLivePlayer:fail:access denied） 因为权限有三个状态(undefined、denied、authorized)，authorized代表系统权限已开</h3>
+<pre><code>export const getSystemInfo = (keys: Tkey[], content = '') =&gt; {
+  return new Promise((resolve) =&gt; {
+    const systemInfo = wx.getAppAuthorizeSetting();
+    console.log('system', systemInfo);
+    if (!systemInfo) {
+      return resolve({ code: -1, msg: '获取系统权限失败~' });
+    }
+    keys.forEach((item) =&gt; {
+      if (systemInfo[item] !== 'authorized') {
+        Taro.showModal({
+          content,
+          success: (res) =&gt; {
+            if (res.confirm) {
+              wx.openAppAuthorizeSetting({
+                success: () =&gt; {
+                  return resolve({ code: 100, msg: '打开系统授权页成功~' });
+                },
+                fail: () =&gt; {
+                  return resolve({ code: 101, msg: '打开系统授权页失败~' });
+                }
+              });
+            } else {
+              return resolve({ code: 403, msg: '用户点击取消~' });
+            }
+          }
+        });
+        return resolve({ code: 401, msg: '权限没打开~' });
+      }
+    });
+    return resolve({ code: 0, msg: '用户已开通对应权限~' });
+  });
+};
+ 
+// 获取系统权限
+      const res: any = await getSystemInfo(
+        ['cameraAuthorized', 'microphoneAuthorized'],
+        '检测到您没有打开麦克风和相机权限，部分功能将没法使用~'
+      );
 </code></pre>
-<p>我们定义了一个基础对象Base 和一个继承自Base 的Sub，Base 有三个在构造函数 内定义的属性和一个原型中定义的函数，通过util.inherits 实现继承。运行结果如下：</p>
-<pre><code>base 
-Hello base 
-{ name: 'base', base: 1991, sayHello: [Function] } 
-sub 
-{ name: 'sub' }
+<h3 id="3-直播组件同层渲染在全屏下失效需要单独处理全屏做coverviewcoverimage做原生覆盖能力处理不是全屏就同层渲染全屏处理时候顶层容器和直接子节点需要设置-visiblityvisiblepositionrelativez-index99999-必须得处理不然android-的coverview覆盖不了原生直播组件">3、直播组件同层渲染在全屏下失效，需要单独处理，全屏做CoverView\CoverImage做原生覆盖能力处理，不是全屏就同层渲染，全屏处理时候顶层容器和直接子节点需要设置 visiblity:visible;position:relative;z-index:99999; 必须得处理，不然android 的CoverView覆盖不了原生直播组件。</h3>
+<pre><code>.cover-main{
+    position: absolute;
+    visibility: visible;
+    z-index: 999999;
+}
+ 
+&lt;CoverView className={style['cover-main']}&gt;
+                &lt;CoverView className={style['cover-main']}&gt;
+                  &lt;CoverView className={style['live-control']} onClick={showTips}&gt;&lt;/CoverView&gt;
+ 
+        {fullScreenFlag &amp;&amp; (
+        &lt;&gt;
+            {/*广告*/}
+            &lt;Curtain /&gt;
+
+            {/* 封面*/}
+            {startStatus === false ? (
+            &lt;CoverView className={style.cannot_see}&gt;
+                &lt;CoverImage className={style.cannot_see_img} src={readyImg}&gt;&lt;/CoverImage&gt;
+            &lt;/CoverView&gt;
+            ) : teachStatus === false ? (
+            &lt;CoverView className={style.cannot_see}&gt;
+                &lt;CoverImage className={style.cannot_see_img} src={outImg}&gt;&lt;/CoverImage&gt;
+            &lt;/CoverView&gt;
+            ) : null}
+
+            {/* 倒计时*/}
+            {time &gt;= 1800 ? &lt;CountDown time={time} /&gt; : null}
+        &lt;/&gt;
+        )}
+
+        {/*控制*/}
+        &lt;CoverView
+        className={`${style.control} ${tips ? style['up-ani'] : style['down-ani']}`}
+        &gt;
+        &lt;CoverView className={style.info}&gt;
+            &lt;CoverView&gt;直播&lt;/CoverView&gt;
+        &lt;/CoverView&gt;
+        &lt;CoverView className={style['full-screen']} onClick={handleFullScreen}&gt;
+            &lt;CoverImage
+            className={style.icon}
+            src={fullScreenFlag ? tuichuquanping : quanping}
+            &gt;&lt;/CoverImage&gt;
+            &lt;CoverView&gt;{fullScreenFlag ? '小屏播放' : '全屏播放'}&lt;/CoverView&gt;
+        &lt;/CoverView&gt;
+        &lt;/CoverView&gt;
+    &lt;/CoverView&gt;
+    &lt;/CoverView&gt;
 </code></pre>
-<p>注意：Sub 仅仅继承了Base 在原型中定义的函数，而构造函数内部创造的 base 属 性和 sayHello 函数都没有被 Sub 继承。</p>
-<p>同时，在原型中定义的属性不会被console.log 作 为对象的属性输出。如果我们去掉 objSub.sayHello(); 这行的注释，将会看到：</p>
-<pre><code>node.js:201 
-throw e; // process.nextTick error, or 'error' event on first tick 
-^ 
-TypeError: Object #&lt;Sub&gt; has no method 'sayHello' 
-at Object.&lt;anonymous&gt; (/home/byvoid/utilinherits.js:29:8) 
-at Module._compile (module.js:441:26) 
-at Object..js (module.js:459:10) 
-at Module.load (module.js:348:31) 
-at Function._load (module.js:308:12) 
-at Array.0 (module.js:479:10) 
-at EventEmitter._tickCallback (node.js:192:40)
-</code></pre>
-<p>转载自https://www.cnblogs.com/yuwenjing0727/p/8135608.html</p>
 
             </div>
             <div class="post-footer">
@@ -382,7 +618,7 @@ at EventEmitter._tickCallback (node.js:192:40)
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits" title="Node.js 常用工具 （util.inherits）">https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits</a>
+      <a href="https://weidadeda.github.io/post/taro-xiao-cheng-xu-zhi-bo-zu-jian-liveplayer-zhu-yi-shi-xiang" title="Taro 小程序直播组件 LivePlayer 注意事项">https://weidadeda.github.io/post/taro-xiao-cheng-xu-zhi-bo-zu-jian-liveplayer-zhu-yi-shi-xiang</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -396,14 +632,14 @@ at EventEmitter._tickCallback (node.js:192:40)
     <div class="nav-prev">
       
         <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="自定义一个new方法" href="https://weidadeda.github.io/post/zi-ding-yi-yi-ge-new-fang-fa">自定义一个new方法</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="自定义一个new方法" href="https://weidadeda.github.io/post/zi-ding-yi-yi-ge-new-fang-fa">上一篇</a>
+        <a class="nav-pc-next" title="微信公众号获取openid等一系列流程" href="https://weidadeda.github.io/post/wei-xin-gong-zhong-hao-huo-qu-openid-deng-yi-xi-lie-liu-cheng">微信公众号获取openid等一系列流程</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title="微信公众号获取openid等一系列流程" href="https://weidadeda.github.io/post/wei-xin-gong-zhong-hao-huo-qu-openid-deng-yi-xi-lie-liu-cheng">上一篇</a>
       
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="Koa接口参数校验与返回值统一处理" href="https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li">Koa接口参数校验与返回值统一处理</a>
-        <a class="nav-mobile-next" title="Koa接口参数校验与返回值统一处理" href="https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li">下一篇</a>
+        <a class="nav-pc-next" title="瀑布流计算js源码" href="https://weidadeda.github.io/post/pu-bu-liu-ji-suan-js-yuan-ma">瀑布流计算js源码</a>
+        <a class="nav-mobile-next" title="瀑布流计算js源码" href="https://weidadeda.github.io/post/pu-bu-liu-ji-suan-js-yuan-ma">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>

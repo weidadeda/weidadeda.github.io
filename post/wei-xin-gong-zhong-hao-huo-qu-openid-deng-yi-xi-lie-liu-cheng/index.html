@@ -8,7 +8,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>Node.js 常用工具 （util.inherits） | Gridea</title>
+<title>微信公众号获取openid等一系列流程 | Gridea</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1644479996996">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -29,7 +29,7 @@
 
 
 
-  <meta name="description" content="Node.js 常用工具 （util.inherits）" />
+  <meta name="description" content="微信公众号获取openid等一系列流程" />
   <meta name="keywords" content="" />
 </head>
 
@@ -161,7 +161,8 @@
       <div class="sidebar-body gemini" id="sidebar_body">
         
           
-            
+            <div class="post-side-meta" id="post_side_meta">
+              
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="/images/avatar.png"/>
@@ -208,6 +209,205 @@
 
 
 </div>
+            </div>
+            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+              <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto"
+    id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#%E5%85%88%E8%AF%B4%E4%B8%8B%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E8%8E%B7%E5%8F%96-openid">先说下为什么要获取 openid?</a></li>
+<li><a href="#%E8%AF%B4%E5%88%B0-openid-%E5%BF%85%E9%A1%BB%E5%85%88%E8%AF%B4%E5%BE%AE%E4%BF%A1%E6%8E%88%E6%9D%83%E7%99%BB%E5%BD%95%E7%9A%84%E8%BF%87%E7%A8%8B">说到 openid 必须先说微信授权登录的过程</a></li>
+<li><a href="#%E4%B8%8B%E9%9D%A2%E6%9D%A5%E5%85%B7%E4%BD%93api%E8%A1%A8%E7%A4%BA%E4%B8%8B%E6%80%8E%E4%B9%88%E8%8E%B7%E5%8F%96%E7%9A%84-code-%E5%92%8C-openid-%E5%90%A7">下面来具体api表示下怎么获取的 code 和 openid 吧</a></li>
+<li><a href="#%E4%B8%80%E8%8E%B7%E5%8F%96code">一：获取code:</a></li>
+<li><a href="#%E4%BA%8C%E7%84%B6%E5%90%8E%E6%8E%88%E6%9D%83%E6%88%90%E5%8A%9F%E4%B9%8B%E5%90%8E-%E5%BE%97%E5%88%B0-code-%E5%B0%B1%E7%94%A8-code-%E5%8E%BB%E8%8E%B7%E5%8F%96access_token">二：然后授权成功之后。得到 code。就用 code 去获取access_token</a></li>
+<li><a href="#%E4%B8%89%E9%80%9A%E8%BF%87access_token-openid%E8%8E%B7%E5%8F%96%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF">三：通过access_token、openid获取用户信息</a></li>
+<li><a href="#%E6%9C%80%E5%90%8E%E6%80%BB%E7%BB%93%E4%B8%8B%E8%AF%A6%E7%BB%86%E7%9A%84%E6%AD%A5%E9%AA%A4">最后总结下详细的步骤：</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+</div>
+
+<script>
+
+  let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1;
+  let active = 'active-show', activeClass = 'active-current';
+  let tocWrapper = document.querySelector('#toc_wrapper');
+  let tocContent = tocWrapper.children[0];
+  let autoNumber = tocWrapper && tocWrapper.classList.contains('auto-number');
+
+  function addTocNumber(elem, deep) {
+    if (!elem) {
+      return;
+    }
+    let prop = elem.__proto__;
+
+    if (prop === HTMLUListElement.prototype) {
+      for (let i = 0; i < elem.children.length; i++) {
+        addTocNumber(elem.children[i], deep + (i + 1) + '.');
+      }
+    } else if (prop === HTMLLIElement.prototype) {
+      // 保存li元素
+      if (elem.children[0].__proto__ === HTMLAnchorElement.prototype) {
+        lList.push(elem);
+      }
+      for (let i = 0; i < elem.children.length; i++) {
+        let cur = elem.children[i];
+        if (cur.__proto__ === HTMLAnchorElement.prototype) {
+          if (autoNumber) {
+            cur.text = deep + ' ' + cur.text;
+          }
+        } else if (cur.__proto__ === HTMLUListElement.prototype) {
+          addTocNumber(cur, deep);
+        }
+      }
+    }
+  }
+
+  function removeParentActiveClass() {
+    let parents = tocContent.querySelectorAll('.' + active)
+    parents.forEach(function (elem) {
+      elem.classList.remove(active);
+    });
+  }
+
+  function addActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.add(activeClass);
+    }
+  }
+
+  function removeActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.remove(activeClass);
+    }
+  }
+
+  function addActiveLiElemment(elem, parent) {
+    if (!elem || elem === parent) {
+      return;
+    } else {
+      if (elem.__proto__ === HTMLLIElement.prototype) {
+        elem.classList.add(active);
+      }
+      addActiveLiElemment(elem.parentElement, parent);
+    }
+  }
+
+  function showToc() {
+    if (tocWrapper) {
+      postBody = document.querySelector('#post_body');
+      for (let i = 0; i < postBody.children.length; i++) {
+        if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+          hList.push(postBody.children[i]);
+        }
+      }
+      if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+      } else if (tocWrapper.classList.contains('no_compress')) {
+        tocContent.classList.add('expanded');
+      } else {
+        if (hList.length > 10) {
+          active = 'active-hidden'
+          tocContent.classList.add('closed');
+        } else {
+          tocContent.classList.add('expanded');
+        }
+      }
+    }
+  }
+
+  (function () {
+    // 处理不是从#一级标题开始目录
+    if (tocContent.children.length === 1 && tocContent.children[0].__proto__ === HTMLLIElement.prototype) {
+      let con = tocContent.children[0].children[0];
+      tocContent.innerHTML = con.innerHTML;
+    }
+    let markdownItTOC = document.querySelector('.markdownIt-TOC');
+    let innerHeight = window.innerHeight;
+    markdownItTOC.style = `max-height: ${innerHeight - 80 > 0 ? innerHeight - 80 : innerHeight}px`
+    addTocNumber(tocContent, '');
+  })();
+
+  document.addEventListener('scroll', function (e) {
+    if (lList.length <= 0) {
+      return;
+    }
+    let scrollTop = document.scrollingElement.scrollTop + 10;
+    let dir;
+
+    if (lastTop - scrollTop > 0) {
+      dir = 'up';
+    } else {
+      dir = 'down';
+    }
+
+    lastTop = scrollTop;
+    if (scrollTop <= 0) {
+      if (lastIndex >= 0 && lastIndex < hList.length) {
+        lList[lastIndex].classList.remove(activeClass);
+      }
+      return;
+    }
+
+    let current = 0, hasFind = false;
+    for (let i = 0; i < hList.length; i++) {
+      if (hList[i].offsetTop > scrollTop) {
+        current = i;
+        hasFind = true;
+        break;
+      }
+    }
+    if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+      current = hList.length - 1;
+    } else {
+      current--;
+    }
+    if (dir === 'down') {
+      if (current > lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex)
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    } else {
+      if (current < lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex);
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    }
+  });
+
+
+  window.addEventListener('load', function () {
+    showToc();
+    document.querySelector('#sidebar').style = 'display: block;';
+    tocWrapper.classList.add('toc-active');
+    setTimeout(function () {
+      if ("createEvent" in document) {
+        let evt = document.createEvent("HTMLEvents");
+        evt.initEvent("scroll", false, true);
+        document.dispatchEvent(evt);
+      }
+      else {
+        document.fireEvent("scroll");
+      }
+    }, 500)
+  })
+
+</script>
+            </div>
           
         
       </div>
@@ -295,8 +495,8 @@
           <div class="section bg-color post post-page">
             <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits">
-      Node.js 常用工具 （util.inherits）
+    <a class="post-title-link" href="https://weidadeda.github.io/post/wei-xin-gong-zhong-hao-huo-qu-openid-deng-yi-xi-lie-liu-cheng">
+      微信公众号获取openid等一系列流程
     </a>
   </h1>
   <div class="post-meta">
@@ -304,74 +504,93 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2022-01-19</span>
+      <span>2022-02-10</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>2分钟</span>
+      <span>5分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>429<span class="pc-show">字数</span></span>
+      <span>1239<span class="pc-show">字数</span></span>
     </span>
     
   </div>
 </header>
             <div class="post-body next-md-body" id="post_body">
-              <p>util 是一个Node.js 核心模块，提供常用函数的集合，用于弥补核心JavaScript 的功能 过于精简的不足。</p>
-<p>util.inherits<br>
-util.inherits(constructor, superConstructor)是一个实现对象间原型继承 的函数。</p>
-<p>JavaScript 的面向对象特性是基于原型的，与常见的基于类的不同。JavaScript 没有 提供对象继承的语言级别特性，而是通过原型复制来实现的。</p>
-<p>在这里我们只介绍util.inherits 的用法，示例如下：</p>
-<pre><code>var util = require('util'); 
-function Base() { 
-    this.name = 'base'; 
-    this.base = 1991; 
-    this.sayHello = function() { 
-    console.log('Hello ' + this.name); 
-    }; 
-} 
-Base.prototype.showName = function() { 
-    console.log(this.name);
-}; 
-function Sub() { 
-    this.name = 'sub'; 
-} 
-util.inherits(Sub, Base); 
-var objBase = new Base(); 
-objBase.showName(); 
-objBase.sayHello(); 
-console.log(objBase); 
-var objSub = new Sub(); 
-objSub.showName(); 
-//objSub.sayHello(); 
-console.log(objSub);
-</code></pre>
-<p>我们定义了一个基础对象Base 和一个继承自Base 的Sub，Base 有三个在构造函数 内定义的属性和一个原型中定义的函数，通过util.inherits 实现继承。运行结果如下：</p>
-<pre><code>base 
-Hello base 
-{ name: 'base', base: 1991, sayHello: [Function] } 
-sub 
-{ name: 'sub' }
-</code></pre>
-<p>注意：Sub 仅仅继承了Base 在原型中定义的函数，而构造函数内部创造的 base 属 性和 sayHello 函数都没有被 Sub 继承。</p>
-<p>同时，在原型中定义的属性不会被console.log 作 为对象的属性输出。如果我们去掉 objSub.sayHello(); 这行的注释，将会看到：</p>
-<pre><code>node.js:201 
-throw e; // process.nextTick error, or 'error' event on first tick 
-^ 
-TypeError: Object #&lt;Sub&gt; has no method 'sayHello' 
-at Object.&lt;anonymous&gt; (/home/byvoid/utilinherits.js:29:8) 
-at Module._compile (module.js:441:26) 
-at Object..js (module.js:459:10) 
-at Module.load (module.js:348:31) 
-at Function._load (module.js:308:12) 
-at Array.0 (module.js:479:10) 
-at EventEmitter._tickCallback (node.js:192:40)
-</code></pre>
-<p>转载自https://www.cnblogs.com/yuwenjing0727/p/8135608.html</p>
+              <h3 id="先说下为什么要获取-openid">先说下为什么要获取 openid?</h3>
+<p>因为用户管理类接口可以通过openid可以获取用户的一些信息的.</p>
+<h3 id="说到-openid-必须先说微信授权登录的过程">说到 openid 必须先说微信授权登录的过程</h3>
+<figure data-type="image" tabindex="1"><img src="https://weidadeda.github.io/post-images/1644479416142.png" alt="" loading="lazy"></figure>
+<ul>
+<li>
+<p>前端需要在进入路由的是beaforEach的时候，先去判断链接上有没有 openid</p>
+</li>
+<li>
+<p>如果没有，就去跳转到服务端给的一个地址。如果有，就继续往下走（next())</p>
+</li>
+<li>
+<p>这个时候服务端会往下面的链接（https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&amp;redirect_uri=REDIRECT_URI&amp;response_type=code&amp;scope=SCOPE&amp;state=STATE#wechat_redirect来获取code）上跳转，去引导用户去点击授权，用户授权之后就会重定向到 redirect_uri（服务端的地址）</p>
+</li>
+<li>
+<p>利用 code 获取 openid 之后(服务端去做)，服务端会跳转到前端页面(带上openid)</p>
+</li>
+</ul>
+<p>下面作为了解：</p>
+<p>微信授权使用的是 OAuth2.0授权方式。主要有以下简略的步骤：<br>
+第一步：用户同意授权，获取 code<br>
+　　第二步：通过 code获取网页授权access_token<br>
+　　第三步：刷新access_token（如果需要）<br>
+　　第四步：拉取用户信息(需scope为 snsapi_userinfo)</p>
+<h3 id="下面来具体api表示下怎么获取的-code-和-openid-吧">下面来具体api表示下怎么获取的 code 和 openid 吧</h3>
+<h3 id="一获取code">一：获取code:</h3>
+<p>通过https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&amp;redirect_uri=REDIRECT_URI&amp;response_type=code&amp;scope=SCOPE&amp;state=STATE#wechat_redirect来获取code<br>
+参数：<br>
+APPID：应用唯一标识<br>
+redirect_uri：授权后重定向的回调链接地址，用户同意后，code 会自动添加到后面。（请使用urlEncode对链接进行处理 （$url = urlencode('')） ）<br>
+scope：是应用授权作用域 （一般有两种：一种是静默方式（snsapi_base); 一种是非静默方式（snsapi_userinfo），需要用户去手动同意才能获取用户信息）</p>
+<p>微信中尤其提醒：由于授权操作安全等级较高，所以在发起授权请求时，微信会对授权链接做正则强匹配校验，如果链接的参数顺序不对，授权页面将无法正常访问</p>
+<p>** code 是微信自动生成的。并且放在redirect_uri（重定向后的回调链接地址）后面,并且带上code和state参数</p>
+<p>上面提到了 code。那么 code又是什么呢？<br>
+code:作为换取 access_token的票据，每次用户授权带上的 code 都不一样。5分钟未被使用自动过期（过期的这里下面有讲）</p>
+<h3 id="二然后授权成功之后-得到-code-就用-code-去获取access_token">二：然后授权成功之后。得到 code。就用 code 去获取access_token</h3>
+<p>https://api.weixin.qq.com/sns/oauth2/access_token?appid=wx41cb8dbd827a16e9&amp;secret=d4624c36b6795d1d99dcf0547af5443d&amp;code=00137323023ab55775be09d6d8e75ffA&amp;grant_type=authorization_code<br>
+参数说明：<br>
+appid：应用唯一标识<br>
+code：上一步已经获取到了<br>
+secret：应用密钥AppSecret，在微信开放平台提交应用审核通过后获得</p>
+<p>正确的返回<br>
+&quot;access_token&quot;:&quot;ACCESS_TOKEN&quot;, // 接口调用凭证 &quot;expires_in&quot;:7200, // access_token接口调用凭证超时时间 &quot;refresh_token&quot;:&quot;REFRESH_TOKEN&quot;, // 用户刷新access_token &quot;openid&quot;:&quot;OPENID&quot;, // 授权用户唯一标识 &quot;scope&quot;:&quot;SCOPE&quot;, // 作用域 等</p>
+<h3 id="三通过access_token-openid获取用户信息">三：通过access_token、openid获取用户信息</h3>
+<p>https://api.weixin.qq.com/sns/userinfo?access_token=ACCESS_TOKEN&amp;openid=OPENID<br>
+就会得到用户的信息：<br>
+得到参数：<br>
+openid：用户的唯一标识<br>
+nickname：用户昵称<br>
+sex： 男女<br>
+等。。。<br>
+特别注意：<br>
+1、Appsecret 是应用接口使用密钥，泄漏后将可能导致应用数据泄漏、应用的用户数据泄漏等高风险后果；存储在客户端，极有可能被恶意窃取（如反编译获取Appsecret）； 2、access_token 为用户授权第三方应用发起接口调用的凭证（相当于用户登录态），存储在客户端，可能出现恶意获取access_token 后导致的用户数据泄漏、用户微信相关接口功能被恶意发起等行为； 3、refresh_token 为用户授权第三方应用的长效凭证，仅用于刷新access_token，但泄漏后相当于access_token 泄漏，风险同上。 建议将secret、用户数据（如access_token）放在App云端服务器，由云端中转接口调用请求。</p>
+<h3 id="最后总结下详细的步骤">最后总结下详细的步骤：</h3>
+<ul>
+<li>1．用户关注微信公众账号。</li>
+<li>2．微信公众账号提供用户请求授权页面URL。</li>
+<li>3．用户点击授权页面URL，将向服务器发起请求</li>
+<li>4．服务器询问用户是否同意授权给微信公众账号(scope为snsapi_base时无此步骤)</li>
+<li>5．用户同意(scope为snsapi_base时无此步骤)</li>
+<li>6．服务器将CODE通过回调传给微信公众账号</li>
+<li>7．微信公众账号获得CODE</li>
+<li>8．微信公众账号通过CODE向服务器请求Access Token</li>
+<li>9．服务器返回Access Token和OpenID给微信公众账号</li>
+<li>10．微信公众账号通过Access Token向服务器请求用户信息(scope为snsapi_base时无此步骤)</li>
+<li>11．服务器将用户信息回送给微信公众账号(scope为snsapi_base时无此步骤)</li>
+</ul>
+<p>公众号链接(官网更权威)：<br>
+https://developers.weixin.qq.com/doc/oplatform/Website_App/WeChat_Login/Wechat_Login.html</p>
+<p>https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/Wechat_webpage_authorization.html</p>
 
             </div>
             <div class="post-footer">
@@ -382,7 +601,7 @@ at EventEmitter._tickCallback (node.js:192:40)
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits" title="Node.js 常用工具 （util.inherits）">https://weidadeda.github.io/post/nodejs-chang-yong-gong-ju-utilinherits</a>
+      <a href="https://weidadeda.github.io/post/wei-xin-gong-zhong-hao-huo-qu-openid-deng-yi-xi-lie-liu-cheng" title="微信公众号获取openid等一系列流程">https://weidadeda.github.io/post/wei-xin-gong-zhong-hao-huo-qu-openid-deng-yi-xi-lie-liu-cheng</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -396,14 +615,14 @@ at EventEmitter._tickCallback (node.js:192:40)
     <div class="nav-prev">
       
         <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="自定义一个new方法" href="https://weidadeda.github.io/post/zi-ding-yi-yi-ge-new-fang-fa">自定义一个new方法</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="自定义一个new方法" href="https://weidadeda.github.io/post/zi-ding-yi-yi-ge-new-fang-fa">上一篇</a>
+        <a class="nav-pc-next" title="短信短链接唤起APP" href="https://weidadeda.github.io/post/duan-xin-duan-lian-jie-huan-qi-app">短信短链接唤起APP</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title="短信短链接唤起APP" href="https://weidadeda.github.io/post/duan-xin-duan-lian-jie-huan-qi-app">上一篇</a>
       
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="Koa接口参数校验与返回值统一处理" href="https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li">Koa接口参数校验与返回值统一处理</a>
-        <a class="nav-mobile-next" title="Koa接口参数校验与返回值统一处理" href="https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li">下一篇</a>
+        <a class="nav-pc-next" title="Taro 小程序直播组件 LivePlayer 注意事项" href="https://weidadeda.github.io/post/taro-xiao-cheng-xu-zhi-bo-zu-jian-liveplayer-zhu-yi-shi-xiang">Taro 小程序直播组件 LivePlayer 注意事项</a>
+        <a class="nav-mobile-next" title="Taro 小程序直播组件 LivePlayer 注意事项" href="https://weidadeda.github.io/post/taro-xiao-cheng-xu-zhi-bo-zu-jian-liveplayer-zhu-yi-shi-xiang">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>
