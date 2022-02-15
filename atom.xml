@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://weidadeda.github.io</id>
     <title>大伟的博客</title>
-    <updated>2022-02-15T07:39:33.980Z</updated>
+    <updated>2022-02-15T11:05:32.816Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://weidadeda.github.io"/>
     <link rel="self" href="https://weidadeda.github.io/atom.xml"/>
@@ -18,7 +18,8 @@
         <updated>2022-02-14T10:32:14.000Z</updated>
         <content type="html"><![CDATA[<h3 id="1-webpack插件的基本原理">1、webpack插件的基本原理</h3>
 <p>我们知道，webpack 就像一条生产线,要经过一系列处理流程后才能将源文件转换成输出结果。 这条生产线上的每个处理流程的职责都是单一的,多个流程之间有存在依赖关系,只有完成当前处理后才能交给下一个流程去处理。 插件就像是一个插入到生产线中的一个功能,在特定的时机对生产线上的资源做处理。<br>
-webpack 通过 Tapable 来组织这条复杂的生产线。 webpack 在运行过程中会广播事件,插件只需要监听它所关心的事件,就能加入到这条生产线中,去改变生产线的运作。 webpack 的事件流机制保证了插件的有序性,使得整个系统扩展性很好。</p>
+webpack 通过 Tapable 来组织这条复杂的生产线。 webpack 在运行过程中会广播事件,插件只需要监听它所关心的事件,就能加入到这条生产线中,去改变生产线的运作。 webpack 的事件流机制保证了插件的有序性,使得整个系统扩展性很好。<br>
+<a href="https://www.webpackjs.com/contribute/writing-a-plugin/">官网提供的自定义插件文档</a></p>
 <blockquote>
 <p>tapable 是一个类似于 Node.js 中的 EventEmitter的库，但更专注于自定义事件的触发和处理。webpack 通过 tapable 将实现与流程解耦，所有具体实现通过插件的形式存在。</p>
 </blockquote>
@@ -63,7 +64,6 @@ webpack 通过 Tapable 来组织这条复杂的生产线。 webpack 在运行过
     I’m a man
 </code></pre>
 <p>好了，说了一堆tapable了，该说webpack插件了。</p>
-<p><a href="https://www.webpackjs.com/contribute/writing-a-plugin/">官网提供的自定义插件文档</a></p>
 <p>webpack 插件由以下组成：</p>
 <ul>
 <li>一个 JavaScript 命名函数。</li>
@@ -171,6 +171,12 @@ compiler.run();
 <p>如上就是一个简单的Plugin的插件原理(切记：结合上面的demo中main.js和compiller.js来理解效果会更好)。</p>
 <h3 id="2-compiler-和-compilation">2、Compiler 和 Compilation</h3>
 <p>在开发Plugin时我们最常用的两个对象就是 Compiler 和 Compilation, 他们是Plugin和webpack之间的桥梁。</p>
+<blockquote>
+<p>compiler 对象代表了完整的 webpack 环境配置。这个对象在启动 webpack 时被一次性建立，并配置好所有可操作的设置，包括 options，loader 和 plugin。当在 webpack 环境中应用一个插件时，插件将收到此 compiler 对象的引用。可以使用它来访问 webpack 的主环境。</p>
+</blockquote>
+<blockquote>
+<p>compilation 对象代表了一次资源版本构建。当运行 webpack 开发环境中间件时，每当检测到一个文件变化，就会创建一个新的 compilation，从而生成一组新的编译资源。一个 compilation 对象表现了当前的模块资源、编译生成资源、变化的文件、以及被跟踪依赖的状态信息。compilation 对象也提供了很多关键时机的回调，以供插件做自定义处理时选择使用。</p>
+</blockquote>
 <h4 id="compiler对象">Compiler对象</h4>
 <p>Compiler对象包含了Webpack环境所有的配置信息，包含options，loaders, plugins这些项，这个对象在webpack启动时候被实例化，它是全局唯一的。我们可以把它理解为webpack的实例。</p>
 <p>基本源码可以看如下：</p>
@@ -238,6 +244,411 @@ compiler.hooks.myPlugin-name.tap('myPlugin-name', function(params) {
   
 });
 </code></pre>
+<h3 id="插件中常用的api">插件中常用的API</h3>
+<h4 id="compiler生命周期钩子">compiler生命周期钩子</h4>
+<p><a href="https://www.webpackjs.com/api/compiler-hooks/">官方文档</a></p>
+<blockquote>
+<p>Compiler 支持可以监控文件系统的<a href="https://www.webpackjs.com/api/node/#watching">监听(watching)</a>机制，并且在文件修改时重新编译。当处于监听模式(watch mode)时，compiler 会触发诸如 watchRun, watchClose 和 invalid 等额外的事件。通常用于开发环境中使用，也常常会在 webpack-dev-server 这些工具的底层之下调用，由此开发人员无须每次都使用手动方式重新编译。还可以通过 CLI 进入监听模式。</p>
+</blockquote>
+<p>相关钩子：<br>
+以下生命周期钩子函数，是由 compiler 暴露，可以通过如下方式访问：</p>
+<pre><code>compiler.hooks.someHook.tap(...)
+</code></pre>
+<p>取决于不同的钩子类型，也可以在某些钩子上访问 tapAsync 和 tapPromise。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">生命周期</th>
+<th style="text-align:center">对应hooks</th>
+<th style="text-align:center">执行时机</th>
+<th style="text-align:center">参数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">entryOption</td>
+<td style="text-align:center">SyncBailHook</td>
+<td style="text-align:center">在 entry 配置项处理过之后，执行插件。</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">afterPlugins</td>
+<td style="text-align:center">SyncHook</td>
+<td style="text-align:center">设置完初始插件之后，执行插件。</td>
+<td style="text-align:center">compiler</td>
+</tr>
+<tr>
+<td style="text-align:center">afterResolvers</td>
+<td style="text-align:center">SyncHook</td>
+<td style="text-align:center">resolver 安装完成之后，执行插件。</td>
+<td style="text-align:center">compiler</td>
+</tr>
+<tr>
+<td style="text-align:center">environment</td>
+<td style="text-align:center">SyncHook</td>
+<td style="text-align:center">environment 准备好之后，执行插件。</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">afterEnvironment</td>
+<td style="text-align:center">SyncHook</td>
+<td style="text-align:center">environment 安装完成之后，执行插件。</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">beforeRun</td>
+<td style="text-align:center">AsyncSeriesHook</td>
+<td style="text-align:center">compiler.run() 执行之前，添加一个钩子。</td>
+<td style="text-align:center">compiler</td>
+</tr>
+<tr>
+<td style="text-align:center">run</td>
+<td style="text-align:center">AsyncSeriesHook</td>
+<td style="text-align:center">开始读取 records 之前，钩入(hook into) compiler。</td>
+<td style="text-align:center">compiler</td>
+</tr>
+<tr>
+<td style="text-align:center">watchRun</td>
+<td style="text-align:center">AsyncSeriesHook</td>
+<td style="text-align:center">监听模式下，一个新的编译(compilation)触发之后，执行一个插件，但是是在实际编译开始之前。</td>
+<td style="text-align:center">compiler</td>
+</tr>
+<tr>
+<td style="text-align:center">normalModuleFactory</td>
+<td style="text-align:center">SyncHook</td>
+<td style="text-align:center">NormalModuleFactory 创建之后，执行插件。</td>
+<td style="text-align:center">normalModuleFactory</td>
+</tr>
+<tr>
+<td style="text-align:center">contextModuleFactory</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">ContextModuleFactory 创建之后，执行插件。</td>
+<td style="text-align:center">contextModuleFactory</td>
+</tr>
+<tr>
+<td style="text-align:center">beforeCompile</td>
+<td style="text-align:center">AsyncSeriesHook</td>
+<td style="text-align:center">编译(compilation)参数创建之后，执行插件。</td>
+<td style="text-align:center">compilationParams</td>
+</tr>
+<tr>
+<td style="text-align:center">compile</td>
+<td style="text-align:center">SyncHook</td>
+<td style="text-align:center">一个新的编译(compilation)创建之后，钩入(hook into) compiler。</td>
+<td style="text-align:center">compilationParams</td>
+</tr>
+<tr>
+<td style="text-align:center">thisCompilation</td>
+<td style="text-align:center">SyncHook</td>
+<td style="text-align:center">触发 compilation 事件之前执行（查看下面的 compilation）</td>
+<td style="text-align:center">compilation</td>
+</tr>
+<tr>
+<td style="text-align:center">compilation</td>
+<td style="text-align:center">SyncHook</td>
+<td style="text-align:center">编译(compilation)创建之后，执行插件</td>
+<td style="text-align:center">compilation</td>
+</tr>
+<tr>
+<td style="text-align:center">make</td>
+<td style="text-align:center">AsyncParallelHook</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">compilation</td>
+</tr>
+<tr>
+<td style="text-align:center">afterCompile</td>
+<td style="text-align:center">AsyncSeriesHook</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">compilation</td>
+</tr>
+<tr>
+<td style="text-align:center">shouldEmit</td>
+<td style="text-align:center">SyncBailHook</td>
+<td style="text-align:center">此时返回 true/false。</td>
+<td style="text-align:center">compilation</td>
+</tr>
+<tr>
+<td style="text-align:center">needAdditionalPass</td>
+<td style="text-align:center">SyncBailHook</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">emit</td>
+<td style="text-align:center">AsyncSeriesHook</td>
+<td style="text-align:center">生成资源到 output 目录之前。</td>
+<td style="text-align:center">compilation</td>
+</tr>
+<tr>
+<td style="text-align:center">afterEmit</td>
+<td style="text-align:center">AsyncSeriesHook</td>
+<td style="text-align:center">生成资源到 output 目录之后。</td>
+<td style="text-align:center">compilation</td>
+</tr>
+<tr>
+<td style="text-align:center">done</td>
+<td style="text-align:center">SyncHook</td>
+<td style="text-align:center">编译(compilation)完成</td>
+<td style="text-align:center">stats</td>
+</tr>
+<tr>
+<td style="text-align:center">failed</td>
+<td style="text-align:center">SyncHook</td>
+<td style="text-align:center">编译(compilation)失败</td>
+<td style="text-align:center">error</td>
+</tr>
+<tr>
+<td style="text-align:center">invalid</td>
+<td style="text-align:center">SyncHook</td>
+<td style="text-align:center">监听模式下，编译无效时</td>
+<td style="text-align:center">fileName, changeTime</td>
+</tr>
+<tr>
+<td style="text-align:center">watchClose</td>
+<td style="text-align:center">SyncHook</td>
+<td style="text-align:center">监听模式停止</td>
+<td style="text-align:center"></td>
+</tr>
+</tbody>
+</table>
+<h4 id="读取输出资源-模块及依赖">读取输出资源、模块及依赖</h4>
+<p>在我们的emit钩子事件发生时，表示的含义是：源文件的转换和组装已经完成了，在这里事件钩子里面我们可以读取到最终将输出的资源、代码块、模块及对应的依赖文件。并且我们还可以输出资源文件的内容。比如插件代码如下:</p>
+<pre><code class="language-js">class MyPlugin {
+  apply(compiler) {
+    compiler.plugin('emit', function(compilation, callback) {
+      // compilation.chunks 是存放了所有的代码块，是一个数组，我们需要遍历
+      compilation.chunks.forEach(function(chunk) {
+        /*
+         * chunk 代表一个代码块，代码块它是由多个模块组成的。
+         * 我们可以通过 chunk.forEachModule 能读取组成代码块的每个模块
+        */
+        chunk.forEachModule(function(module) {
+          // module 代表一个模块。
+          // module.fileDependencies 存放当前模块的所有依赖的文件路径，它是一个数组
+          module.fileDependencies.forEach(function(filepath) {
+            console.log(filepath);
+          });
+        });
+        /*
+         webpack 会根据chunk去生成输出的文件资源，每个chunk都对应一个及以上的输出文件。
+         比如在 Chunk中包含了css 模块并且使用了 ExtractTextPlugin 时，
+         那么该Chunk 就会生成 .js 和 .css 两个文件
+        */
+        chunk.files.forEach(function(filename) {
+          // compilation.assets 是存放当前所有即将输出的资源。
+          // 调用一个输出资源的 source() 方法能获取到输出资源的内容
+          const source = compilation.assets[filename].source();
+        });
+      });
+      /*
+       该事件是异步事件，因此要调用 callback 来通知本次的 webpack事件监听结束。
+       如果我们没有调用callback(); 那么webpack就会一直卡在这里不会往后执行。
+      */
+      callback();
+    })
+  }
+}
+</code></pre>
+<h4 id="监听文件变化">监听文件变化</h4>
+<p>webpack读取文件的时候，它会从入口模块去读取，然后依次找出所有的依赖模块。当入口模块或依赖的模块发生改变的时候，那么就会触发一次新的 Compilation。</p>
+<p>在我们开发插件的时候，我们需要知道是那个文件发生改变，导致了新的Compilation, 我们可以添加如下代码进行监听。</p>
+<pre><code class="language-js">// 当依赖的文件发生改变的时候 会触发 watch-run 事件
+class MyPlugin {
+  apply(compiler) {
+    compiler.plugin('watch-run', (watching, callback) =&gt; {
+      // 获取发生变换的文件列表
+      const changedFiles = watching.compiler.watchFileSystem.watcher.mtimes;
+      // changedFiles 格式为键值对的形式，当键为发生变化的文件路径
+      if (changedFiles[filePath] !== undefined) {
+        // 对应的文件就发生了变化了
+      }
+      callback();
+    });
+
+    /*
+     默认情况下Webpack只会监听入口文件或其依赖的模块是否发生变化，但是在有些情况下比如html文件发生改变的时候，那么webpack
+     就会去监听html文件的变化。因此就不会重新触发新的 Compilation。因此为了监听html文件的变化，我们需要把html文件加入到
+     依赖列表中。因此我们需要添加如下代码：
+    */
+    compiler.plugin('after-compile', (compilation, callback) =&gt; {
+      /*
+       如下的参数filePath是html文件路径，我们把HTML文件添加到文件依赖表中，然后我们的webpack会去监听html模块文件，
+       html模板文件发生改变的时候，会重新启动下重新编译一个新的 Compilation.
+      */
+      compilation.fileDependencies.push(filePath);
+      callback();
+    })
+  }
+}
+</code></pre>
+<h4 id="修改输出资源">修改输出资源</h4>
+<p>我们在第一点说过：在我们的emit钩子事件发生时，表示的含义是：源文件的转换和组装已经完成了，在这里事件钩子里面我们可以读取到最终将输出的资源、代码块、模块及对应的依赖文件。因此如果我们现在要修改输出资源的内容的话，我们可以在emit事件中去做修改。那么所有输出的资源会存放在 compilation.assets中，compilation.assets是一个键值对，键为需要输出的文件名，值为文件对应的内容。如下代码：</p>
+<pre><code class="language-js">class MyPlugin {
+  apply(compiler) {
+    compiler.plugin('emit', (compilation, callback) =&gt; {
+      // 设置名称为 fileName 的输出资源
+      compilation.assets[fileName] = {
+        // 返回文件内容
+        source: () =&gt; {
+          // fileContent 即可以代表文本文件的字符串，也可以是代表二进制文件的buffer
+          return fileContent;
+        },
+        // 返回文件大小
+        size: () =&gt; {
+          return Buffer.byteLength(fileContent, 'utf8');
+        }
+      };
+      callback();
+    });
+    // 读取 compilation.assets 代码如下：
+    compiler.plugin('emit', (compilation, callback) =&gt; {
+      // 读取名称为 fileName 的输出资源
+      const asset = compilation.assets[fileName];
+      // 获取输出资源的内容
+      asset.source();
+      // 获取输出资源的文件大小
+      asset.size();
+      callback();
+    });
+  }
+}
+</code></pre>
+<h4 id="判断webpack使用了哪些插件">判断webpack使用了哪些插件</h4>
+<p>在我们开发一个插件的时候，我们需要根据当前配置是否使用了其他某个插件，我们可以通过读取webpack某个插件配置的情况，比如来判断我们当前是否使用了 HtmlWebpackPlugin 插件。代码如下：</p>
+<pre><code class="language-js">/*
+ 判断当前配置使用了 HtmlWebpackPlugin 插件。
+ compiler参数即为 webpack 在 apply(compiler) 中传入的参数
+*/
+
+function hasHtmlWebpackPlugin(compiler) {
+  // 获取当前配置下所有的插件列表
+  const plugins = compiler.options.plugins;
+  // 去plugins中寻找有没有 HtmlWebpackPlugin 的实列
+  return plugins.find(plugin =&gt; plugin.__proto__.constructor === HtmlWebpackPlugin) !== null;
+}
+</code></pre>
+<h3 id="实战">实战</h3>
+<h4 id="实现一个打印日志的logwebpackplugin插件">实现一个打印日志的LogWebpackPlugin插件</h4>
+<pre><code class="language-js">// 这个文件为了观看更直观，先放到webpack.config.js中，真正使用时可以将你的自定义webpack插件封装到你们的前端组件库中。
+class LogWebpackPlugin {
+  constructor(doneCallback, emitCallback) {
+    this.emitCallback = emitCallback
+    this.doneCallback = doneCallback
+  }
+  apply(compiler) {
+    compiler.hooks.emit.tap('LogWebpackPlugin', () =&gt; {
+      // 在 emit 事件中回调 emitCallback
+      this.emitCallback();
+    });
+    compiler.hooks.done.tap('LogWebpackPlugin', (err) =&gt; {
+      // 在 done 事件中回调 doneCallback
+      this.doneCallback();
+    });
+    compiler.hooks.compilation.tap('LogWebpackPlugin', () =&gt; {
+      // compilation（'编译器'对'编译ing'这个事件的监听）
+      console.log(&quot;The compiler is starting a new compilation...&quot;)
+    });
+    compiler.hooks.compile.tap('LogWebpackPlugin', () =&gt; {
+      // compile（'编译器'对'开始编译'这个事件的监听）
+      console.log(&quot;The compiler is starting to compile...&quot;)
+    });
+  }
+}
+
+
+// 使用
+module.exports = {
+  plugins: [
+    new LogWebpackPlugin(() =&gt; {
+      // Webpack 模块完成转换成功
+      console.log('emit 事件发生啦，所有模块的转换和代码块对应的文件已经生成好~')
+    } , () =&gt; {
+      // Webpack 构建成功，并且文件输出了后会执行到这里，在这里可以做发布文件操作
+      console.log('done 事件发生啦，成功构建完成~')
+    })
+  ]
+}
+</code></pre>
+<h4 id="编写去除生成-bundlejs-中多余的注释的插件">编写去除生成 bundle.js 中多余的注释的插件</h4>
+<pre><code class="language-js">class MyPlugin {
+  constructor(options) {
+    this.options = options;
+    this.externalModules = {};
+  }
+  apply(compiler) {
+    var reg = /(&quot;([^\\\&quot;]*(\\.)?)*&quot;)|('([^\\\']*(\\.)?)*')|(\/{2,}.*?(\r|\n))|(\/\*(\n|.)*?\*\/)|(\/\*\*\*\*\*\*\/)/g;
+    compiler.hooks.emit.tap('CodeBeautify', (compilation) =&gt; {
+      Object.keys(compilation.assets).forEach((data) =&gt; {
+        console.log(data);
+        let content = compilation.assets[data].source(); // 获取处理的文本
+        content = content.replace(reg, function (word) { // 去除注释后的文本
+          return /^\/{2,}/.test(word) || /^\/\*!/.test(word) || /^\/\*{3,}\//.test(word) ? &quot;&quot; : word;
+        });
+        compilation.assets[data] = {
+          source() {
+            return content;
+          },
+          size() {
+            return content.length;
+          }
+        }
+      });
+    });
+  }
+}
+module.exports = MyPlugin;
+</code></pre>
+<p>这个js代码的真正的含义才是我们今天要讲到的，这个插件最主要作用是 去除注释后的文本。</p>
+<ol>
+<li>
+<p>第一步，我们使用 compiler.hooks.emit 钩子函数。在生成资源并输出到目录之前触发该函数，也就是说将编译好的代码发射到指定的stream中就会触发，然后我们从回调函数返回的 compilation 对象上可以拿到编译好的 stream.</p>
+</li>
+<li>
+<p>访问compilation对象，compilation内部会返回很多内部对象，这边先不打印了，因为打印的话直接会卡死掉，要等很长时间才会打印出来，你们自己可以试试；然后我们遍历 assets.</p>
+</li>
+</ol>
+<pre><code class="language-js">Object.keys(compilation.assets).forEach((data) =&gt; {
+  console.log(compilation.assets);
+  console.log(8888)
+  console.log(data);
+});
+</code></pre>
+<p>如下图所示：<br>
+<img src="https://weidadeda.github.io/post-images/1644922971138.png" alt="" loading="lazy"></p>
+<ul>
+<li>assets 数组对象中的key是资源名。在如上代码，我们通过 Object.key()方法拿到了。如下所示：<pre><code>main.css
+bundle.js
+index.html
+</code></pre>
+</li>
+<li>然后我们调用 compilation.assets[data].source(); 可以获取资源的内容。</li>
+<li>使用正则，去掉注释，如下代码：<pre><code class="language-js">Object.keys(compilation.assets).forEach((data) =&gt; {
+  let content = compilation.assets[data].source(); // 获取处理的文本
+  content = content.replace(reg, function (word) { // 去除注释后的文本
+      return /^\/{2,}/.test(word) || /^\/\*!/.test(word) || /^\/\*{3,}\//.test(word) ? &quot;&quot; : word;
+  });
+});
+</code></pre>
+</li>
+<li>更新 compilation.assets[data] 对象，如下代码：<pre><code class="language-js">compilation.assets[data] = {
+  source() {
+      return content;
+  },
+  size() {
+      return content.length;
+  }
+}
+</code></pre>
+</li>
+<li>最后使用<pre><code class="language-js">module.exports = {
+  plugins:[
+      new MyPlugin(),
+  ]
+}
+</code></pre>
+</li>
+</ul>
+<p>最后扩展：简单看了几个插件之后，是不是可以考虑做些其他的事情，比如删除console.log、或者构建完成时做一些文件上传cdn的操作，马上动手吧～</p>
 ]]></content>
     </entry>
     <entry>
