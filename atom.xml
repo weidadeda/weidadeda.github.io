@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://weidadeda.github.io</id>
     <title>大伟的博客</title>
-    <updated>2022-02-16T03:48:10.293Z</updated>
+    <updated>2022-02-16T03:56:37.650Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://weidadeda.github.io"/>
     <link rel="self" href="https://weidadeda.github.io/atom.xml"/>
@@ -10,6 +10,15 @@
     <logo>https://weidadeda.github.io/images/avatar.png</logo>
     <icon>https://weidadeda.github.io/favicon.ico</icon>
     <rights>All rights reserved 2022, 大伟的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[vite自定义插件]]></title>
+        <id>https://weidadeda.github.io/post/vite-zi-ding-yi-cha-jian</id>
+        <link href="https://weidadeda.github.io/post/vite-zi-ding-yi-cha-jian">
+        </link>
+        <updated>2022-02-16T03:53:23.000Z</updated>
+        <content type="html"><![CDATA[<p>todo</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[自定义一个WebPack的插件]]></title>
         <id>https://weidadeda.github.io/post/zi-ding-yi-yi-ge-webpack-de-cha-jian</id>
@@ -1253,105 +1262,6 @@ let newList = new Waterfall({
       ]
     });
 newList.addResources(lists, 卡片内除图片的额外高度).then(res =&gt; {});
-</code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Taro 小程序直播组件 LivePlayer 注意事项]]></title>
-        <id>https://weidadeda.github.io/post/taro-xiao-cheng-xu-zhi-bo-zu-jian-liveplayer-zhu-yi-shi-xiang</id>
-        <link href="https://weidadeda.github.io/post/taro-xiao-cheng-xu-zhi-bo-zu-jian-liveplayer-zhu-yi-shi-xiang">
-        </link>
-        <updated>2021-11-15T13:49:16.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="1-直播组件优先开通实时音频和视频管理后台申请对应的证书">1、直播组件优先开通实时音频和视频（管理后台），申请对应的证书</h3>
-<h3 id="2-直播组件需要做系统权限验证麦克风和相机引导用户打开权限不然部分手机加载失败-insertliveplayerfailaccess-denied-因为权限有三个状态undefined-denied-authorizedauthorized代表系统权限已开">2、直播组件需要做【系统】权限验证，（麦克风和相机）,引导用户打开权限，不然部分手机加载失败（ insertLivePlayer:fail:access denied） 因为权限有三个状态(undefined、denied、authorized)，authorized代表系统权限已开</h3>
-<pre><code>export const getSystemInfo = (keys: Tkey[], content = '') =&gt; {
-  return new Promise((resolve) =&gt; {
-    const systemInfo = wx.getAppAuthorizeSetting();
-    console.log('system', systemInfo);
-    if (!systemInfo) {
-      return resolve({ code: -1, msg: '获取系统权限失败~' });
-    }
-    keys.forEach((item) =&gt; {
-      if (systemInfo[item] !== 'authorized') {
-        Taro.showModal({
-          content,
-          success: (res) =&gt; {
-            if (res.confirm) {
-              wx.openAppAuthorizeSetting({
-                success: () =&gt; {
-                  return resolve({ code: 100, msg: '打开系统授权页成功~' });
-                },
-                fail: () =&gt; {
-                  return resolve({ code: 101, msg: '打开系统授权页失败~' });
-                }
-              });
-            } else {
-              return resolve({ code: 403, msg: '用户点击取消~' });
-            }
-          }
-        });
-        return resolve({ code: 401, msg: '权限没打开~' });
-      }
-    });
-    return resolve({ code: 0, msg: '用户已开通对应权限~' });
-  });
-};
- 
-// 获取系统权限
-      const res: any = await getSystemInfo(
-        ['cameraAuthorized', 'microphoneAuthorized'],
-        '检测到您没有打开麦克风和相机权限，部分功能将没法使用~'
-      );
-</code></pre>
-<h3 id="3-直播组件同层渲染在全屏下失效需要单独处理全屏做coverviewcoverimage做原生覆盖能力处理不是全屏就同层渲染全屏处理时候顶层容器和直接子节点需要设置-visiblityvisiblepositionrelativez-index99999-必须得处理不然android-的coverview覆盖不了原生直播组件">3、直播组件同层渲染在全屏下失效，需要单独处理，全屏做CoverView\CoverImage做原生覆盖能力处理，不是全屏就同层渲染，全屏处理时候顶层容器和直接子节点需要设置 visiblity:visible;position:relative;z-index:99999; 必须得处理，不然android 的CoverView覆盖不了原生直播组件。</h3>
-<pre><code>.cover-main{
-    position: absolute;
-    visibility: visible;
-    z-index: 999999;
-}
- 
-&lt;CoverView className={style['cover-main']}&gt;
-                &lt;CoverView className={style['cover-main']}&gt;
-                  &lt;CoverView className={style['live-control']} onClick={showTips}&gt;&lt;/CoverView&gt;
- 
-        {fullScreenFlag &amp;&amp; (
-        &lt;&gt;
-            {/*广告*/}
-            &lt;Curtain /&gt;
-
-            {/* 封面*/}
-            {startStatus === false ? (
-            &lt;CoverView className={style.cannot_see}&gt;
-                &lt;CoverImage className={style.cannot_see_img} src={readyImg}&gt;&lt;/CoverImage&gt;
-            &lt;/CoverView&gt;
-            ) : teachStatus === false ? (
-            &lt;CoverView className={style.cannot_see}&gt;
-                &lt;CoverImage className={style.cannot_see_img} src={outImg}&gt;&lt;/CoverImage&gt;
-            &lt;/CoverView&gt;
-            ) : null}
-
-            {/* 倒计时*/}
-            {time &gt;= 1800 ? &lt;CountDown time={time} /&gt; : null}
-        &lt;/&gt;
-        )}
-
-        {/*控制*/}
-        &lt;CoverView
-        className={`${style.control} ${tips ? style['up-ani'] : style['down-ani']}`}
-        &gt;
-        &lt;CoverView className={style.info}&gt;
-            &lt;CoverView&gt;直播&lt;/CoverView&gt;
-        &lt;/CoverView&gt;
-        &lt;CoverView className={style['full-screen']} onClick={handleFullScreen}&gt;
-            &lt;CoverImage
-            className={style.icon}
-            src={fullScreenFlag ? tuichuquanping : quanping}
-            &gt;&lt;/CoverImage&gt;
-            &lt;CoverView&gt;{fullScreenFlag ? '小屏播放' : '全屏播放'}&lt;/CoverView&gt;
-        &lt;/CoverView&gt;
-        &lt;/CoverView&gt;
-    &lt;/CoverView&gt;
-    &lt;/CoverView&gt;
 </code></pre>
 ]]></content>
     </entry>
