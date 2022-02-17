@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://weidadeda.github.io</id>
     <title>大伟的博客</title>
-    <updated>2022-02-17T02:29:54.634Z</updated>
+    <updated>2022-02-17T02:37:51.177Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://weidadeda.github.io"/>
     <link rel="self" href="https://weidadeda.github.io/atom.xml"/>
@@ -375,7 +375,7 @@ export default defineConfig({
 })
 </code></pre>
 <p>查看 <a href="https://vite-rollup-plugins.patak.dev/">Vite Rollup 插件</a> 获取兼容的官方 Rollup 插件列表及其使用指南。</p>
-<h3 id="a-idtest项目实战a"><a id="test">项目实战</a></h3>
+<h3 id="a-idtest-nametest项目实战a"><a id="test" name="test">项目实战</a></h3>
 <p>先说下我们要做什么，我们用vite打包完之后需要将打包出来的静态资源上传到cdn上，但现有的插件不够灵活，比如<a href="https://www.npmjs.com/package/vite-plugin-assets-uploader">vite-plugin-assets-uploader<br>
 </a>这个很好，但是需要将oss的密钥等信息写在前端，不够安全。对此我们就用node写了个接口，前端只需要调用node接口就能够上传到oss。而且将代码上传到cdn之后，我们的base路径也要改成cdn的路径。</p>
 <p>自定义上传插件代码如下：</p>
