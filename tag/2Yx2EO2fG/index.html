@@ -8,7 +8,7 @@
 <meta name="keywords" content="大伟的静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>vite自定义上传插件 | 大伟的博客</title>
+<title>大伟的博客</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1645501924977">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -29,8 +29,6 @@
 
 
 
-  <meta name="description" content="vite自定义上传插件" />
-  <meta name="keywords" content="vite,服务端,工程化" />
 </head>
 
 <body>
@@ -143,26 +141,10 @@
   <div class="main-continer">
     
     <div
-      class="section-layout gemini ">
+      class="section-layout  gemini">
       <div class="section-layout-wrapper">
-        
-
-<div class="sidebar">
-  
-    <div class="sidebar-box box-shadow-wrapper bg-color right-motion" id="sidebar">
-      
-        <div class="post-list-sidebar">
-          <div class="sidebar-title">
-            <span id="tocSideBar" class="sidebar-title-item sidebar-title-active">文章目录</span>
-            <span id="metaSideBar" class="sidebar-title-item">站点概览</span>
-          </div>
-        </div>
-      
-      <div class="sidebar-body gemini" id="sidebar_body">
-        
-          
-            <div class="post-side-meta" id="post_side_meta">
-              
+        <div id="sidebarMeta" class="sidebar">
+    
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="/images/avatar.png"/>
@@ -209,1158 +191,206 @@
 
 
 </div>
-            </div>
-            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
-              <div class="toc-box right-motion">
-  <div class="toc-wrapper auto-number auto"
-    id="toc_wrapper">
-    <ul class="markdownIt-TOC">
-<li>
-<ul>
-<li>
-<ul>
-<li><a href="#%E7%BA%A6%E5%AE%9A">约定</a></li>
-<li><a href="#%E6%8F%92%E4%BB%B6%E9%85%8D%E7%BD%AE">插件配置</a></li>
-<li><a href="#%E7%AE%80%E5%8D%95%E7%A4%BA%E4%BE%8B">简单示例</a>
-<ul>
-<li><a href="#%E8%BD%AC%E6%8D%A2%E8%87%AA%E5%AE%9A%E4%B9%89%E6%96%87%E4%BB%B6%E7%B1%BB%E5%9E%8B">转换自定义文件类型</a></li>
-</ul>
-</li>
-<li><a href="#%E9%80%9A%E7%94%A8%E9%92%A9%E5%AD%90">通用钩子</a></li>
-<li><a href="#vite-%E7%8B%AC%E6%9C%89%E9%92%A9%E5%AD%90">Vite 独有钩子</a>
-<ul>
-<li><a href="#config">config</a></li>
-<li><a href="#configresolved">configResolved</a></li>
-<li><a href="#configureserver">configureServer</a></li>
-<li><a href="#transformindexhtml">transformIndexHtml</a></li>
-<li><a href="#handlehotupdate">handleHotUpdate</a></li>
-</ul>
-</li>
-<li><a href="#%E6%8F%92%E4%BB%B6%E9%A1%BA%E5%BA%8F">插件顺序</a></li>
-<li><a href="#%E6%83%85%E6%99%AF%E5%BA%94%E7%94%A8">情景应用</a></li>
-<li><a href="#rollup-%E6%8F%92%E4%BB%B6%E5%85%BC%E5%AE%B9%E6%80%A7">Rollup 插件兼容性</a></li>
-<li><a href="#a-idtest-nametest%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98a"><a id="test" name="test">项目实战</a></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-  </div>
 </div>
-
 <script>
-
-  let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1;
-  let active = 'active-show', activeClass = 'active-current';
-  let tocWrapper = document.querySelector('#toc_wrapper');
-  let tocContent = tocWrapper.children[0];
-  let autoNumber = tocWrapper && tocWrapper.classList.contains('auto-number');
-
-  function addTocNumber(elem, deep) {
-    if (!elem) {
-      return;
-    }
-    let prop = elem.__proto__;
-
-    if (prop === HTMLUListElement.prototype) {
-      for (let i = 0; i < elem.children.length; i++) {
-        addTocNumber(elem.children[i], deep + (i + 1) + '.');
+  let sidebarMeta = document.querySelector('#sidebarMeta');
+  let scheme = 'gemini';
+  let sidebarWrapper = document.querySelector('.sidebar-wrapper');
+  if (sidebarMeta && (scheme === 'pisces' || scheme === 'gemini')) {
+    document.addEventListener('scroll', function(e) {
+      if (document.scrollingElement.scrollTop > parseInt(sidebarMeta.style.marginTop) + 10) {
+        sidebarWrapper.classList.add('home-sidebar-fixed')
+      } else {
+        sidebarWrapper.classList.remove('home-sidebar-fixed')
       }
-    } else if (prop === HTMLLIElement.prototype) {
-      // 保存li元素
-      if (elem.children[0].__proto__ === HTMLAnchorElement.prototype) {
-        lList.push(elem);
-      }
-      for (let i = 0; i < elem.children.length; i++) {
-        let cur = elem.children[i];
-        if (cur.__proto__ === HTMLAnchorElement.prototype) {
-          if (autoNumber) {
-            cur.text = deep + ' ' + cur.text;
-          }
-        } else if (cur.__proto__ === HTMLUListElement.prototype) {
-          addTocNumber(cur, deep);
-        }
-      }
-    }
-  }
-
-  function removeParentActiveClass() {
-    let parents = tocContent.querySelectorAll('.' + active)
-    parents.forEach(function (elem) {
-      elem.classList.remove(active);
     });
   }
-
-  function addActiveClass(index) {
-    if (index >= 0 && index < hList.length) {
-      lList[index].classList.add(activeClass);
-    }
-  }
-
-  function removeActiveClass(index) {
-    if (index >= 0 && index < hList.length) {
-      lList[index].classList.remove(activeClass);
-    }
-  }
-
-  function addActiveLiElemment(elem, parent) {
-    if (!elem || elem === parent) {
-      return;
-    } else {
-      if (elem.__proto__ === HTMLLIElement.prototype) {
-        elem.classList.add(active);
-      }
-      addActiveLiElemment(elem.parentElement, parent);
-    }
-  }
-
-  function showToc() {
-    if (tocWrapper) {
-      postBody = document.querySelector('#post_body');
-      for (let i = 0; i < postBody.children.length; i++) {
-        if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
-          hList.push(postBody.children[i]);
-        }
-      }
-      if (tocWrapper.classList.contains('compress')) {
-        tocContent.classList.add('closed');
-      } else if (tocWrapper.classList.contains('no_compress')) {
-        tocContent.classList.add('expanded');
-      } else {
-        if (hList.length > 10) {
-          active = 'active-hidden'
-          tocContent.classList.add('closed');
-        } else {
-          tocContent.classList.add('expanded');
-        }
-      }
-    }
-  }
-
-  (function () {
-    // 处理不是从#一级标题开始目录
-    if (tocContent.children.length === 1 && tocContent.children[0].__proto__ === HTMLLIElement.prototype) {
-      let con = tocContent.children[0].children[0];
-      tocContent.innerHTML = con.innerHTML;
-    }
-    let markdownItTOC = document.querySelector('.markdownIt-TOC');
-    let innerHeight = window.innerHeight;
-    markdownItTOC.style = `max-height: ${innerHeight - 80 > 0 ? innerHeight - 80 : innerHeight}px`
-    addTocNumber(tocContent, '');
-  })();
-
-  document.addEventListener('scroll', function (e) {
-    if (lList.length <= 0) {
-      return;
-    }
-    let scrollTop = document.scrollingElement.scrollTop + 10;
-    let dir;
-
-    if (lastTop - scrollTop > 0) {
-      dir = 'up';
-    } else {
-      dir = 'down';
-    }
-
-    lastTop = scrollTop;
-    if (scrollTop <= 0) {
-      if (lastIndex >= 0 && lastIndex < hList.length) {
-        lList[lastIndex].classList.remove(activeClass);
-      }
-      return;
-    }
-
-    let current = 0, hasFind = false;
-    for (let i = 0; i < hList.length; i++) {
-      if (hList[i].offsetTop > scrollTop) {
-        current = i;
-        hasFind = true;
-        break;
-      }
-    }
-    if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
-      current = hList.length - 1;
-    } else {
-      current--;
-    }
-    if (dir === 'down') {
-      if (current > lastIndex) {
-        addActiveClass(current);
-        removeActiveClass(lastIndex)
-        lastIndex = current;
-        removeParentActiveClass();
-        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
-      }
-    } else {
-      if (current < lastIndex) {
-        addActiveClass(current);
-        removeActiveClass(lastIndex);
-        lastIndex = current;
-        removeParentActiveClass();
-        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
-      }
-    }
-  });
-
-
-  window.addEventListener('load', function () {
-    showToc();
-    document.querySelector('#sidebar').style = 'display: block;';
-    tocWrapper.classList.add('toc-active');
-    setTimeout(function () {
-      if ("createEvent" in document) {
-        let evt = document.createEvent("HTMLEvents");
-        evt.initEvent("scroll", false, true);
-        document.dispatchEvent(evt);
-      }
-      else {
-        document.fireEvent("scroll");
-      }
-    }, 500)
-  })
-
-</script>
-            </div>
-          
-        
+  </script>
+        <div class="section-box tag-line box-shadow-wrapper">
+          <section class="section tags-section posts-expand bg-color">
+            <div class="padding-wrapper">
+  <div class="tag-timeline-box">
+    <div class="tag-timeline-wrapper">
+      <div class="tag-timeline-title">
+        <h2>
+          createjs
+          <small>标签</small>
+        </h2>
       </div>
-    </div>
-  
-</div>
-<script>
-  const SIDEBAR_TITLE_ACTIVE = 'sidebar-title-active';
-  const SIDEBAR_BODY_ACTIVE = 'sidebar-body-active';
-  const SLIDE_UP_IN = 'slide-up-in';
-
-  let sidebar = document.querySelector('#sidebar'),
-  tocSideBar = document.querySelector('#tocSideBar'),
-  metaSideBar = document.querySelector('#metaSideBar'),
-  postToc = document.querySelector('#post_toc'),
-  postSiteMeta = document.querySelector('#post_side_meta'),
-  sidebarTitle = document.querySelector('.sidebar-title'),
-  sidebarBody = document.querySelector('#sidebar_body');
-
-  tocSideBar && tocSideBar.addEventListener('click', (e) => {
-    toggleSidebar(e);
-  });
-
-  metaSideBar && metaSideBar.addEventListener('click', (e) => {
-    toggleSidebar(e);
-  });
-
-  function toggleSidebar(e) {
-    let currentTitle = document.querySelector("."+SIDEBAR_TITLE_ACTIVE);
-    if (currentTitle == e.srcElement) {
-      return ;
-    }
-    let current, showElement, hideElement;
-    if (e.srcElement == metaSideBar) {
-      showElement = postSiteMeta;
-      hideElement = postToc;
-    } else if (e.srcElement == tocSideBar){
-      showElement = postToc;
-      hideElement = postSiteMeta;
-    }
-    currentTitle.classList.remove(SIDEBAR_TITLE_ACTIVE);
-    e.srcElement.classList.add(SIDEBAR_TITLE_ACTIVE);
-
-    window.Velocity(hideElement, 'stop');
-    window.Velocity(hideElement, 'transition.slideUpOut', {
-      display: 'none',
-      duration: 200,
-      complete: function () {
-        window.Velocity(showElement, 'transition.slideDownIn', {
-          duration: 200
-        });
-      }
-    })
-    hideElement.classList.remove(SIDEBAR_BODY_ACTIVE);
-    showElement.classList.add(SIDEBAR_BODY_ACTIVE);
-  }
-
-  postToc && postToc.addEventListener('transitionend', function() {
-    this.classList.remove(SLIDE_UP_IN);
-  });
-
-  if (sidebarBody) {
-    if (sidebarBody.classList.contains('pisces') || sidebarBody.classList.contains('gemini')) {
-      let hasFix = false;
-      let scrollEl = document.querySelector('.main-continer');
-      let limitTop = document.querySelector('#nav_ul').children.length * 42 + 162;
-      window.addEventListener('scroll', function(e) {
-        if (document.scrollingElement.scrollTop >= limitTop) {
-          if (!hasFix) {
-            sidebar.classList.add('sidebar-fixed');
-            hasFix = true;
-          }
-        } else {
-          if (hasFix) {
-            sidebar.classList.remove('sidebar-fixed');
-            hasFix = false;
-          }
-        }
-      });
-    }
-  }
-  
-</script>
-        <div class="section-box box-shadow-wrapper">
-          <div class="section bg-color post post-page">
-            <header class="post-header">
-  <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/vite-zi-ding-yi-cha-jian">
-      vite自定义上传插件
-    </a>
-  </h1>
-  <div class="post-meta">
-    
-    <span class="meta-item pc-show">
-      <i class="fa fa-calendar-o"></i>
-      <span>发布于</span>
-      <span>2022-02-15</span>
-      <span class="post-meta-divider pc-show">|</span>
-    </span>
-    
-    <span class="meta-item">
-      <i class="fa fa-folder-o"></i>
-      <span class="pc-show">分类于</span>
-      
-      
-      <a href="https://weidadeda.github.io/tag/94Lh5N6ed">
-        <span>vite</span>
-      </a>、
       
       
       
-      <a href="https://weidadeda.github.io/tag/lTeQHqjnC">
-        <span>服务端</span>
-      </a>、
-      
-      
-      
-      <a href="https://weidadeda.github.io/tag/_l9fydARk">
-        <span>工程化</span>
+      <a href="https://weidadeda.github.io/post/createjs-chuang-jian-tu-pian-wei-tu-bing-she-zhi-zhong-xin-dian-wei-tu-pian-zhong-xin">
+        <div class="motion-warpper">
+          <div class="tag-post-node">
+            <h1>
+              02-22
+              <small>createjs 创建图片位图并设置中心点为图片中心</small>
+            </h1>
+          </div>
+        </div>
       </a>
       
       
-    </span>
-    <span class="post-meta-divider">|</span>
-    
-    <span class="meta-item">
-      <i class="fa fa-clock-o"></i>
-      <span>18分钟</span>
-    </span>
-    <span class="meta-item">
-      <span class="post-meta-divider">|</span>
-      <i class="fa fa-file-word-o"></i>
-      <span>3910<span class="pc-show">字数</span></span>
-    </span>
-    
-  </div>
-</header>
-            <div class="post-body next-md-body" id="post_body">
-              <p><a href="https://vitejs.cn/guide/api-plugin.html">vite官网自定义插件</a></p>
-<p>Vite 插件扩展了设计出色的 Rollup 接口，带有一些 Vite 独有的配置项。因为vite是使用rollup打包的所以最好你能了解<a href="https://rollupjs.org/guide/en/#plugin-development">Rollup 插件文档</a></p>
-<blockquote>
-<p>下面的都是按照官网介绍写的，因为毕竟你看到我这了，直接给你个链接再让你跳转到官网去看有点不负责任，如果你已经从官网看过了，并且对自定义插件很熟悉了，那么请直接到最下面看 <a href="#test">项目实战部分</a></p>
-</blockquote>
-<h3 id="约定">约定</h3>
-<p>如果插件不使用 Vite 特有的钩子，可以作为 <a href="https://vitejs.cn/guide/api-plugin.html#rollup-plugin-compatibility">兼容 Rollup 的插件</a> 来实现，推荐使用 <a href="https://rollupjs.org/guide/en/#conventions">Rollup 插件名称约定</a>。</p>
-<ul>
-<li>Rollup 插件应该有一个带 rollup-plugin- 前缀、语义清晰的名称。</li>
-<li>在 package.json 中包含 rollup-plugin 和 vite-plugin 关键字。</li>
-</ul>
-<p>这样，插件也可以用于纯 Rollup 或基于 WMR 的项目。</p>
-<p>对于 Vite 专属的插件：</p>
-<ul>
-<li>Vite 插件应该有一个带 vite-plugin- 前缀、语义清晰的名称。</li>
-<li>在 package.json 中包含 vite-plugin 关键字。</li>
-<li>在插件文档增加一部分关于为什么本插件是一个 Vite 专属插件的详细说明（如，本插件使用了 Vite 特有的插件钩子）。</li>
-</ul>
-<p>如果你的插件只适用于特定的框架，它的名字应该遵循以下前缀格式：</p>
-<ul>
-<li>vite-plugin-vue- 前缀作为 Vue 插件</li>
-<li>vite-plugin-react- 前缀作为 React 插件</li>
-<li>vite-plugin-svelte- 前缀作为 Svelte 插件</li>
-</ul>
-<h3 id="插件配置">插件配置</h3>
-<p>用户会将插件添加到项目的 devDependencies 中并使用数组形式的 plugins 选项配置它们。</p>
-<pre><code class="language-js">// vite.config.js
-import vitePlugin from 'vite-plugin-feature'
-import rollupPlugin from 'rollup-plugin-feature'
-
-export default defineConfig({
-  plugins: [vitePlugin(), rollupPlugin()]
-})
-</code></pre>
-<p>假值的插件将被忽略，可以用来轻松地启用或停用插件。</p>
-<p>plugins 也可以接受将多个插件作为单个元素的预设。这对于使用多个插件实现的复杂特性（如框架集成）很有用。该数组将在内部被扁平化（flatten）。</p>
-<pre><code class="language-js">// 框架插件
-import frameworkRefresh from 'vite-plugin-framework-refresh'
-import frameworkDevtools from 'vite-plugin-framework-devtools'
-
-export default function framework(config) {
-  return [frameworkRefresh(config), frameworkDevTools(config)]
-}
-</code></pre>
-<pre><code class="language-js">// vite.config.js
-import { defineConfig } from 'vite'
-import framework from 'vite-plugin-framework'
-
-export default defineConfig({
-  plugins: [framework()]
-})
-</code></pre>
-<h3 id="简单示例">简单示例</h3>
-<blockquote>
-<p>TIP<br>
-通常的惯例是创建一个 Vite/Rollup 插件作为一个返回实际插件对象的工厂函数。该函数可以接受允许用户自定义插件行为的选项。</p>
-</blockquote>
-<h4 id="转换自定义文件类型">转换自定义文件类型</h4>
-<pre><code class="language-js">const fileRegex = /\.(my-file-ext)$/
-
-export default function myPlugin() {
-  return {
-    name: 'transform-file',
-
-    transform(src, id) {
-      if (fileRegex.test(id)) {
-        return {
-          code: compileFileToJS(src),
-          map: null // 如果可行将提供 source map
-        }
-      }
-    }
-  }
-}
-</code></pre>
-<h3 id="通用钩子">通用钩子</h3>
-<p>在开发中，Vite 开发服务器会创建一个插件容器来调用 <a href="https://rollupjs.org/guide/en/#build-hooks">Rollup 构建钩子</a>，与 Rollup 如出一辙。</p>
-<p>以下钩子在服务器启动时被调用：</p>
-<ul>
-<li>
-<p>options</p>
-</li>
-<li>
-<p>buildStart<br>
-以下钩子会在每个传入模块请求时被调用：</p>
-</li>
-<li>
-<p>resolveId</p>
-</li>
-<li>
-<p>load</p>
-</li>
-<li>
-<p>transform<br>
-以下钩子在服务器关闭时被调用：</p>
-</li>
-<li>
-<p>buildEnd</p>
-</li>
-<li>
-<p>closeBundle<br>
-请注意 moduleParsed 钩子在开发中是 不会 被调用的，因为 Vite 为了性能会避免完整的 AST 解析。<br>
-Output Generation Hooks（除了 closeBundle) 在开发中是 不会 被调用的。你可以认为 Vite 的开发服务器只调用了 rollup.rollup() 而没有调用 bundle.generate()。<br>
-<img src="https://weidadeda.github.io/post-images/1645006280268.jpeg" alt="" loading="lazy"></p>
-</li>
-</ul>
-<h3 id="vite-独有钩子">Vite 独有钩子</h3>
-<p>Vite 插件也可以提供钩子来服务于特定的 Vite 目标。这些钩子会被 Rollup 忽略。</p>
-<h4 id="config">config</h4>
-<ul>
-<li>
-<p>类型： (config: UserConfig, env: { mode: string, command: string }) =&gt; UserConfig | null | void</p>
-</li>
-<li>
-<p>种类： async, sequential</p>
-</li>
-</ul>
-<p>在解析 Vite 配置前调用。钩子接收原始用户配置（命令行选项指定的会与配置文件合并）和一个描述配置环境的变量，包含正在使用的 mode 和 command。它可以返回一个将被深度合并到现有配置中的部分配置对象，或者直接改变配置（如果默认的合并不能达到预期的结果）。</p>
-<p>示例：</p>
-<pre><code class="language-js">// 返回部分配置（推荐）
-const partialConfigPlugin = () =&gt; ({
-  name: 'return-partial',
-  config: () =&gt; ({
-    alias: {
-      foo: 'bar'
-    }
-  })
-})
-
-// 直接改变配置（应仅在合并不起作用时使用）
-const mutateConfigPlugin = () =&gt; ({
-  name: 'mutate-config',
-  config(config, { command }) {
-    if (command === 'build') {
-      config.root = __dirname
-    }
-  }
-})
-</code></pre>
-<blockquote>
-<p>注意<br>
-用户插件在运行这个钩子之前会被解析，因此在 config 钩子中注入其他插件不会有任何效果。</p>
-</blockquote>
-<h4 id="configresolved">configResolved</h4>
-<ul>
-<li>
-<p>类型： (config: ResolvedConfig) =&gt; void | Promise<void></p>
-</li>
-<li>
-<p>种类： async, parallel</p>
-</li>
-</ul>
-<p>在解析 Vite 配置后调用。使用这个钩子读取和存储最终解析的配置。当插件需要根据运行的命令做一些不同的事情时，它也很有用。</p>
-<p>示例：</p>
-<pre><code class="language-js">const exmaplePlugin = () =&gt; {
-  let config
-
-  return {
-    name: 'read-config',
-
-    configResolved(resolvedConfig) {
-      // 存储最终解析的配置
-      config = resolvedConfig
-    },
-
-    // 在其他钩子中使用存储的配置
-    transform(code, id) {
-      if (config.command === 'serve') {
-        // dev: 由开发服务器调用的插件
-      } else {
-        // build: 由 Rollup 调用的插件
-      }
-    }
-  }
-}
-</code></pre>
-<blockquote>
-<p>注意，在开发环境下，command 的值为 serve（在 CLI 中，vite 和 vite dev 是 vite serve 的别名）。</p>
-</blockquote>
-<h4 id="configureserver">configureServer</h4>
-<ul>
-<li>
-<p>类型： (server: ViteDevServer) =&gt; (() =&gt; void) | void | Promise&lt;(() =&gt; void) | void&gt;</p>
-</li>
-<li>
-<p>种类： async, sequential</p>
-</li>
-<li>
-<p>此外请看 <a href="https://vitejs.cn/guide/api-javascript.html#vitedevserver">ViteDevServer</a></p>
-</li>
-</ul>
-<p>是用于配置开发服务器的钩子。最常见的用例是在内部 connect 应用程序中添加自定义中间件:</p>
-<pre><code class="language-js">const myPlugin = () =&gt; ({
-  name: 'configure-server',
-  configureServer(server) {
-    server.middlewares.use((req, res, next) =&gt; {
-      // 自定义请求处理...
-    })
-  }
-})
-</code></pre>
-<p>注入后置中间件</p>
-<p>configureServer 钩子将在内部中间件被安装前调用，所以自定义的中间件将会默认会比内部中间件早运行。如果你想注入一个在内部中间件 之后 运行的中间件，你可以从 configureServer 返回一个函数，将会在内部中间件安装后被调用：</p>
-<pre><code class="language-js">const myPlugin = () =&gt; ({
-  name: 'configure-server',
-  configureServer(server) {
-    // 返回一个在内部中间件安装后
-    // 被调用的后置钩子
-    return () =&gt; {
-      server.middlewares.use((req, res, next) =&gt; {
-        // 自定义请求处理...
-      })
-    }
-  }
-})
-</code></pre>
-<p>存储服务器访问</p>
-<p>在某些情况下，其他插件钩子可能需要访问开发服务器实例（例如访问 websocket 服务器、文件系统监视程序或模块图）。这个钩子也可以用来存储服务器实例以供其他钩子访问:</p>
-<pre><code class="language-js">const myPlugin = () =&gt; {
-  let server
-  return {
-    name: 'configure-server',
-    configureServer(_server) {
-      server = _server
-    },
-    transform(code, id) {
-      if (server) {
-        // 使用 server...
-      }
-    }
-  }
-}
-</code></pre>
-<p>注意 configureServer 在运行生产版本时不会被调用，所以其他钩子需要防范它缺失。</p>
-<h4 id="transformindexhtml">transformIndexHtml</h4>
-<ul>
-<li>
-<p>类型： IndexHtmlTransformHook | { enforce?: 'pre' | 'post', transform: IndexHtmlTransformHook }</p>
-</li>
-<li>
-<p>种类： async, sequential</p>
-</li>
-</ul>
-<p>转换 index.html 的专用钩子。钩子接收当前的 HTML 字符串和转换上下文。上下文在开发期间暴露ViteDevServer实例，在构建期间暴露 Rollup 输出的包。<br>
-这个钩子可以是异步的，并且可以返回以下其中之一:</p>
-<ul>
-<li>经过转换的 HTML 字符串</li>
-<li>注入到现有 HTML 中的标签描述符对象数组（{ tag, attrs, children }）。每个标签也可以指定它应该被注入到哪里（默认是在 <head> 之前）</li>
-<li>一个包含 { html, tags } 的对象</li>
-</ul>
-<p>基础示例：</p>
-<pre><code class="language-js">const htmlPlugin = () =&gt; {
-  return {
-    name: 'html-transform',
-    transformIndexHtml(html) {
-      return html.replace(
-        /&lt;title&gt;(.*?)&lt;\/title&gt;/,
-        `&lt;title&gt;Title replaced!&lt;/title&gt;`
-      )
-    }
-  }
-}
-</code></pre>
-<h4 id="handlehotupdate">handleHotUpdate</h4>
-<ul>
-<li>类型： (ctx: HmrContext) =&gt; Array<ModuleNode> | void | Promise&lt;Array<ModuleNode> | void&gt;</li>
-</ul>
-<p>执行自定义 HMR 更新处理。钩子接收一个带有以下签名的上下文对象：</p>
-<pre><code class="language-js">interface HmrContext {
-  file: string
-  timestamp: number
-  modules: Array&lt;ModuleNode&gt;
-  read: () =&gt; string | Promise&lt;string&gt;
-  server: ViteDevServer
-}
-</code></pre>
-<ul>
-<li>
-<p>modules 是受更改文件影响的模块数组。它是一个数组，因为单个文件可能映射到多个服务模块（例如 Vue 单文件组件）。</p>
-</li>
-<li>
-<p>read 这是一个异步读函数，它返回文件的内容。之所以这样做，是因为在某些系统上，文件更改的回调函数可能会在编辑器完成文件更新之前过快地触发，并 fs.readFile 直接会返回空内容。传入的 read 函数规范了这种行为。</p>
-</li>
-</ul>
-<p>钩子可以选择:</p>
-<ul>
-<li>
-<p>过滤和缩小受影响的模块列表，使 HMR 更准确。</p>
-</li>
-<li>
-<p>返回一个空数组，并通过向客户端发送自定义事件来执行完整的自定义 HMR 处理:</p>
-</li>
-</ul>
-<pre><code class="language-js">handleHotUpdate({ server }) {
-  server.ws.send({
-    type: 'custom',
-    event: 'special-update',
-    data: {}
-  })
-  return []
-}
-</code></pre>
-<p>客户端代码应该使用 <a href="https://vitejs.cn/guide/api-hmr.html">HMR API</a> 注册相应的处理器（这应该被相同插件的 transform 钩子注入）：</p>
-<pre><code class="language-js">if (import.meta.hot) {
-  import.meta.hot.on('special-update', (data) =&gt; {
-    // 执行自定义更新
-  })
-}
-</code></pre>
-<h3 id="插件顺序">插件顺序</h3>
-<p>一个 Vite 插件可以额外指定一个 enforce 属性（类似于 webpack 加载器）来调整它的应用顺序。enforce 的值可以是pre 或 post。解析后的插件将按照以下顺序排列：</p>
-<ul>
-<li>Alias</li>
-<li>带有 enforce: 'pre' 的用户插件</li>
-<li>Vite 核心插件</li>
-<li>没有 enforce 值的用户插件</li>
-<li>Vite 构建用的插件</li>
-<li>带有 enforce: 'post' 的用户插件</li>
-<li>Vite 后置构建插件（最小化，manifest，报告）</li>
-</ul>
-<h3 id="情景应用">情景应用</h3>
-<p>默认情况下插件在开发（serve）和构建（build）模式中都会调用。如果插件只需要在预览或构建期间有条件地应用，请使用 apply 属性指明它们仅在 'build' 或 'serve' 模式时调用：</p>
-<pre><code class="language-js">function myPlugin() {
-  return {
-    name: 'build-only',
-    apply: 'build' // 或 'serve'
-  }
-}
-</code></pre>
-<p>同时，还可以使用函数来进行更精准的控制：</p>
-<pre><code class="language-js">apply(config, { command }) {
-  // 非 SSR 情况下的 build
-  return command === 'build' &amp;&amp; !config.build.ssr
-}
-</code></pre>
-<h3 id="rollup-插件兼容性">Rollup 插件兼容性</h3>
-<p>相当数量的 Rollup 插件将直接作为 Vite 插件工作（例如：@rollup/plugin-alias 或 @rollup/plugin-json），但并不是所有的，因为有些插件钩子在非构建式的开发服务器上下文中没有意义。</p>
-<p>一般来说，只要 Rollup 插件符合以下标准，它就应该像 Vite 插件一样工作：</p>
-<ul>
-<li>没有使用 moduleParsed 钩子。</li>
-<li>它在打包钩子和输出钩子之间没有很强的耦合。</li>
-</ul>
-<p>如果一个 Rollup 插件只在构建阶段有意义，则在 build.rollupOptions.plugins 下指定即可。</p>
-<p>你也可以用 Vite 独有的属性来扩展现有的 Rollup 插件:</p>
-<pre><code class="language-js">// vite.config.js
-import example from 'rollup-plugin-example'
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  plugins: [
-    {
-      ...example(),
-      enforce: 'post',
-      apply: 'build'
-    }
-  ]
-})
-</code></pre>
-<p>查看 <a href="https://vite-rollup-plugins.patak.dev/">Vite Rollup 插件</a> 获取兼容的官方 Rollup 插件列表及其使用指南。</p>
-<h3 id="a-idtest-nametest项目实战a"><a id="test" name="test">项目实战</a></h3>
-<p>先说下我们要做什么，我们用vite打包完之后需要将打包出来的静态资源上传到cdn上，但现有的插件不够灵活，比如<a href="https://www.npmjs.com/package/vite-plugin-assets-uploader">vite-plugin-assets-uploader<br>
-</a>这个很好，但是需要将oss的密钥等信息写在前端，不够安全。对此我们就用node写了个接口，前端只需要调用node接口就能够上传到oss。而且将代码上传到cdn之后，我们的base路径也要改成cdn的路径。</p>
-<p>自定义上传插件代码如下：</p>
-<pre><code class="language-js">/* eslint-disable no-prototype-builtins */
-/* eslint-disable no-self-assign */
-const path = require('path')
-const fs = require('fs-extra')
-const request = require('request')
-const glob = require('glob')
-import { Ioptions } from '../type'
-import 'colors'
-const packageInfo: any = require(path.resolve('package.json'))
-class FileUploader {
-  bucket?: string
-  uploadUrl: string
-  domain: string
-  env: string
-  prefix?: string
-  constructor({ bucket, prefix, env }: { bucket?: string; prefix?: string; env: string }) {
-    this.env = env
-    if (!env) {
-      new Error('请传入env')
-      return
-    }
-    this.bucket = bucket || '默认bucket'
-    this.prefix = prefix || `${packageInfo.name}/${this.env}/${packageInfo.version}/`
-    this.uploadUrl = '接口域名'
-    this.domain = 'domain'
-  }
-  // 获取base
-  getBase() {
-    return `${this.domain}/${this.prefix}`
-  }
-  // vite上传插件
-  UploadPlugin() {
-    const options: Ioptions = {
-      assetsDir: '',
-      mode: '',
-      outDir: ''
-    }
-    const that = this
-    return {
-      name: 'vite-plugin-upload',
-      configResolved: function(config: any) {
-        const outDir = config.build.hasOwnProperty('outDir') ? config.build.outDir : 'dist'
-        const outDirArr = outDir.split(path.sep)
-        options.outDir = outDirArr[outDirArr.length - 1]
-        options.assetsDir = `${options.outDir}/${config.build.assetsDir}`
-        options.mode = config.mode
-      },
-      closeBundle() {
-        const files = glob.sync(`${options.assetsDir}/*`)
-        files.map((item: any) =&gt; {
-          that.uploadPre(path.relative(options.outDir, path.resolve(item)), options.outDir)
-        })
-      }
-    }
-  }
-  // init判断是否支持此bucket
-  init() {
-    return new Promise((resolve, reject) =&gt; {
-      request.get(
-        { url: this.uploadUrl + '/api/bucketList' },
-        (err: any, response: { statusCode: any }, body: string) =&gt; {
-          const { code, data } = typeof body === 'object' ? body : JSON.parse(body)
-          if (err) {
-            reject(false)
-          }
-          if (code !== 0) {
-            reject(false)
-          } else {
-            let cdnInfo = new Map([])
-            data.forEach((v: any) =&gt; {
-              cdnInfo.set(v.bucket, v.url)
-            })
-            if (!cdnInfo.has(this.bucket)) {
-              throw new Error(`目前仅支持以下bucket${data.map((v: any) =&gt; v.bucket).join(' | ')}`)
-            } else {
-              this.domain = cdnInfo.get(this.bucket) as string
-              resolve(this.getBase())
-            }
-          }
-        }
-      )
-    })
-  }
-  // 检查是否存在该文件
-  isExistObject(filePath: string) {
-    return new Promise(reslove =&gt; {
-      request.get(
-        {
-          url: `${this.uploadUrl}/api/isExistObject?name=${this.prefix + filePath}&amp;bucket=${
-            this.bucket
-          }`
-        },
-        (err: any, response: any, body: string) =&gt; {
-          if (err) {
-            console.log('err', err)
-            process.exit(1)
-          }
-          if (response.statusCode !== 200) {
-            console.log('err', 'http err')
-            process.exit(1)
-          }
-          const bodys = JSON.parse(body)
-          if (bodys.code === 0) {
-            console.log(this.prefix + filePath, '已存在'.yellow)
-            reslove(0)
-          } else {
-            reslove(1)
-          }
-        }
-      )
-    })
-  }
-  // 上传
-  upload(filePath: string, outDir: string) {
-    return new Promise(reslove =&gt; {
-      const formData = {
-        key: this.prefix + filePath,
-        file: fs.createReadStream(path.resolve(path.join(outDir, filePath))),
-        bucket: this.bucket
-      }
-      request.post(
-        {
-          url: `${this.uploadUrl}/api/upload`,
-          formData
-        },
-        (err: any, response: any, body: string) =&gt; {
-          if (err) {
-            console.log('err', err)
-            process.exit(1)
-          }
-          if (response.statusCode !== 200) {
-            console.log('err', 'http err')
-            process.exit(1)
-          }
-          const bodys = JSON.parse(body)
-          if (bodys.code === 0) {
-            console.log(bodys.data.fixUrl, 'success~'.green)
-            reslove(1)
-          }
-        }
-      )
-    })
-  }
-  // 上传前检测
-  uploadPre(filePath: string, outDir: string) {
-    this.isExistObject(filePath).then((res: number) =&gt; {
-      if (res === 1) {
-        return this.upload(filePath, outDir)
-      }
-    })
-  }
-}
-export default FileUploader
-
-</code></pre>
-<p>我们将它封装到前端组件库中，然后在vite中使用</p>
-<pre><code class="language-js">// vite.config.js
-import { FileUploader } from '@msb-next/vite-plugin-upload'
-const isProd = process.env.VITE_APP_ENV &amp;&amp; process.env.VITE_APP_ENV !== 'dev'
-  let plugins = [
-    reactRefresh(),
-    antdDayjs(),
-    vitePluginImp({
-      libList: [
-        {
-          libName: 'lodash',
-          libDirectory: '',
-          camel2DashComponentName: false,
-          style: () =&gt; {
-            return false
-          },
-        },
-        {
-          libName: 'antd',
-          style(name) {
-            return `antd/es/${name}/style/index.css`
-          },
-        },
-      ],
-    }),
-  ]
-  let base = '/'
-  let sourcemap = true
-  //////////////////////////// 主要是这里 /////////////////////////////////////
-  if (isProd) {
-    const uploader = new FileUploader({
-      env: process.env.VITE_APP_ENV,
-    })
-    // 修改base路径
-    base = (await uploader.init()) as string
-    plugins.push(uploader.UploadPlugin())
-    sourcemap = false
-  }
-</code></pre>
-<p>到这里，其实思路就很清晰了，大家基本能够完成一个自定义vite插件了，下面就是我node层的代码了，大家应该能看明白：<br>
-先自定义一个koa中间件</p>
-<pre><code class="language-js">const OSS = require('ali-oss');
-/**
- * oss 连接oss
- * @param ctx
- * @param next
- * @returns {Promise&lt;void&gt;}
- */
-const connect = async (ctx, next) =&gt; {
-  let bucket = '';
-  if (ctx.request.method === 'POST') {
-    const body = ctx.request.body;
-    bucket = body.bucket;
-  } else {
-    bucket = ctx.query.bucket;
-  }
-  // 从redis中获取oss密钥等重要信息，看看是否支持当前的bucket，这样新增bucket时比较灵活，当然也可以直接写死。
-  const ossAccessRes = await redisClient.get('ossAccess');
-  const ossAccess = JSON.parse(ossAccessRes);
-
-  const ossConf = ossAccess.find(v =&gt; v.bucket === bucket);
-  let client, urlPrefix;
-  try {
-    client = new OSS(ossConf);
-    urlPrefix = ossConf.url;
-  } catch (e) {
-    ctx.DATA.msg = '暂不支持当前bucket';
-    ctx.body = ctx.DATA;
-    throw new HttpError(200);
-  }
-  ctx.OSS = client;
-  ctx.urlPrefix = urlPrefix;
-  await next();
-};
-
-module.exports = {
-  connect
-};
-</code></pre>
-<p>router.js</p>
-<pre><code class="language-js">const router = require('koa-router')();
-
-// 刚才定义的 oss 中间件
-const oss = require('../utils/middleware/oss');
-
-// 控制器
-const {index, bucketList} = require('../controllers/index');
-const api = require('../controllers/api');
-
-// 添加路由
-router.post('/api/upload', oss.connect, api.upload);
-router.get('/api/list', oss.connect, api.list);
-router.get('/api/url', oss.connect, api.url);
-router.post('/api/del', oss.connect, api.del);
-router.get('/api/isExistObject', oss.connect, api.isExistObject);
-router.get('/api/bucketList', bucketList);
-
-module.exports = router;
-</code></pre>
-<p>controller/api.js</p>
-<pre><code class="language-js">const fs = require('fs');
-const {CustomError} = require('../utils/tool/error');
-const DEL_SWITCH = false;
-
-/**
- * 上传
- */
-const upload = async (ctx) =&gt; {
-  const {file} = ctx.request.files;
-  const {key} = ctx.request.body;
-  const stream = fs.createReadStream(file.path);
-  const {name, res, url} = await ctx.OSS.putStream(key, stream);
-  ctx.DATA.data = {
-    ...res,
-    name,
-    url,
-    fixUrl: `${ctx.urlPrefix}/${name}`
-  };
-  ctx.body = ctx.DATA;
-};
-
-/**
- * 获取oss列表
- */
-const list = async (ctx, next) =&gt; {
-  const name = ctx.query.name;
-  console.log(name);
-  ctx.DATA.data = await ctx.OSS.list({
-    prefix: name,
-    delimiter: '/'
-  });
-  if (ctx.DATA.data.res.status !== 200) {
-    throw new CustomError(0, '文件查找失败');
-  }
-  delete ctx.DATA.data.res;
-  ctx.body = ctx.DATA;
-};
-
-/**
- * 获取文件下载链接，有效期1分钟
- */
-const url = async (ctx) =&gt; {
-  const name = ctx.query.name;
-  ctx.DATA.data = ctx.OSS.signatureUrl(name, {expires: 3600});
-  ctx.body = ctx.DATA;
-};
-
-/**
- * 删除文件、文件夹
- */
-const del = async (ctx) =&gt; {
-  if (DEL_SWITCH) {
-    let dat = ctx.request.body;
-    let delList = dat[0];
-    let directory = dat[1];
-    try {
-      for (let i = 0; i &lt; directory.length; i++) {
-        let retList = await ctx.OSS.list({
-          prefix: directory[i]
-        });
-        retList.objects.reverse();
-        retList.objects.map(item =&gt; {
-          delList.push(item.name);
-        });
-      }
-    } catch (e) {
-      throw new CustomError(0, '删除文件:整合失败');
-    }
-    let result = await ctx.OSS.deleteMulti(delList, {quiet: true});
-    if (result.res.status !== 200) {
-      throw new CustomError(0, '删除失败');
-    }
-    ctx.DATA.msg = '删除成功';
-    ctx.body = ctx.DATA;
-  } else {
-    ctx.DATA.msg = '删除文件、文件夹功能未开放！';
-    ctx.body = ctx.DATA;
-  }
-};
-
-/**
- * 判断文件是否存在
- * @param ctx
- * @returns {Promise&lt;void&gt;}
- */
-const isExistObject = async (ctx) =&gt; {
-  // 用于判断受版本控制Bucket中指定versionId的Object是否存在。
-  const options = {
-    // 填写Object的versionId。
-    versionId: ''
-  };
-  const name = ctx.query.name;
-  try {
-    const res = await ctx.OSS.head(name, options);
-    ctx.DATA.data = res;
-    ctx.DATA.msg = '文件存在';
-    ctx.body = ctx.DATA;
-  }  catch (error) {
-    if (error.code === 'NoSuchKey') {
-      ctx.DATA.code = 1;
-      ctx.DATA.msg = '文件不存在';
-      ctx.body = ctx.DATA;
-    }
-  }
-};
-
-module.exports = {
-  upload,
-  list,
-  url,
-  del,
-  isExistObject,
-};
-
-</code></pre>
-
-            </div>
-            <div class="post-footer">
-  <ul class="post-copyright">
-    <li class="post-copyright-author">
-      <strong>本文作者：</strong>
-      王大伟
-    </li>
-    <li class="post-copyright-link">
-      <strong>本文链接：</strong>
-      <a href="https://weidadeda.github.io/post/vite-zi-ding-yi-cha-jian" title="vite自定义上传插件">https://weidadeda.github.io/post/vite-zi-ding-yi-cha-jian</a>
-    </li>
-    <li class="post-copyright-license">
-      <strong>版权声明： </strong>
-      本博客所有文章除特别声明外，均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i> BY-NC-SA</a> 许可协议。转载请注明出处！
-    </li>
-  </ul>
-  <div class="tags">
-    
-      <a href="https://weidadeda.github.io/tag/94Lh5N6ed"># vite</a>
-    
-      <a href="https://weidadeda.github.io/tag/lTeQHqjnC"># 服务端</a>
-    
-      <a href="https://weidadeda.github.io/tag/_l9fydARk"># 工程化</a>
-    
-  </div>
-  <div class="nav">
-    <div class="nav-prev">
       
-        <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="createjs 创建图片位图并设置中心点为图片中心" href="https://weidadeda.github.io/post/createjs-chuang-jian-tu-pian-wei-tu-bing-she-zhi-zhong-xin-dian-wei-tu-pian-zhong-xin">createjs 创建图片位图并设置中心点为图片中心</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="createjs 创建图片位图并设置中心点为图片中心" href="https://weidadeda.github.io/post/createjs-chuang-jian-tu-pian-wei-tu-bing-she-zhi-zhong-xin-dian-wei-tu-pian-zhong-xin">上一篇</a>
       
-    </div>
-    <div class="nav-next">
       
-        <a class="nav-pc-next" title="自定义一个WebPack的插件" href="https://weidadeda.github.io/post/zi-ding-yi-yi-ge-webpack-de-cha-jian">自定义一个WebPack的插件</a>
-        <a class="nav-mobile-next" title="自定义一个WebPack的插件" href="https://weidadeda.github.io/post/zi-ding-yi-yi-ge-webpack-de-cha-jian">下一篇</a>
-        <i class="fa fa-chevron-right"></i>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       
     </div>
   </div>
 </div>
-            
-  
-    
-      <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
-<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
-
-<div id="gitalk-container"></div>
-
-<script>
-  var gitalk = new Gitalk({
-    clientID: '3a4deceed6ea5431a5eb',
-    clientSecret: '7ac83272cfb0cb0c210af882e657e38fc771a217',
-    repo: 'iorepository',
-    owner: 'weidadeda',
-    admin: ['weidadeda'],
-    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
-    distractionFreeMode: false  // Facebook-like distraction free mode
-  })
-  gitalk.render('gitalk-container')
-</script>
-    
-    
-  
-
-          </div>
+          </section>
         </div>
       </div>
     </div>
@@ -2070,36 +1100,6 @@ module.exports = {
   // 代码高亮
   hljs.initHighlightingOnLoad();
 
-</script>
-    <div class="light-box" id="light_box"></div>
-<script>
-  let imgs = document.querySelectorAll('.post-body img');
-  let lightBox = document.querySelector('#light_box');
-  lightBox.addEventListener('mousedown', (e) => {
-    e.preventDefault()
-  })
-  lightBox.addEventListener('mousewheel', (e) => {
-    e.preventDefault()
-  })
-  let width = window.innerWidth * 0.8;
-  lightBox.onclick = () => {
-    let img = lightBox.querySelector('img');
-    lightBox.style = '';
-    img && img.remove();
-  }
-  imgs.forEach(item => {
-    item.onclick = function (e) {
-      let lightImg = document.createElement('img');
-      lightImg.src = this.src;
-      lightBox.style = `height: 100%; opacity: 1; background-color: rgba(0, 0, 0, 0.5);cursor: zoom-out;`;
-      lightImg.style = `width: ${width}px; border: 1px solid #fff; border-radius: 2px;`;
-      lightImg.onclick = function () {
-        lightBox.style = '';
-        this.remove();
-      }
-      lightBox.append(lightImg);
-    }
-  })
 </script>
   </div>
 </body>
@@ -6805,6 +5805,7 @@ Foo.prototype.__proto__ === Object.prototype
 </script> -->
 
 <script src="/media/js/mouse/peace.js"></script>
+
 
 
 </html>
