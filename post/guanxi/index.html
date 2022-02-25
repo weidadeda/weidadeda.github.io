@@ -8,7 +8,7 @@
 <meta name="keywords" content="大伟的静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>Koa接口参数校验与返回值统一处理 | 大伟的博客</title>
+<title>__proto__和prototype的区别和关系？ | 大伟的博客</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1645775573831">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -29,8 +29,8 @@
 
 
 
-  <meta name="description" content="Koa接口参数校验与返回值统一处理" />
-  <meta name="keywords" content="服务端" />
+  <meta name="description" content="__proto__和prototype的区别和关系？" />
+  <meta name="keywords" content="js" />
 </head>
 
 <body>
@@ -161,7 +161,8 @@
       <div class="sidebar-body gemini" id="sidebar_body">
         
           
-            
+            <div class="post-side-meta" id="post_side_meta">
+              
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="/images/avatar.png"/>
@@ -208,6 +209,206 @@
 
 
 </div>
+            </div>
+            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+              <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto"
+    id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#prototype%E6%98%BE%E7%A4%BA%E5%8E%9F%E5%9E%8B%E6%98%AF%E7%B1%BB%E7%9A%84%E5%8E%9F%E5%9E%8B%E6%8C%87%E5%90%91%E8%AF%A5%E6%96%B9%E6%B3%95%E7%9A%84%E5%8E%9F%E5%9E%8B%E5%AF%B9%E8%B1%A1-proto%E9%9A%90%E5%BC%8F%E5%8E%9F%E5%9E%8B%E6%98%AF%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%8E%9F%E5%9E%8B%E6%8C%87%E5%90%91%E8%AF%A5%E5%AF%B9%E8%B1%A1%E7%9A%84%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E7%9A%84%E5%8E%9F%E5%9E%8B%E5%AF%B9%E8%B1%A1">prototype（显示原型）是“类”的原型，指向该方法的原型对象。<strong>proto</strong>（隐式原型）是对象的原型，指向该对象的构造函数的原型对象。</a>
+<ul>
+<li><a href="#%E9%9A%90%E5%BC%8F%E5%8E%9F%E5%9E%8B%E6%8C%87%E5%90%91%E5%88%9B%E5%BB%BA%E8%BF%99%E4%B8%AA%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%87%BD%E6%95%B0constructor%E7%9A%84prototype">隐式原型指向创建这个对象的函数(constructor)的prototype</a></li>
+<li><a href="#%E6%AD%A4%E5%A4%96">此外：</a></li>
+<li><a href="#%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8E%9F%E5%9E%8B">构造函数的隐式原型</a></li>
+</ul>
+</li>
+<li><a href="#instanceof">instanceof</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+</div>
+
+<script>
+
+  let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1;
+  let active = 'active-show', activeClass = 'active-current';
+  let tocWrapper = document.querySelector('#toc_wrapper');
+  let tocContent = tocWrapper.children[0];
+  let autoNumber = tocWrapper && tocWrapper.classList.contains('auto-number');
+
+  function addTocNumber(elem, deep) {
+    if (!elem) {
+      return;
+    }
+    let prop = elem.__proto__;
+
+    if (prop === HTMLUListElement.prototype) {
+      for (let i = 0; i < elem.children.length; i++) {
+        addTocNumber(elem.children[i], deep + (i + 1) + '.');
+      }
+    } else if (prop === HTMLLIElement.prototype) {
+      // 保存li元素
+      if (elem.children[0].__proto__ === HTMLAnchorElement.prototype) {
+        lList.push(elem);
+      }
+      for (let i = 0; i < elem.children.length; i++) {
+        let cur = elem.children[i];
+        if (cur.__proto__ === HTMLAnchorElement.prototype) {
+          if (autoNumber) {
+            cur.text = deep + ' ' + cur.text;
+          }
+        } else if (cur.__proto__ === HTMLUListElement.prototype) {
+          addTocNumber(cur, deep);
+        }
+      }
+    }
+  }
+
+  function removeParentActiveClass() {
+    let parents = tocContent.querySelectorAll('.' + active)
+    parents.forEach(function (elem) {
+      elem.classList.remove(active);
+    });
+  }
+
+  function addActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.add(activeClass);
+    }
+  }
+
+  function removeActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.remove(activeClass);
+    }
+  }
+
+  function addActiveLiElemment(elem, parent) {
+    if (!elem || elem === parent) {
+      return;
+    } else {
+      if (elem.__proto__ === HTMLLIElement.prototype) {
+        elem.classList.add(active);
+      }
+      addActiveLiElemment(elem.parentElement, parent);
+    }
+  }
+
+  function showToc() {
+    if (tocWrapper) {
+      postBody = document.querySelector('#post_body');
+      for (let i = 0; i < postBody.children.length; i++) {
+        if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+          hList.push(postBody.children[i]);
+        }
+      }
+      if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+      } else if (tocWrapper.classList.contains('no_compress')) {
+        tocContent.classList.add('expanded');
+      } else {
+        if (hList.length > 10) {
+          active = 'active-hidden'
+          tocContent.classList.add('closed');
+        } else {
+          tocContent.classList.add('expanded');
+        }
+      }
+    }
+  }
+
+  (function () {
+    // 处理不是从#一级标题开始目录
+    if (tocContent.children.length === 1 && tocContent.children[0].__proto__ === HTMLLIElement.prototype) {
+      let con = tocContent.children[0].children[0];
+      tocContent.innerHTML = con.innerHTML;
+    }
+    let markdownItTOC = document.querySelector('.markdownIt-TOC');
+    let innerHeight = window.innerHeight;
+    markdownItTOC.style = `max-height: ${innerHeight - 80 > 0 ? innerHeight - 80 : innerHeight}px`
+    addTocNumber(tocContent, '');
+  })();
+
+  document.addEventListener('scroll', function (e) {
+    if (lList.length <= 0) {
+      return;
+    }
+    let scrollTop = document.scrollingElement.scrollTop + 10;
+    let dir;
+
+    if (lastTop - scrollTop > 0) {
+      dir = 'up';
+    } else {
+      dir = 'down';
+    }
+
+    lastTop = scrollTop;
+    if (scrollTop <= 0) {
+      if (lastIndex >= 0 && lastIndex < hList.length) {
+        lList[lastIndex].classList.remove(activeClass);
+      }
+      return;
+    }
+
+    let current = 0, hasFind = false;
+    for (let i = 0; i < hList.length; i++) {
+      if (hList[i].offsetTop > scrollTop) {
+        current = i;
+        hasFind = true;
+        break;
+      }
+    }
+    if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+      current = hList.length - 1;
+    } else {
+      current--;
+    }
+    if (dir === 'down') {
+      if (current > lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex)
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    } else {
+      if (current < lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex);
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    }
+  });
+
+
+  window.addEventListener('load', function () {
+    showToc();
+    document.querySelector('#sidebar').style = 'display: block;';
+    tocWrapper.classList.add('toc-active');
+    setTimeout(function () {
+      if ("createEvent" in document) {
+        let evt = document.createEvent("HTMLEvents");
+        evt.initEvent("scroll", false, true);
+        document.dispatchEvent(evt);
+      }
+      else {
+        document.fireEvent("scroll");
+      }
+    }, 500)
+  })
+
+</script>
+            </div>
           
         
       </div>
@@ -295,8 +496,8 @@
           <div class="section bg-color post post-page">
             <header class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li">
-      Koa接口参数校验与返回值统一处理
+    <a class="post-title-link" href="https://weidadeda.github.io/post/guanxi">
+      __proto__和prototype的区别和关系？
     </a>
   </h1>
   <div class="post-meta">
@@ -304,7 +505,7 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span>发布于</span>
-      <span>2021-08-20</span>
+      <span>2020-01-14</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
@@ -313,8 +514,8 @@
       <span class="pc-show">分类于</span>
       
       
-      <a href="https://weidadeda.github.io/tag/lTeQHqjnC">
-        <span>服务端</span>
+      <a href="https://weidadeda.github.io/tag/3uoOai8za">
+        <span>js</span>
       </a>
       
       
@@ -323,325 +524,78 @@
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>7分钟</span>
+      <span>4分钟</span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>1341<span class="pc-show">字数</span></span>
+      <span>1034<span class="pc-show">字数</span></span>
     </span>
     
   </div>
 </header>
             <div class="post-body next-md-body" id="post_body">
-              <p><a href="https://github.com/node-modules/parameter">parameter地址</a><br>
-// Koa接口参数校验与返回值统一处理  将参数校验变成一个路由中间件，正确的话继续执行，错误的话抛出错误异常。<br>
-// 在第一个中间件中自定义返回格式这里叫ctx.DATA（ctx上自定义一个对象，对象包含code默认200,msg默认‘成功’,data默认空对象）<br>
-// 这里对错误异常做了处理，抛出的是带code码以及与code码对应的msg和错误原因data的对象，此时我们将错误信息赋值给ctx.DATA.data。app中先写一个捕获错误的中间件，这样抛出的错误我们能够捕获到，然后从这里我们给body赋值，这样错误时返回的就是code码和message都有的返回值<br>
-// 当成功查找到数据库中的数据时，我们只需要将数据给ctx.DATA.data，那么返回值就是code码为200，msg为成功，data为正确数据的对象了。万一出现了登陆失败，我们也可以改变ctx.DATA.message为登陆失败，改变code码等</p>
-<pre><code>/**
- * 数据校验
- * wiki：https://github.com/node-modules/parameter/blob/master/example.js
- * @type {Parameter}
- */
-// const { HttpError } = require('../../utils/tool/error')
-const util = require('util')
-// const ERROR_MSG = require('./errorMsg')
-const ERROR_MSG = Object.freeze({
-  // en
-  // 0: 'fail',
-  // 1: 'validation error',
-  // 200: 'ok',
-  // 400: 'invalid param',
-  // 401: 'unauthorized',
-  // 403: 'forbidden',
-  // 404: 'not found',
-  // 500: 'internal server error',
-  // 503: 'service busy',
-
-  // zh-cn
-  0: '失败',
-  1: '验证码错误',
-  200: '成功',
-  400: '请求出错',
-  401: '未授权的请求',
-  403: '禁止：禁止执行访问',
-  404: '找不到：请检查URL以确保路径正确',
-  500: '服务器的内部错误',
-  503: '服务不可用'
-})
-
-function CustomError(code, msg) {
-  Error.call(this, '')
-
-  this.code = code
-  this.msg = msg || ERROR_MSG[code] || 'unknown error'
-
-  this.getCodeMsg = function() {
-    return {
-      code: this.code,
-      msg: this.msg
-    }
-  }
-}
-
-util.inherits(CustomError, Error)
-
-function HttpError(code, msg) {
-  if ([0, 1, 200, 400, 401, 403, 404, 500, 503].indexOf(code) &lt; 0) {
-    throw Error('not an invalid http code')
-  }
-
-  CustomError.call(this, code, msg)
-}
-
-util.inherits(HttpError, CustomError)
-
-const Parameter = require('parameter')
-const parm = new Parameter()
-
-// 自定义校验
-parm.addRule('name', function(e, v) {
-  let sta = /^[a-z]$/.test(v)
-  return sta || '只能输入一个字母'
-})
-
-// 路由校验列表
-const ruleList = {
-  // 登录
-  'post/api/login': {
-    mobile: { type: 'string', required: true },
-    password: { type: 'string', required: true }
-  },
-  // 获取配置
-  'get/api/setting': {
-    id: { type: 'string', required: true }
-  },
-  // 保存配置
-  'post/api/setting': {
-    id: { type: 'number', required: true },
-    title: { type: 'string', required: false },
-    report_fix_id: { type: 'string', required: false },
-    fix_url: { type: 'string', required: false },
-    env: { type: 'string', required: false },
-    report: { type: 'number', required: false },
-    report_interval: { type: 'number', required: false }
-  },
-  // CICD
-  'post/api/deploy': {
-    name: { type: 'string', required: true },
-    branch: { type: 'string', required: false },
-    env: { type: 'string', required: false }
-  },
-  // 用户详情
-  'get/api/user-details': {
-    user_id: { type: 'string', required: true }
-  }
-}
-
-/**
- * 校验方法
- * @param ctx
- * @param next
- * @returns {Promise&lt;void&gt;}
- */
-const parameter = async (ctx, next) =&gt; {
-  let errors, data
-  let method = 'get'
-  if (ctx.request.method === 'GET') {
-    data = ctx.query
-  } else {
-    method = 'post'
-    data = ctx.request.body
-  }
-  console.log(method, data)
-  try {
-    let name = ctx.req._parsedUrl.pathname
-    errors = parm.validate(ruleList[method + name], data)
-  } catch (e) {
-    throw new HttpError(0, e.toString())
-  }
-  if (errors &amp;&amp; errors.length) {
-    ctx.DATA.data = errors
-    throw new HttpError(0, '数据校验未通过')
-  }
-  await next()
-}
-module.exports = parameter
+              <h3 id="prototype显示原型是类的原型指向该方法的原型对象-proto隐式原型是对象的原型指向该对象的构造函数的原型对象">prototype（显示原型）是“类”的原型，指向该方法的原型对象。<strong>proto</strong>（隐式原型）是对象的原型，指向该对象的构造函数的原型对象。</h3>
+<p>JS当然没有“类”，只有constructor。<br>
+constructor就是当你new fn()时的那个“fn”。<br>
+fn的时候，产生的实例的__proto__指向fn.prototype，两者是同一个东西。</p>
+<pre><code class="language-js">function Foo(){}
+var foo = new Foo()
+Foo.prototype.__proto__ === Object.prototype //true
 </code></pre>
-<p>router.js</p>
-<pre><code>// 数据校验
-const router = require('koa-router')()
-const parameter = require('../utils/parameter')
-// project
-router.get('/api/user-details', parameter, userDetail)
-router.get('/api/setting', parameter, getSetting)
-router.post('/api/setting', parameter, setSetting)
-// common
-router.post('/api/login', parameter, login)
-// devops
-router.post('/api/deploy', parameter, checkToken, deploy)
-// swagger
-router.get('/api/swagger.json', async function (ctx) {
-  ctx.set('Content-Type', 'application/json')
-  ctx.body = openapiSpecification
-})
-// index
-router.get('/', index)
-
-module.exports = router
+<ul>
+<li>
+<p>prototype：每一个函数在创建之后都会拥有一个名为prototype的属性，这个属性指向函数的原型对象。</p>
+</li>
+<li>
+<p><strong>proto</strong>：JavaScript中任意对象都有一个内置属性[[prototype]]，在ES5之前没有标准的方法访问这个内置属性，但是大多数浏览器都支持通过__proto__来访问。ES5中有了对于这个内置属性标准的Get方法Object.getPrototypeOf().</p>
+</li>
+<li>
+<p>Note: Object.prototype 这个对象是个例外，它的__proto__值为null</p>
+</li>
+</ul>
+<h4 id="隐式原型指向创建这个对象的函数constructor的prototype">隐式原型指向创建这个对象的函数(constructor)的prototype</h4>
+<p>__proto__的指向到底如何判断呢？根据ECMA定义 'to the value of its constructor’s &quot;prototype&quot; ' ----指向创建这个对象的函数（也就是构造函数）的显式原型。所以关键的点在于找到创建这个对象的构造函数，接下来就来看一下JS中对象被创建的方式，一眼看过去似乎有三种方式：（1）对象字面量的方式 （2）new 的方式 （3）ES5中的Object.create() 但是我认为本质上只有一种方式，也就是通过new来创建。为什么这么说呢，首先字面量的方式是一种为了开发人员更方便创建对象的一个语法糖，本质就是 var o = new Object(); o.xx = xx;o.yy=yy; 再来看看Object.create(),这是ES5中新增的方法，在这之前这被称为原型式继承。</p>
+<p>下面看几个例子练习一下：</p>
+<p>内建对象(built-in object)：比如Array()，Array.prototype.__proto__指向什么？Array.prototype也是一个对象，对象就是由 Object() 这个构造函数创建的，因此Array.prototype.<strong>proto</strong> === Object.prototype //true，或者也可以这么理解，所有的内建对象都是由Object()创建而来。</p>
+<ul>
+<li>自定义对象</li>
+</ul>
+<pre><code class="language-js">function Foo(){}
+var foo = new Foo()
+Foo.prototype.__proto__ === Object.prototype //true 理由同上
 </code></pre>
-<p>app.js</p>
-<pre><code>const Koa = require('koa')
-const app = new Koa()
-const views = require('koa-views')
-const json = require('koa-json')
-const favicon = require('koa-favicon')
-const koaBody = require('koa-body')
-const logger = require('koa-logger')
-const colors = require('colors')
-const { resolve } = require('path')
-const { koaSwagger } = require('koa2-swagger-ui')
-const mysql = require('mysql2')
-
-const conf = require('./config')
-const index = require('./routes')
-
-// 允许上传文件
-app.use(
-  koaBody({
-    multipart: true,
-    formidable: {
-      maxFileSize: 1000 * 1024 * 1024 // 设置上传文件大小最大限制
-    }
-  })
-)
-
-// 网站图标
-app.use(favicon(resolve(__dirname, './public', 'favicon.ico')))
-
-// 返回美化json
-app.use(json())
-
-// koa-logger
-app.use(logger())
-
-// 资源文件
-app.use(require('koa-static')(resolve(__dirname, './public')))
-
-// 模板引擎
-app.use(views(resolve(__dirname, './views'), { map: { html: 'nunjucks' } }))
-
-// sql特殊字符处理
-const toEscapeString = val =&gt; {
-  return mysql.escape(val)
-}
-const toEscapeObject = dat =&gt; {
-  for (let key in dat) {
-    typeof dat[key] === 'string' &amp;&amp; (dat[key] = toEscapeString(dat[key]))
-    typeof dat[key] === 'object' &amp;&amp; toEscapeObject(dat[key])
-  }
-  return dat
-}
-
-// 加入cookie.get、set及自定义返回格式
-app.use(async (ctx, next) =&gt; {
-  ctx.cookie = {
-    set: (k, v, opt) =&gt; {
-      opt = Object.assign({}, conf.cookieOptions, opt)
-      return ctx.cookies.set(k, v, opt)
-    },
-    get: (k, opt) =&gt; {
-      opt = Object.assign({}, conf.cookieOptions, opt)
-      return ctx.cookies.get(k, opt)
-    }
-  }
-
-  let msg = {
-    0: '失败',
-    1: '验证码错误',
-    200: '成功',
-    400: '请求出错',
-    401: '未授权的请求',
-    403: '禁止：禁止执行访问',
-    404: '找不到：请检查URL以确保路径正确',
-    500: '服务器的内部错误',
-    503: '服务不可用'
-  }
-  ctx.json = dat =&gt; {
-    !dat.message &amp;&amp; (dat.message = msg[dat.code])
-    return dat
-  }
-
-  // 自定义返回格式
-  ctx.DATA = {
-    data: {},
-    message: '',
-    code: 200
-  }
-
-  // 状态统一判断
-  ctx.state = res =&gt; {
-    return !(res &amp;&amp; res.length ? res[0] : res)
-  }
-  await next()
-})
-
-// swagger
-app.use(
-  koaSwagger({
-    routePrefix: '/swagger', // host at /swagger instead of default /docs
-    swaggerOptions: {
-      url: '/api/swagger.json' // example path to json 其实就是之后swagger-jsdoc生成的文档地址
-    }
-  })
-)
-// 错误捕获
-app.use((ctx, next) =&gt; {
-  return next().catch(err =&gt; {
-    console.log(err)
-    let msg = err ? err.msg || err.toString() : 'unknown error'
-    let code = err ? (err.code &gt;= 0 ? err.code : 500) : 500
-    ctx.DATA.code = code
-    ctx.DATA.message = msg
-    ctx.body = ctx.DATA
-    ctx.status =
-      [200, 400, 401, 403, 404, 500, 503].indexOf(code) &gt;= 0 ? code : 200
-  })
-})
-// routes
-app.use(index.routes(), index.allowedMethods())
-
-app.proxy = true
-
-// koa error-handling 服务端、http错误
-app.on('error', (err, ctx) =&gt; {
-  console.error('server error', err, ctx)
-})
-
-module.exports = app
+<pre><code class="language-js">//这时我们想让Foo继承Bar
+function Bar(){}
+Foo.prototype = new Bar()
+ Foo.prototype.__proto__ === Bar.prototype //true
 </code></pre>
-<p>controller层的接口文件</p>
-<pre><code>const resData = {
-    os_type_data,
-    ip_data,
-    browser_data,
-    channel_group_data,
-    client_id_group_data,
-    sortArrFormat,
-    userActions
-  }
-  // 正常返回写法，一个个的定义很麻烦
-  // const successData = {
-  //   code: 0,
-  //   data: resData,
-  //   status: '请求成功'
-  // }
-  // ctx.body = successData
-  
-  // 直接把结果赋值，code码和message不用管
-  ctx.DATA.data = resData
-  ctx.body = ctx.json(ctx.DATA)
+<pre><code class="language-js">//我们不想让Foo继承谁，但是我们要自己重新定义Foo.prototype
+Foo.prototype = {
+  a:10,
+  b:-10
+}
+//这种方式就是用了对象字面量的方式来创建一个对象，根据前文所述 
+Foo.prototype.__proto__ === Object.prototype
+</code></pre>
+<p>以上情况都等于完全重写了Foo.prototype，所以Foo.prototype.constructor也跟着改变了，于是乎constructor这个属性和原来的构造函数Foo（）也就切断了联系。</p>
+<h4 id="此外">此外：</h4>
+<p>构造函数Foo()除了是方法，也是对象啊，它也有__proto__属性，指向谁呢？指向它的构造函数的原型对象呗。函数的构造函数不就是Function嘛，因此这里的__proto__指向了Function.prototype。其实除了Foo()，Function(), Object()也是一样的道理。原型对象也是对象啊，它的__proto__属性，又指向谁呢？同理，指向它的构造函数的原型对象呗。这里是Object.prototype.最后，Object.prototype的__proto__属性指向null。</p>
+<h4 id="构造函数的隐式原型">构造函数的隐式原型</h4>
+<p>既然是构造函数那么它就是Function（）的实例，因此也就指向Function.prototype,比如 Object.<strong>proto</strong> === Function.prototype</p>
+<h3 id="instanceof">instanceof</h3>
+<p>instanceof 操作符的内部实现机制和隐式原型、显式原型有直接的关系。instanceof的左值一般是一个对象，右值一般是一个构造函数，用来判断左值是否是右值的实例。它的内部实现原理是这样的：</p>
+<pre><code class="language-js">//设 L instanceof R 
+//通过判断
+ L.__proto__.__proto__ ..... === R.prototype ？
+//最终返回true or false
+</code></pre>
+<p>也就是沿着L的__proto__一直寻找到原型链末端，直到等于R.prototype为止。知道了这个也就知道为什么以下这些奇怪的表达式为什么会得到相应的值了</p>
+<pre><code>Function instanceof Object // true 
+ Object instanceof Function // true 
+ Function instanceof Function //true
+ Object instanceof Object // true
+ Number instanceof Number //false
 </code></pre>
 
             </div>
@@ -653,7 +607,7 @@ module.exports = app
     </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li" title="Koa接口参数校验与返回值统一处理">https://weidadeda.github.io/post/koa-jie-kou-can-shu-xiao-yan-yu-fan-hui-zhi-tong-yi-chu-li</a>
+      <a href="https://weidadeda.github.io/post/guanxi" title="__proto__和prototype的区别和关系？">https://weidadeda.github.io/post/guanxi</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明： </strong>
@@ -662,22 +616,18 @@ module.exports = app
   </ul>
   <div class="tags">
     
-      <a href="https://weidadeda.github.io/tag/lTeQHqjnC"># 服务端</a>
+      <a href="https://weidadeda.github.io/tag/3uoOai8za"># js</a>
     
   </div>
   <div class="nav">
     <div class="nav-prev">
       
         <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="KOA中间件与执行顺序" href="https://weidadeda.github.io/post/koa-zhong-jian-jian-yu-zhi-xing-shun-xu">KOA中间件与执行顺序</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="KOA中间件与执行顺序" href="https://weidadeda.github.io/post/koa-zhong-jian-jian-yu-zhi-xing-shun-xu">上一篇</a>
+        <a class="nav-pc-next" title="js对象继承" href="https://weidadeda.github.io/post/js-dui-xiang-ji-cheng">js对象继承</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title="js对象继承" href="https://weidadeda.github.io/post/js-dui-xiang-ji-cheng">上一篇</a>
       
     </div>
     <div class="nav-next">
-      
-        <a class="nav-pc-next" title="node接口生成接口文档" href="https://weidadeda.github.io/post/node-jie-kou-sheng-cheng-jie-kou-wen-dang">node接口生成接口文档</a>
-        <a class="nav-mobile-next" title="node接口生成接口文档" href="https://weidadeda.github.io/post/node-jie-kou-sheng-cheng-jie-kou-wen-dang">下一篇</a>
-        <i class="fa fa-chevron-right"></i>
       
     </div>
   </div>
