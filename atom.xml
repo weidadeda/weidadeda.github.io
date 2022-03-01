@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://weidadeda.github.io</id>
     <title>大伟的博客</title>
-    <updated>2022-02-25T07:52:58.036Z</updated>
+    <updated>2022-03-01T12:40:43.318Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://weidadeda.github.io"/>
     <link rel="self" href="https://weidadeda.github.io/atom.xml"/>
@@ -10,6 +10,169 @@
     <logo>https://weidadeda.github.io/images/avatar.png</logo>
     <icon>https://weidadeda.github.io/favicon.ico</icon>
     <rights>All rights reserved 2022, 大伟的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[Taro解决小程序包体积过大的问题]]></title>
+        <id>https://weidadeda.github.io/post/taro-jie-jue-xiao-cheng-xu-bao-ti-ji-guo-da-de-wen-ti</id>
+        <link href="https://weidadeda.github.io/post/taro-jie-jue-xiao-cheng-xu-bao-ti-ji-guo-da-de-wen-ti">
+        </link>
+        <updated>2022-03-01T12:27:38.000Z</updated>
+        <content type="html"><![CDATA[<figure data-type="image" tabindex="1"><img src="https://weidadeda.github.io/post-images/1646137679298.png" alt="" loading="lazy"></figure>
+<blockquote>
+<p>目前小程序分包大小有以下限制：<br>
+整个小程序所有分包大小不超过 8M<br>
+单个分包/主包大小不能超过 2M</p>
+</blockquote>
+<p>所以说8M的限制是要分包至少4个包，单个分包上限其实还是2M</p>
+<h3 id="解决这个问题一种是分包">解决这个问题一种是分包</h3>
+<p>官方给出的分包<a href="https://developers.weixin.qq.com/miniprogram/dev/framework/subpackages/basic.html">官网文档</a></p>
+<h3 id="另一种是减少包中的图片">另一种是减少包中的图片</h3>
+<p>其实造成包体积过大的因素，很大原因是因为包里有图片，那体积就会变得很大。那我们可以将图片上传到CDN上，变成网络链接，这样的话就不会把图片打包进去了。但是这样又有一个不足，比如说我们一开始开发项目的时候，UI同学给了我们设计图，那我们要将图片一张张的上传到CDN上去吗？如果后期UI走查的时候要换图片呢？而且万一CDN上的图片被人误删了或者服务到期了呢（当然这种可能性很小，但也可以考虑进去），这时候我们的原图都会找不到，只能干着急。。。</p>
+<h4 id="那么最好的方式就是将图片放在项目中本地开发的时候引用的就是本地的增删改找起来也方便但是打包构建的时候将图片压缩并上传cdn同时将项目中的图片引用路径改成网络链接然后删除dist中的所有图片-那么接下来我们就写个脚本实现一下">那么最好的方式就是将图片放在项目中，本地开发的时候引用的就是本地的，增删改找起来也方便，但是打包构建的时候将图片压缩并上传CDN，同时将项目中的图片引用路径改成网络链接，然后删除dist中的所有图片。那么接下来我们就写个脚本实现一下。</h4>
+<p>直接上代码吧</p>
+<h4 id="先写上传方法用于打包完上传先压缩再上传到阿里oss">先写上传方法，用于打包完上传，先压缩再上传到阿里oss</h4>
+<pre><code class="language-js">// config/upload.js
+const OSS = require(&quot;ali-oss&quot;);
+const fs = require(&quot;fs&quot;);
+const path = require(&quot;path&quot;);
+const rimraf = require(&quot;rimraf&quot;);
+const imagemin = require('imagemin')
+const imageminJpegtran = require('imagemin-jpegtran')
+const imageminPngquant = require('imagemin-pngquant')
+const imageminSvgo = require('imagemin-svgo')
+const imageminGifsicle = require('imagemin-gifsicle')
+
+const client = new OSS({
+  region: &quot;&quot;,
+  endpoint: &quot;&quot;,
+  accessKeyId: &quot;&quot;,
+  accessKeySecret: &quot;&quot;,
+  bucket: &quot;&quot;
+});
+async function compress() {
+  const files = await imagemin(['../dist/**/*.{jpg,jpeg,png,svg,gif}'], {
+    destination: '../dist/assets',
+    plugins: [
+      imageminJpegtran({
+        progressive: true,
+        quality: 80,
+      }),
+      imageminPngquant({
+        quality: [0.6, 0.8],
+      }),
+      imageminSvgo({
+        plugins: [{ removeViewBox: false }],
+      }),
+      imageminGifsicle(),
+    ],
+  })
+  console.log('compress all images success!'.info)
+  return files
+}
+const putOSS = async function(src, dist) {
+  try {
+    let result = await client.put(dist, src);
+    console.log(&quot;oss上传成功: &quot; + result.name);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const workList = [];
+
+/**
+ *
+ * @param {string} src 需要上传的文件夹
+ * @param {string} dist oss文件夹
+ */
+
+const addFileToOSSSync = function(src, dist) {
+  try {
+    await compress()
+    var docs = fs.readdirSync(src);
+  } catch (error) {
+    console.log(src + &quot;不存在&quot;);
+    return;
+  }
+
+  docs.forEach(function(doc) {
+    const _src = src + &quot;/&quot; + doc;
+    const _dist = dist + &quot;/&quot; + doc;
+    const st = fs.statSync(_src);
+    // 判断是否为文件
+    if (st.isFile() &amp;&amp; doc !== &quot;.DS_Store&quot;) {
+      workList.push(putOSS(_src, _dist));
+      // console.log(_src + '是文件', _dist);
+    } else if (st.isDirectory()) {
+      addFileToOSSSync(_src, _dist);
+    }
+  });
+};
+
+addFileToOSSSync(&quot;dist/assets&quot;, &quot;weixin/gongyi/sdg/images&quot;);
+
+Promise.all(workList).then(res =&gt; {
+  rimraf(path.join(__dirname, &quot;../dist/assets&quot;), error =&gt; {
+    if (error) {
+      throw error;
+    }
+    console.log(&quot;done!&quot;);
+  });
+});
+
+</code></pre>
+<h4 id="上传方法写完了什么时候调用呢应该在构建完之后调用因为上传完要删除包中dist下的图片那么我们应该packagejson中更改命令">上传方法写完了，什么时候调用呢，应该在构建完之后调用，因为上传完要删除包中dist下的图片，那么我们应该package.json中更改命令</h4>
+<pre><code class="language-js">// package.json
+&quot;build:weapp&quot;: &quot;NODE_ENV=online taro build --type weapp &amp;&amp; node config/upload.js&quot;
+</code></pre>
+<h4 id="还有设置一个全局变量">还有设置一个全局变量</h4>
+<pre><code class="language-js">// Taro打包入口处
+const ossPath = '你的cdn域名'
+let projectPublicPath = '/'
+
+if (process.env.NODE_ENV !== 'development') {
+  // 你上传的cdn路径
+  projectPublicPath = `${ossPath}/1v1mp/${process.env.TARO_ENV}/${process.env.NODE_ENV}`
+}
+
+let assetsPre =
+  process.env.TARO_ENV === 'weapp'
+    ? process.env.NODE_ENV === 'development'
+      ? ''
+      : projectPublicPath
+    : ''
+var config = {
+  // ...其他配置正常写，主要是注意这两项
+  alias: {
+    '@': path.resolve(__dirname, '..', 'src'),
+  },
+  defineConstants: {
+    assetsPre: `&quot;${assetsPre}&quot;`,
+  },
+}
+</code></pre>
+<h4 id="最后使用需要注意">最后使用需要注意：</h4>
+<ul>
+<li>
+<p>所有图片文件放入<code>src/assets</code>目录下，可以在<code>assets</code>目录下创建各模块目录</p>
+</li>
+<li>
+<p>使用 <code>import</code> 引入后在<code>src</code>处使用 <code>${assetsPre}${pic}</code>的方式使用, <code>assetsPre</code>是全局定义好的常量，可以直接使用。</p>
+<p>例如：</p>
+<pre><code class="language-jsx">import pic from '@/assets/defualt.jpg'
+
+export default function Index() {
+  // do some logic
+
+  return &lt;Image src={`${assetsPre}${pic}`} /&gt;
+}
+</code></pre>
+</li>
+</ul>
+<blockquote>
+<p>tip: 有一点要说一下，虽然import引入了，但其实是个pic是个路径，webpack5以前会把它通过loader转为路径，webpack5通过内置Asset Modules转为路径。具体文档可见：<a href="https://webpack.docschina.org/guides/asset-management/#loading-images">加载images图像</a></p>
+</blockquote>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[createjs 创建图片位图并设置中心点为图片中心]]></title>
         <id>https://weidadeda.github.io/post/createjs-chuang-jian-tu-pian-wei-tu-bing-she-zhi-zhong-xin-dian-wei-tu-pian-zhong-xin</id>
@@ -1862,27 +2025,6 @@ CSS 和 @include 声明按照以下逻辑排序（参见下文）</p>
 </ul>
 <h5 id="再说一遍-永远不要嵌套-id-选择器-永远不要嵌套-id-选择器-永远不要嵌套-id-选择器">再说一遍: 永远不要嵌套 ID 选择器！ 永远不要嵌套 ID 选择器！ 永远不要嵌套 ID 选择器！</h5>
 <p>如果你始终坚持要使用 ID 选择器（劝你三思），那也不应该嵌套它们。如果你正打算这么做，你需要先重新检查你的标签，或者指明原因。如果你想要写出风格良好的 HTML 和 CSS，你是不应该这样做的。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[前端常用的命名规范]]></title>
-        <id>https://weidadeda.github.io/post/qian-duan-chang-yong-de-ming-ming-gui-fan</id>
-        <link href="https://weidadeda.github.io/post/qian-duan-chang-yong-de-ming-ming-gui-fan">
-        </link>
-        <updated>2021-12-20T11:20:48.000Z</updated>
-        <content type="html"><![CDATA[<ul>
-<li>目录 全小写中划线</li>
-<li>文件 全小写中划线</li>
-<li>类名 大驼峰</li>
-<li>变量 小驼峰</li>
-<li>常量 全大写 下划线风格</li>
-<li>特殊变量</li>
-<li>css类名 小写中划线</li>
-<li>单词拼音不允许</li>
-<li>复杂函数和公用函数必须加注释</li>
-<li>函数的参数最多不能超过三个</li>
-<li>url 全小写 中划线</li>
-</ul>
 ]]></content>
     </entry>
 </feed>
