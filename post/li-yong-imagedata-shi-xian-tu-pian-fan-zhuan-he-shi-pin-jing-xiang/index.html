@@ -8,7 +8,7 @@
 <meta name="keywords" content="大伟的静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>大伟的博客</title>
+<title>利用 ImageData 实现图片翻转和视频镜像 | 大伟的博客</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1647859801769">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/media/css/gemini.css">
@@ -29,6 +29,8 @@
 
 
 
+  <meta name="description" content="利用 ImageData 实现图片翻转和视频镜像" />
+  <meta name="keywords" content="canvas,js" />
 </head>
 
 <body>
@@ -64,7 +66,7 @@
             
               
             
-            <li class="nav-item nav-item-active">
+            <li class="nav-item ">
               
               
                 <a href="/" target="_self">
@@ -143,8 +145,24 @@
     <div
       class="section-layout gemini ">
       <div class="section-layout-wrapper">
-        <div id="sidebarMeta" class="sidebar">
-    
+        
+
+<div class="sidebar">
+  
+    <div class="sidebar-box box-shadow-wrapper bg-color right-motion" id="sidebar">
+      
+        <div class="post-list-sidebar">
+          <div class="sidebar-title">
+            <span id="tocSideBar" class="sidebar-title-item sidebar-title-active">文章目录</span>
+            <span id="metaSideBar" class="sidebar-title-item">站点概览</span>
+          </div>
+        </div>
+      
+      <div class="sidebar-body gemini" id="sidebar_body">
+        
+          
+            <div class="post-side-meta" id="post_side_meta">
+              
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="/images/avatar.png"/>
@@ -191,526 +209,708 @@
 
 
 </div>
+            </div>
+            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+              <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto"
+    id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%861%E5%83%8F%E7%B4%A0%E7%9F%A9%E9%98%B5%E5%8F%98%E6%8D%A2">基本原理1——像素矩阵变换</a></li>
+<li><a href="#%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%862%E5%83%8F%E7%B4%A0%E6%95%B0%E7%BB%84%E4%B8%8E%E7%9F%A9%E9%98%B5%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB">基本原理2——像素数组与矩阵的对应关系</a></li>
+<li><a href="#%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0">具体实现</a>
+<ul>
+<li><a href="#%E5%A4%A7%E5%AE%B6%E7%9C%8B%E7%9A%84%E5%8F%AF%E8%83%BD%E6%9C%89%E7%82%B9%E6%87%B5%E6%B2%A1%E5%85%B3%E7%B3%BB%E6%8B%BF%E4%B8%AA%E7%BA%B8%E7%94%BB%E4%B8%80%E4%B8%8B%E7%84%B6%E5%90%8E%E5%8E%BB%E5%A5%97%E7%94%A8%E5%85%AC%E5%BC%8F%E5%B0%B1%E5%A5%BD%E4%BA%86%E4%B8%80%E6%AC%A1%E4%B8%8D%E6%87%82%E5%B0%B1%E5%A4%9A%E8%AF%95%E5%87%A0%E6%AC%A1-%E7%9C%8B%E4%B8%8D%E6%87%82%E4%B8%80%E5%AE%9A%E8%A6%81%E6%8B%BF%E5%BC%A0%E7%BA%B8%E7%94%BB%E4%B8%80%E4%B8%8B">大家看的可能有点懵，没关系，拿个纸画一下，然后去套用公式就好了，一次不懂就多试几次。看不懂一定要拿张纸画一下！</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
 </div>
+
 <script>
-  let sidebarMeta = document.querySelector('#sidebarMeta');
-  let scheme = 'gemini';
-  let sidebarWrapper = document.querySelector('.sidebar-wrapper');
-  if (sidebarMeta && (scheme === 'pisces' || scheme === 'gemini')) {
-    document.addEventListener('scroll', function(e) {
-      if (document.scrollingElement.scrollTop > parseInt(sidebarMeta.style.marginTop) + 10) {
-        sidebarWrapper.classList.add('home-sidebar-fixed')
-      } else {
-        sidebarWrapper.classList.remove('home-sidebar-fixed')
+
+  let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1;
+  let active = 'active-show', activeClass = 'active-current';
+  let tocWrapper = document.querySelector('#toc_wrapper');
+  let tocContent = tocWrapper.children[0];
+  let autoNumber = tocWrapper && tocWrapper.classList.contains('auto-number');
+
+  function addTocNumber(elem, deep) {
+    if (!elem) {
+      return;
+    }
+    let prop = elem.__proto__;
+
+    if (prop === HTMLUListElement.prototype) {
+      for (let i = 0; i < elem.children.length; i++) {
+        addTocNumber(elem.children[i], deep + (i + 1) + '.');
       }
+    } else if (prop === HTMLLIElement.prototype) {
+      // 保存li元素
+      if (elem.children[0].__proto__ === HTMLAnchorElement.prototype) {
+        lList.push(elem);
+      }
+      for (let i = 0; i < elem.children.length; i++) {
+        let cur = elem.children[i];
+        if (cur.__proto__ === HTMLAnchorElement.prototype) {
+          if (autoNumber) {
+            cur.text = deep + ' ' + cur.text;
+          }
+        } else if (cur.__proto__ === HTMLUListElement.prototype) {
+          addTocNumber(cur, deep);
+        }
+      }
+    }
+  }
+
+  function removeParentActiveClass() {
+    let parents = tocContent.querySelectorAll('.' + active)
+    parents.forEach(function (elem) {
+      elem.classList.remove(active);
     });
   }
-  </script>
-        <div class="section-box gemini">
-          <section class="section  posts-expand slide-down-in">
-            
-  <article class="post-list-box  post box-shadow-wrapper">
-    <div class="article-wrapper bg-color">
-      <header class="post-header">
-  <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai">
-      shell $? 获取函数返回值或者上一个命令的退出状态
-    </a>
-  </h1>
-  <div class="post-meta">
-    
-    <span class="meta-item pc-show">
-      <i class="fa fa-calendar-o"></i>
-      <span>发布于</span>
-      <span>2021-05-17</span>
-      <span class="post-meta-divider pc-show">|</span>
-    </span>
-    
-    <span class="meta-item">
-      <i class="fa fa-folder-o"></i>
-      <span class="pc-show">分类于</span>
-      
-      
-      <a href="https://weidadeda.github.io/tag/qt4i7BiKQ">
-        <span>shell</span>
-      </a>
-      
-      
-    </span>
-    <span class="post-meta-divider">|</span>
-    
-    <span class="meta-item">
-      <i class="fa fa-clock-o"></i>
-      <span>1分钟</span>
-    </span>
-    <span class="meta-item">
-      <span class="post-meta-divider">|</span>
-      <i class="fa fa-file-word-o"></i>
-      <span>98<span class="pc-show">字数</span></span>
-    </span>
-    
-  </div>
-</header>
-      <div class="post-body">
-        
-        
+
+  function addActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.add(activeClass);
+    }
+  }
+
+  function removeActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.remove(activeClass);
+    }
+  }
+
+  function addActiveLiElemment(elem, parent) {
+    if (!elem || elem === parent) {
+      return;
+    } else {
+      if (elem.__proto__ === HTMLLIElement.prototype) {
+        elem.classList.add(active);
+      }
+      addActiveLiElemment(elem.parentElement, parent);
+    }
+  }
+
+  function showToc() {
+    if (tocWrapper) {
+      postBody = document.querySelector('#post_body');
+      for (let i = 0; i < postBody.children.length; i++) {
+        if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+          hList.push(postBody.children[i]);
+        }
+      }
+      if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+      } else if (tocWrapper.classList.contains('no_compress')) {
+        tocContent.classList.add('expanded');
+      } else {
+        if (hList.length > 10) {
+          active = 'active-hidden'
+          tocContent.classList.add('closed');
+        } else {
+          tocContent.classList.add('expanded');
+        }
+      }
+    }
+  }
+
+  (function () {
+    // 处理不是从#一级标题开始目录
+    if (tocContent.children.length === 1 && tocContent.children[0].__proto__ === HTMLLIElement.prototype) {
+      let con = tocContent.children[0].children[0];
+      tocContent.innerHTML = con.innerHTML;
+    }
+    let markdownItTOC = document.querySelector('.markdownIt-TOC');
+    let innerHeight = window.innerHeight;
+    markdownItTOC.style = `max-height: ${innerHeight - 80 > 0 ? innerHeight - 80 : innerHeight}px`
+    addTocNumber(tocContent, '');
+  })();
+
+  document.addEventListener('scroll', function (e) {
+    if (lList.length <= 0) {
+      return;
+    }
+    let scrollTop = document.scrollingElement.scrollTop + 10;
+    let dir;
+
+    if (lastTop - scrollTop > 0) {
+      dir = 'up';
+    } else {
+      dir = 'down';
+    }
+
+    lastTop = scrollTop;
+    if (scrollTop <= 0) {
+      if (lastIndex >= 0 && lastIndex < hList.length) {
+        lList[lastIndex].classList.remove(activeClass);
+      }
+      return;
+    }
+
+    let current = 0, hasFind = false;
+    for (let i = 0; i < hList.length; i++) {
+      if (hList[i].offsetTop > scrollTop) {
+        current = i;
+        hasFind = true;
+        break;
+      }
+    }
+    if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+      current = hList.length - 1;
+    } else {
+      current--;
+    }
+    if (dir === 'down') {
+      if (current > lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex)
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    } else {
+      if (current < lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex);
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    }
+  });
+
+
+  window.addEventListener('load', function () {
+    showToc();
+    document.querySelector('#sidebar').style = 'display: block;';
+    tocWrapper.classList.add('toc-active');
+    setTimeout(function () {
+      if ("createEvent" in document) {
+        let evt = document.createEvent("HTMLEvents");
+        evt.initEvent("scroll", false, true);
+        document.dispatchEvent(evt);
+      }
+      else {
+        document.fireEvent("scroll");
+      }
+    }, 500)
+  })
+
+</script>
+            </div>
           
         
-        
-        <div class="post-button text-center">
-          <a class="btn" href="https://weidadeda.github.io/post/shell-dollar-huo-qu-han-shu-fan-hui-zhi-huo-zhe-shang-yi-ge-ming-ling-de-tui-chu-zhuang-tai" rel="contents">
-            阅读全文 »
-          </a>
-        </div>
-        
       </div>
-      
     </div>
-  </article>
-
-  <article class="post-list-box  post box-shadow-wrapper">
-    <div class="article-wrapper bg-color">
-      <header class="post-header">
-  <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/docker-zhong-shi-yong-redis">
-      docker中使用redis
-    </a>
-  </h1>
-  <div class="post-meta">
-    
-    <span class="meta-item pc-show">
-      <i class="fa fa-calendar-o"></i>
-      <span>发布于</span>
-      <span>2021-04-21</span>
-      <span class="post-meta-divider pc-show">|</span>
-    </span>
-    
-    <span class="meta-item">
-      <i class="fa fa-folder-o"></i>
-      <span class="pc-show">分类于</span>
-      
-      
-      <a href="https://weidadeda.github.io/tag/54JMWgB6H">
-        <span>redis</span>
-      </a>、
-      
-      
-      
-      <a href="https://weidadeda.github.io/tag/lTeQHqjnC">
-        <span>服务端</span>
-      </a>
-      
-      
-    </span>
-    <span class="post-meta-divider">|</span>
-    
-    <span class="meta-item">
-      <i class="fa fa-clock-o"></i>
-      <span>2分钟</span>
-    </span>
-    <span class="meta-item">
-      <span class="post-meta-divider">|</span>
-      <i class="fa fa-file-word-o"></i>
-      <span>376<span class="pc-show">字数</span></span>
-    </span>
-    
-  </div>
-</header>
-      <div class="post-body">
-        
-        
-          <p>项目中频繁使用Redis，为了不用每次打开Redis目录去启动Redis想到了Docker可以作为Redis的容器 直接下载使用就行 把Docker使用Redis的过程分享下：</p>
-<ol>
-<li>
-<pre><code>拉取redis    （如果想直接运行也可以直接执行第二步省略第一步）
-   docker pull redis
-
-   拉取完成后可使用 docker images 查看镜像列表检查
-</code></pre>
-</li>
-<li>
-<pre><code>后台运行redis server
-   
-   docker run --name redis-test -p 6379:6379 -d redis
-   或者 docker run --name redis-test -p 6379:6379  --rm -d redis
-
-   -d表示后台运行 
-   -p表示本机端口映射到运行的容积端口  第一个是本机端口 第二个是容器端口
-   --rm表示用完自动删除 容器停止运行后自动删除  一般不用
-   --name表示指定名称 之后会用到
-</code></pre>
-</li>
-<li>
-<pre><code> 客户端连接redis 
-   
-   docker run -it --rm  redis redis-cli -h 192.168.1.99
-   或者 完整 docker run -it --rm redis redis-cli -h 192.168.1.99 -p 6379 -a 123123
-   
-   -it表示运行后进入容器内部命令模式
-</code></pre>
-</li>
-<li>
-<pre><code>启动已关闭的redis服务
-   步骤二指定了redis的名称为redis-test 执行命令 redis start redis-test 启动redis服务
-</code></pre>
-</li>
-<li>
-<pre><code>不小心关掉了正在连接的客户端界面redis-cli 
-  - 查找当前运行的容器 docker ps  
-  - 直接进入容器中 docker attach 容器标识
-</code></pre>
-</li>
-<li>
-<pre><code>删除容器
-   - docker rm [containerName||ID] 或者强制删除加-f参数
-</code></pre>
-</li>
-</ol>
-<p>推荐一个好用的redis可视化软件，免费的，“Another Redis Desktop Manager” 地址：https://github.com/qishibo/AnotherRedisDesktopManager/</p>
-
-        
-        
-      </div>
-      
-    </div>
-  </article>
-
-  <article class="post-list-box  post box-shadow-wrapper">
-    <div class="article-wrapper bg-color">
-      <header class="post-header">
-  <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/wo-shi-ce-shi">
-      mysql 时间戳格式化函数from_unixtime
-    </a>
-  </h1>
-  <div class="post-meta">
-    
-    <span class="meta-item pc-show">
-      <i class="fa fa-calendar-o"></i>
-      <span>发布于</span>
-      <span>2021-04-06</span>
-      <span class="post-meta-divider pc-show">|</span>
-    </span>
-    
-    <span class="meta-item">
-      <i class="fa fa-clock-o"></i>
-      <span>2分钟</span>
-    </span>
-    <span class="meta-item">
-      <span class="post-meta-divider">|</span>
-      <i class="fa fa-file-word-o"></i>
-      <span>341<span class="pc-show">字数</span></span>
-    </span>
-    
-  </div>
-</header>
-      <div class="post-body">
-        
-        
-          
-        
-        
-        <div class="post-button text-center">
-          <a class="btn" href="https://weidadeda.github.io/post/wo-shi-ce-shi" rel="contents">
-            阅读全文 »
-          </a>
-        </div>
-        
-      </div>
-      
-    </div>
-  </article>
-
-  <article class="post-list-box  post box-shadow-wrapper">
-    <div class="article-wrapper bg-color">
-      <header class="post-header">
-  <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/nginx-dai-cookie-yun-xu-kua-yu-pei-zhi">
-      nginx带cookie允许跨域配置
-    </a>
-  </h1>
-  <div class="post-meta">
-    
-    <span class="meta-item pc-show">
-      <i class="fa fa-calendar-o"></i>
-      <span>发布于</span>
-      <span>2021-02-10</span>
-      <span class="post-meta-divider pc-show">|</span>
-    </span>
-    
-    <span class="meta-item">
-      <i class="fa fa-folder-o"></i>
-      <span class="pc-show">分类于</span>
-      
-      
-      <a href="https://weidadeda.github.io/tag/lUaTxyOe3">
-        <span>nginx</span>
-      </a>、
-      
-      
-      
-      <a href="https://weidadeda.github.io/tag/lTeQHqjnC">
-        <span>服务端</span>
-      </a>
-      
-      
-    </span>
-    <span class="post-meta-divider">|</span>
-    
-    <span class="meta-item">
-      <i class="fa fa-clock-o"></i>
-      <span>1分钟</span>
-    </span>
-    <span class="meta-item">
-      <span class="post-meta-divider">|</span>
-      <i class="fa fa-file-word-o"></i>
-      <span>224<span class="pc-show">字数</span></span>
-    </span>
-    
-  </div>
-</header>
-      <div class="post-body">
-        
-        
-          
-        
-        
-        <div class="post-button text-center">
-          <a class="btn" href="https://weidadeda.github.io/post/nginx-dai-cookie-yun-xu-kua-yu-pei-zhi" rel="contents">
-            阅读全文 »
-          </a>
-        </div>
-        
-      </div>
-      
-    </div>
-  </article>
-
-  <article class="post-list-box  post box-shadow-wrapper">
-    <div class="article-wrapper bg-color">
-      <header class="post-header">
-  <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/hello-gridea">
-      如何自定义commit规范
-    </a>
-  </h1>
-  <div class="post-meta">
-    
-    <span class="meta-item pc-show">
-      <i class="fa fa-calendar-o"></i>
-      <span>发布于</span>
-      <span>2020-10-23</span>
-      <span class="post-meta-divider pc-show">|</span>
-    </span>
-    
-    <span class="meta-item">
-      <i class="fa fa-folder-o"></i>
-      <span class="pc-show">分类于</span>
-      
-      
-      <a href="https://weidadeda.github.io/tag/_l9fydARk">
-        <span>工程化</span>
-      </a>、
-      
-      
-      
-      <a href="https://weidadeda.github.io/tag/Z8QV8E2Pt">
-        <span>commit规范</span>
-      </a>
-      
-      
-    </span>
-    <span class="post-meta-divider">|</span>
-    
-    <span class="meta-item">
-      <i class="fa fa-clock-o"></i>
-      <span>2分钟</span>
-    </span>
-    <span class="meta-item">
-      <span class="post-meta-divider">|</span>
-      <i class="fa fa-file-word-o"></i>
-      <span>229<span class="pc-show">字数</span></span>
-    </span>
-    
-  </div>
-</header>
-      <div class="post-body">
-        
-        
-          
-        
-        
-        <div class="post-button text-center">
-          <a class="btn" href="https://weidadeda.github.io/post/hello-gridea" rel="contents">
-            阅读全文 »
-          </a>
-        </div>
-        
-      </div>
-      
-    </div>
-  </article>
-
-  <article class="post-list-box  post box-shadow-wrapper">
-    <div class="article-wrapper bg-color">
-      <header class="post-header">
-  <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/js-dui-xiang-ji-cheng">
-      js对象继承
-    </a>
-  </h1>
-  <div class="post-meta">
-    
-    <span class="meta-item pc-show">
-      <i class="fa fa-calendar-o"></i>
-      <span>发布于</span>
-      <span>2020-01-16</span>
-      <span class="post-meta-divider pc-show">|</span>
-    </span>
-    
-    <span class="meta-item">
-      <i class="fa fa-folder-o"></i>
-      <span class="pc-show">分类于</span>
-      
-      
-      <a href="https://weidadeda.github.io/tag/3uoOai8za">
-        <span>js</span>
-      </a>
-      
-      
-    </span>
-    <span class="post-meta-divider">|</span>
-    
-    <span class="meta-item">
-      <i class="fa fa-clock-o"></i>
-      <span>3分钟</span>
-    </span>
-    <span class="meta-item">
-      <span class="post-meta-divider">|</span>
-      <i class="fa fa-file-word-o"></i>
-      <span>558<span class="pc-show">字数</span></span>
-    </span>
-    
-  </div>
-</header>
-      <div class="post-body">
-        
-        
-          
-        
-        
-        <div class="post-button text-center">
-          <a class="btn" href="https://weidadeda.github.io/post/js-dui-xiang-ji-cheng" rel="contents">
-            阅读全文 »
-          </a>
-        </div>
-        
-      </div>
-      
-    </div>
-  </article>
-
-  <article class="post-list-box  post box-shadow-wrapper">
-    <div class="article-wrapper bg-color">
-      <header class="post-header">
-  <h1 class="post-title">
-    <a class="post-title-link" href="https://weidadeda.github.io/post/guanxi">
-      __proto__和prototype的区别和关系？
-    </a>
-  </h1>
-  <div class="post-meta">
-    
-    <span class="meta-item pc-show">
-      <i class="fa fa-calendar-o"></i>
-      <span>发布于</span>
-      <span>2020-01-14</span>
-      <span class="post-meta-divider pc-show">|</span>
-    </span>
-    
-    <span class="meta-item">
-      <i class="fa fa-folder-o"></i>
-      <span class="pc-show">分类于</span>
-      
-      
-      <a href="https://weidadeda.github.io/tag/3uoOai8za">
-        <span>js</span>
-      </a>
-      
-      
-    </span>
-    <span class="post-meta-divider">|</span>
-    
-    <span class="meta-item">
-      <i class="fa fa-clock-o"></i>
-      <span>4分钟</span>
-    </span>
-    <span class="meta-item">
-      <span class="post-meta-divider">|</span>
-      <i class="fa fa-file-word-o"></i>
-      <span>1034<span class="pc-show">字数</span></span>
-    </span>
-    
-  </div>
-</header>
-      <div class="post-body">
-        
-        
-          
-        
-        
-        <div class="post-button text-center">
-          <a class="btn" href="https://weidadeda.github.io/post/guanxi" rel="contents">
-            阅读全文 »
-          </a>
-        </div>
-        
-      </div>
-      
-    </div>
-  </article>
   
-            
-            
-<div class="page bg-color">
-  <ul class="pagination-ul">
-    
-      <li class="pagination-dir">
-        <a href="https://weidadeda.github.io/page/3/">
-          <i class="fa fa-angle-left"></i>
-        </a>
-      </li>
-    
-    
-      
-        <li class="pagination-li ">
-            <a href="/page/../">
-              1
-            </a>
-        </li>
-      
-        <li class="pagination-li ">
-            <a href="/page/2">
-              2
-            </a>
-        </li>
-      
-        <li class="pagination-li ">
-            <a href="/page/3">
-              3
-            </a>
-        </li>
-      
-        <li class="pagination-li pagination-active">
-            <a href="/page/4">
-              4
-            </a>
-        </li>
-      
-    
-    
-  </ul>
 </div>
-          </section>
+<script>
+  const SIDEBAR_TITLE_ACTIVE = 'sidebar-title-active';
+  const SIDEBAR_BODY_ACTIVE = 'sidebar-body-active';
+  const SLIDE_UP_IN = 'slide-up-in';
+
+  let sidebar = document.querySelector('#sidebar'),
+  tocSideBar = document.querySelector('#tocSideBar'),
+  metaSideBar = document.querySelector('#metaSideBar'),
+  postToc = document.querySelector('#post_toc'),
+  postSiteMeta = document.querySelector('#post_side_meta'),
+  sidebarTitle = document.querySelector('.sidebar-title'),
+  sidebarBody = document.querySelector('#sidebar_body');
+
+  tocSideBar && tocSideBar.addEventListener('click', (e) => {
+    toggleSidebar(e);
+  });
+
+  metaSideBar && metaSideBar.addEventListener('click', (e) => {
+    toggleSidebar(e);
+  });
+
+  function toggleSidebar(e) {
+    let currentTitle = document.querySelector("."+SIDEBAR_TITLE_ACTIVE);
+    if (currentTitle == e.srcElement) {
+      return ;
+    }
+    let current, showElement, hideElement;
+    if (e.srcElement == metaSideBar) {
+      showElement = postSiteMeta;
+      hideElement = postToc;
+    } else if (e.srcElement == tocSideBar){
+      showElement = postToc;
+      hideElement = postSiteMeta;
+    }
+    currentTitle.classList.remove(SIDEBAR_TITLE_ACTIVE);
+    e.srcElement.classList.add(SIDEBAR_TITLE_ACTIVE);
+
+    window.Velocity(hideElement, 'stop');
+    window.Velocity(hideElement, 'transition.slideUpOut', {
+      display: 'none',
+      duration: 200,
+      complete: function () {
+        window.Velocity(showElement, 'transition.slideDownIn', {
+          duration: 200
+        });
+      }
+    })
+    hideElement.classList.remove(SIDEBAR_BODY_ACTIVE);
+    showElement.classList.add(SIDEBAR_BODY_ACTIVE);
+  }
+
+  postToc && postToc.addEventListener('transitionend', function() {
+    this.classList.remove(SLIDE_UP_IN);
+  });
+
+  if (sidebarBody) {
+    if (sidebarBody.classList.contains('pisces') || sidebarBody.classList.contains('gemini')) {
+      let hasFix = false;
+      let scrollEl = document.querySelector('.main-continer');
+      let limitTop = document.querySelector('#nav_ul').children.length * 42 + 162;
+      window.addEventListener('scroll', function(e) {
+        if (document.scrollingElement.scrollTop >= limitTop) {
+          if (!hasFix) {
+            sidebar.classList.add('sidebar-fixed');
+            hasFix = true;
+          }
+        } else {
+          if (hasFix) {
+            sidebar.classList.remove('sidebar-fixed');
+            hasFix = false;
+          }
+        }
+      });
+    }
+  }
+  
+</script>
+        <div class="section-box box-shadow-wrapper">
+          <div class="section bg-color post post-page">
+            <header class="post-header">
+  <h1 class="post-title">
+    <a class="post-title-link" href="https://weidadeda.github.io/post/li-yong-imagedata-shi-xian-tu-pian-fan-zhuan-he-shi-pin-jing-xiang">
+      利用 ImageData 实现图片翻转和视频镜像
+    </a>
+  </h1>
+  <div class="post-meta">
+    
+    <span class="meta-item pc-show">
+      <i class="fa fa-calendar-o"></i>
+      <span>发布于</span>
+      <span>2021-12-17</span>
+      <span class="post-meta-divider pc-show">|</span>
+    </span>
+    
+    <span class="meta-item">
+      <i class="fa fa-folder-o"></i>
+      <span class="pc-show">分类于</span>
+      
+      
+      <a href="https://weidadeda.github.io/tag/jFPmxhqKu">
+        <span>canvas</span>
+      </a>、
+      
+      
+      
+      <a href="https://weidadeda.github.io/tag/3uoOai8za">
+        <span>js</span>
+      </a>
+      
+      
+    </span>
+    <span class="post-meta-divider">|</span>
+    
+    <span class="meta-item">
+      <i class="fa fa-clock-o"></i>
+      <span>13分钟</span>
+    </span>
+    <span class="meta-item">
+      <span class="post-meta-divider">|</span>
+      <i class="fa fa-file-word-o"></i>
+      <span>2524<span class="pc-show">字数</span></span>
+    </span>
+    
+  </div>
+</header>
+            <div class="post-body next-md-body" id="post_body">
+              <p>最近在搞视频直播，其中有一个功能是视频镜像，那么有两种实现方式，</p>
+<ul>
+<li>一种是老师端点击镜像，通过css把自己的video标签镜像，然后发送信令给学生端，学生端收到消息之后也通过css去实现镜像</li>
+<li>第二种就是老师端对视频流做一个镜像处理，学生端无需操作，很显然第二种方法比较好</li>
+</ul>
+<p>怎么实现对视频流的镜像呢，首先要知道的就是视频是由一帧帧的图片组合而成，我们要对视频流镜像，首先要对图片进行镜像。</p>
+<p>对图片镜像的话，就要对ImageData做处理<br>
+首先了解一下什么是ImageData：</p>
+<blockquote>
+<p>ImageData 接口描述 canvas 元素的一个隐含像素数据的区域。使用 ImageData() 构造函数创建或者使用和 canvas 在一起的 CanvasRenderingContext2D 对象的创建方法： createImageData() 和 getImageData()。也可以使用 putImageData() 设置 canvas 的一部分。</p>
+</blockquote>
+<p>我们先以旋转图片为例子做个说明</p>
+<h3 id="基本原理1像素矩阵变换">基本原理1——像素矩阵变换</h3>
+<p>ImageData对象中存储着canvas对象真实的像素数据，它包含以下几个只读属性：</p>
+<ul>
+<li>width  图片宽度，单位是像素</li>
+<li>height  图片高度，单位是像素</li>
+<li>data  <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray">Uint8ClampedArray</a>类型的一维数组，包含着RGBA格式的整型数据，范围在0至255之间（包括255）。<br>
+data属性返回一个 Uint8ClampedArray，它可以被使用作为查看初始像素数据。每个像素用4个1bytes值(按照红，绿，蓝和透明值的顺序; 这就是&quot;RGBA&quot;格式) 来代表。每个颜色值部份用0至255来代表。每个部份被分配到一个在数组内连续的索引，左上角像素的红色部份在数组的索引0位置。像素从左到右被处理，然后往下，遍历整个数组。</li>
+</ul>
+<p>具体请看<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Canvas_API/Tutorial/Pixel_manipulation_with_canvas">像素操作</a></p>
+<p>我们通过ImageData可以对图片的每个像素点做操作。比如我们现在要将图片向右旋转90度</p>
+<p>一个 4 × 3 像素的原始图片，可以看作如下形式的像素矩阵 A：<br>
+<img src="https://weidadeda.github.io/post-images/1647858122464.png" alt="" loading="lazy"><br>
+图片向右旋转 90°，实质就是设法将 A 变为 A’ ——<br>
+<img src="https://weidadeda.github.io/post-images/1647858132107.png" alt="" loading="lazy"><br>
+这可以通过原矩阵一次 转置、与多次初等 列 变换（逆序排列各列）得到：<br>
+<img src="https://weidadeda.github.io/post-images/1647858162556.png" alt="" loading="lazy"><br>
+同理，图片向左旋转 90°，实际上就是得到矩阵 A’' ：<br>
+<img src="https://weidadeda.github.io/post-images/1647858170777.png" alt="" loading="lazy"><br>
+这可以通过原矩阵一次 转置、与多次初等 行 变换（逆序排列各行）得到——<br>
+<img src="https://weidadeda.github.io/post-images/1647858177575.png" alt="" loading="lazy"></p>
+<h3 id="基本原理2像素数组与矩阵的对应关系">基本原理2——像素数组与矩阵的对应关系</h3>
+<p>由于 ImageData.data 对应一个数组，对于 4 × 3 的图片而言，ImageData.data 就是一个具有 48 个元素的数组 D，不妨每个元素的值就是其下标值，则：</p>
+<pre><code class="language-js">D=[0,1,2,3,4,5,6,7...44,45,46,47]
+</code></pre>
+<p>其中：<br>
+元组 (0, 1, 2, 3) 表示第 1(= 0 / 4 + 1) 个像素的颜色为 rgba(0, 1, 2, 3/255)；<br>
+元组 (4, 5, 6, 7) 表示第 2(= 4 / 4 + 1) 个像素的颜色为 rgba(4, 5, 6, 7/255)；<br>
+元组 (8, 9, 10, 11) 表示第 3(= 8 / 4 + 1) 个像素的颜色为 rgba(8, 9, 10, 11/255)；<br>
+…</p>
+<p>元组 (i, i+1, i+2, i+3) 表示第 (i / 4 + 1) 个像素的颜色为 rgba(i, i+1, i+2, (i+3)/255)；<br>
+…<br>
+元组 (44, 45, 46, 47) 表示第 12(= 44 / 4 + 1) 个像素的颜色为 rgba(44, 45, 46, 47/255)。</p>
+<p>可见从 0 开始遍历 D 数组，每次递增 4 个单位，即可依次得到各个像素的红色值 R，再依次加1、加2、加3，即得到对应的绿色值 G、蓝色值 B、等效 α 通道值 A。</p>
+<p>反之，如果知道图片的像素尺寸为 4 × 3，则可以通过下图找到数组 D 的各个元素：<br>
+<img src="https://weidadeda.github.io/post-images/1647858189293.png" alt="" loading="lazy"></p>
+<p>可见各像素点是按照 从左至右、从上至下 的顺序排列的。设图片总宽度像素为 W，总高度像素为 H，任一像素点 P 的坐标为 (x, y)，P 的红色值在数组 D 的下标为 R(x, y)，则：</p>
+<pre><code class="language-js">R(x,y)=(x+W*y)×4
+</code></pre>
+<p>验证：（x 与 y 均从 0 开始计数）</p>
+<p>R(2, 1) = (2 + 1 × 4) × 4 = 24<br>
+R(1, 2) = (1 + 2 × 4) × 4 = 36<br>
+R(3, 1) = (3 + 1 × 4) × 4 = 28</p>
+<p>拿到了 R(x, y)，不难求出该像素的纵向中心对称像素 Rh(x, y)、横向中心对称像素 Rw(x, y)、以及主对角线对称像素 Rd(x, y)：</p>
+<pre><code class="language-js">Rh(x,y)=[x+W*(H−1−y)]*4 // 初等行变换
+Rw(x,y)=[(W−1−x)+W*y]*4 // 初等列变换
+Rd(x,y)=(y+H*x)*4
+</code></pre>
+<h3 id="具体实现">具体实现</h3>
+<p>基本思路：</p>
+<ul>
+<li>通过 canvas 获取目标图片的 ImageData 对象；</li>
+<li>转置原图片数组，得到数组 AT；</li>
+<li>对 AT 执行一组初等行变换，使各行逆序排列，得到左旋 90° 效果；</li>
+<li>对 AT 执行一组初等列变换，使各列逆序排列，得到右旋 90° 效果；</li>
+<li>将新的像素数组写回图片源标签。</li>
+</ul>
+<p>HTML：</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;Rotate by ImageData&lt;/title&gt;
+    &lt;style&gt;
+        .image{ margin-top: 5px; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class=&quot;btns&quot;&gt;
+        &lt;input type=&quot;button&quot; value=&quot;左转 90°&quot; id=&quot;turnLeft&quot; /&gt;
+        &lt;input type=&quot;button&quot; value=&quot;右转 90°&quot; id=&quot;turnRight&quot; /&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;image&quot;&gt;
+        &lt;img id=&quot;fruit&quot; src=&quot;fruit.jpg&quot; class=&quot;image&quot; alt=&quot;fruit&quot; title=&quot;fruit&quot; /&gt;
+    &lt;/div&gt;
+    &lt;script src=&quot;imageRotate.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+<p>imageRotate.js：</p>
+<pre><code class="language-js">document.querySelector('#turnLeft' ).addEventListener('click', e =&gt; rotateImage('l'))
+document.querySelector('#turnRight').addEventListener('click', e =&gt; rotateImage('r'))
+
+function rotateImage(direction = 'l') {
+    // 1. Prepare ImageData
+    let img = document.querySelector('#fruit')
+    const { width: W, height: H } = img
+    let cvs = document.createElement('canvas')
+    cvs.width = W
+    cvs.height = H
+    let ctx = cvs.getContext('2d')
+    ctx.drawImage(img, 0, 0)
+    let imgDt0 = ctx.getImageData(0, 0, W, H)
+    let imgDt1 = new ImageData(H, W)
+    let imgDt2 = new ImageData(H, W)
+    let dt0 = imgDt0.data
+    let dt1 = imgDt1.data
+    let dt2 = imgDt2.data
+
+    // 2. Transpose
+    let r = r1 = 0  // index of red pixel in old and new ImageData, respectively
+    for (let y = 0, lenH = H; y &lt; lenH; y++) {
+        for (let x = 0, lenW = W; x &lt; lenW; x++) {
+            r  = (x + lenW * y) * 4
+            r1 = (y + lenH * x) * 4
+            dt1[r1 + 0] = dt0[r + 0]
+            dt1[r1 + 1] = dt0[r + 1]
+            dt1[r1 + 2] = dt0[r + 2]
+            dt1[r1 + 3] = dt0[r + 3]
+        }
+    }
+    
+    // 3. Reverse width / height
+    for (let y = 0, lenH = W; y &lt; lenH; y++) {
+        for (let x = 0, lenW = H; x &lt; lenW; x++) {
+            r  = (x + lenW * y) * 4
+            r1 = direction === 'l'
+                ? (x + lenW * (lenH - 1 - y)) * 4
+                : ((lenW - 1 - x) + lenW * y) * 4
+            dt2[r1 + 0] = dt1[r + 0]
+            dt2[r1 + 1] = dt1[r + 1]
+            dt2[r1 + 2] = dt1[r + 2]
+            dt2[r1 + 3] = dt1[r + 3]
+        }
+    }
+    
+    // 4. Redraw image
+    cvs.width = H
+    cvs.height = W
+    ctx.clearRect(0, 0, W, H)
+    ctx.putImageData(imgDt2, 0, 0, 0, 0, H, W)
+    img.src = cvs.toDataURL('image/jpeg', 1)
+}
+</code></pre>
+<p>运行结果：<br>
+原始图片<br>
+<img src="https://weidadeda.github.io/post-images/1647858200595.png" alt="" loading="lazy"><br>
+左转90度<br>
+<img src="https://weidadeda.github.io/post-images/1647858207477.png" alt="" loading="lazy"><br>
+右转90度<br>
+<img src="https://weidadeda.github.io/post-images/1647858214763.png" alt="" loading="lazy"></p>
+<p>好了，现在实现了图片旋转，那么我们接着套用公式实现图片镜像和视频镜像</p>
+<p>html</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot; /&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;ie=edge&quot; /&gt;
+    &lt;title&gt;js通过浏览器调用摄像头&lt;/title&gt;
+    &lt;style&gt;
+      #video {
+        /* transform: rotate3d(1, 1, 1, 45deg); */
+      }
+    &lt;/style&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div class=&quot;banner&quot;&gt;
+      &lt;video id=&quot;video&quot; width=&quot;500px&quot; height=&quot;500px&quot; autoplay=&quot;autoplay&quot; /&gt;
+    &lt;/div&gt;
+    &lt;canvas width=&quot;500&quot; height=&quot;500&quot; id=&quot;canvas&quot;&gt;&lt;/canvas&gt;
+    &lt;video
+      id=&quot;video2&quot;
+      width=&quot;500px&quot;
+      height=&quot;500px&quot;
+      autoplay=&quot;autoplay&quot;
+      controls=&quot;controls&quot;
+    /&gt;
+  &lt;/body&gt;
+  &lt;!-- &lt;script src=&quot;./test.js&quot;&gt;&lt;/script&gt; --&gt;
+  &lt;script&gt;
+    function getMedia() {
+      let video = document.getElementById(&quot;video&quot;);
+      let constraints = {
+        video: { width: 500, height: 500 },
+        audio: false,
+      };
+      navigator.getUserMedia =
+        navigator.getUserMedia ||
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia ||
+        navigator.msGetUserMedia;
+      let promise = navigator.mediaDevices.getUserMedia(
+        constraints,
+        function (stream) {
+          video.src = stream;
+          video.play();
+        },
+        function (error) {
+          console.log(error);
+        }
+      );
+      promise.then(function (MediaStream) {
+        video.srcObject = MediaStream;
+        video.play();
+      });
+    }
+
+    getMedia();
+    window.onload = () =&gt; {
+      const data = [];
+      var recorder;
+      // 获取视频流之后，用canvas对视频进行反转，然后使用captureStream获取视频流，此时可以通过声网自定义流获取视频轨道getVideoTracks。代码中为了测试canvas转视频可用，调用了MediaRecorder录制
+      function imageDataHRevert(sourceData, newData) {
+        for (var i = 0, h = sourceData.height; i &lt; h; i++) {
+          for (j = 0, w = sourceData.width; j &lt; w; j++) {
+            newData.data[i * w * 4 + j * 4 + 0] =
+              // (y*W+x)*4
+              sourceData.data[i * w * 4 + (w - j) * 4 + 0];
+            // (y*W+(W-x))*4
+            newData.data[i * w * 4 + j * 4 + 1] =
+              sourceData.data[i * w * 4 + (w - j) * 4 + 1];
+
+            newData.data[i * w * 4 + j * 4 + 2] =
+              sourceData.data[i * w * 4 + (w - j) * 4 + 2];
+
+            newData.data[i * w * 4 + j * 4 + 3] =
+              sourceData.data[i * w * 4 + (w - j) * 4 + 3];
+          }
+        }
+        return newData;
+      }
+      function imageDataVRevert(sourceData, newData) {
+        for (var i = 0, h = sourceData.height; i &lt; h; i++) {
+          for (var j = 0, w = sourceData.width; j &lt; w; j++) {
+            newData.data[i * w * 4 + j * 4 + 0] =
+              sourceData.data[(h - i) * w * 4 + j * 4 + 0];
+
+            newData.data[i * w * 4 + j * 4 + 1] =
+              sourceData.data[(h - i) * w * 4 + j * 4 + 1];
+
+            newData.data[i * w * 4 + j * 4 + 2] =
+              sourceData.data[(h - i) * w * 4 + j * 4 + 2];
+
+            newData.data[i * w * 4 + j * 4 + 3] =
+              sourceData.data[(h - i) * w * 4 + j * 4 + 3];
+          }
+        }
+
+        return newData;
+      }
+
+      function render() {
+        var canvas = document.getElementById(&quot;canvas&quot;);
+        var video = document.getElementById(&quot;video&quot;);
+        var ctx1 = canvas.getContext(&quot;2d&quot;);
+        ctx1.drawImage(video, 0, 0, 500, 500);
+        var imgData = ctx1.getImageData(0, 0, 500, 500);
+        var newImgData = ctx1.getImageData(0, 0, 500, 500);
+        const HRevet = imageDataHRevert(newImgData, imgData);
+        console.error(HRevet, &quot;HRevet&quot;);
+        for (var i = 0; i &lt; HRevet.data.length; i += 4) {
+          HRevet.data[i] += 5;
+          HRevet.data[i + 1] += 5;
+          HRevet.data[i + 2] += 5;
+        }
+        ctx1.putImageData(HRevet, 0, 0);
+        requestAnimationFrame(render);
+      }
+      requestAnimationFrame(render);
+      const stream = canvas.captureStream(30);
+      // todo 自定义视频 canvas.captureStream(30).getVideoTracks()[0]
+      console.error(stream, &quot;stream&quot;);
+      // 自己测试录制视频的，可以不用看
+      recorder = new MediaRecorder(stream, { mimeType: &quot;video/webm&quot; });
+      recorder.ondataavailable = function (event) {
+        if (event.data &amp;&amp; event.data.size) {
+          data.push(event.data);
+        }
+      };
+      recorder.onstop = () =&gt; {
+        const url = URL.createObjectURL(new Blob(data, { type: &quot;video/webm&quot; }));
+        document.getElementById(&quot;video2&quot;).src = url;
+      };
+      recorder.start();
+      setTimeout(() =&gt; {
+        recorder.stop();
+      }, 6000);
+    };
+  &lt;/script&gt;
+&lt;/html&gt;
+</code></pre>
+<p>结果：<br>
+<img src="https://weidadeda.github.io/post-images/1647859629847.png" alt="" loading="lazy"></p>
+<!-- more -->
+<h4 id="大家看的可能有点懵没关系拿个纸画一下然后去套用公式就好了一次不懂就多试几次-看不懂一定要拿张纸画一下">大家看的可能有点懵，没关系，拿个纸画一下，然后去套用公式就好了，一次不懂就多试几次。看不懂一定要拿张纸画一下！</h4>
+<p>简单的增加美白效果（亮度），可给每个rgb通道加特定值。</p>
+<pre><code class="language-js"> r1 = (x + W * y) * 4;
+ r1 = (x + W * (H - 1 - y)) * 4;
+</code></pre>
+<p>推荐一个美颜库：opencvjs<br>
+推荐一个人脸识别库：face-api.js https://www.cnblogs.com/neozhu/p/11771148.html</p>
+<p>部分内容参考自 https://blog.csdn.net/frgod/article/details/106055830</p>
+
+            </div>
+            <div class="post-footer">
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong>本文作者：</strong>
+      王大伟
+    </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://weidadeda.github.io/post/li-yong-imagedata-shi-xian-tu-pian-fan-zhuan-he-shi-pin-jing-xiang" title="利用 ImageData 实现图片翻转和视频镜像">https://weidadeda.github.io/post/li-yong-imagedata-shi-xian-tu-pian-fan-zhuan-he-shi-pin-jing-xiang</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong>
+      本博客所有文章除特别声明外，均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i> BY-NC-SA</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+  <div class="tags">
+    
+      <a href="https://weidadeda.github.io/tag/jFPmxhqKu"># canvas</a>
+    
+      <a href="https://weidadeda.github.io/tag/3uoOai8za"># js</a>
+    
+  </div>
+  <div class="nav">
+    <div class="nav-prev">
+      
+        <i class="fa fa-chevron-left"></i>
+        <a class="nav-pc-next" title="前端常用的命名规范" href="https://weidadeda.github.io/post/qian-duan-chang-yong-de-ming-ming-gui-fan">前端常用的命名规范</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title="前端常用的命名规范" href="https://weidadeda.github.io/post/qian-duan-chang-yong-de-ming-ming-gui-fan">上一篇</a>
+      
+    </div>
+    <div class="nav-next">
+      
+        <a class="nav-pc-next" title="瀑布流计算js源码" href="https://weidadeda.github.io/post/pu-bu-liu-ji-suan-js-yuan-ma">瀑布流计算js源码</a>
+        <a class="nav-mobile-next" title="瀑布流计算js源码" href="https://weidadeda.github.io/post/pu-bu-liu-ji-suan-js-yuan-ma">下一篇</a>
+        <i class="fa fa-chevron-right"></i>
+      
+    </div>
+  </div>
+</div>
+            
+  
+    
+      <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+  var gitalk = new Gitalk({
+    clientID: '3a4deceed6ea5431a5eb',
+    clientSecret: '7ac83272cfb0cb0c210af882e657e38fc771a217',
+    repo: 'iorepository',
+    owner: 'weidadeda',
+    admin: ['weidadeda'],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+  gitalk.render('gitalk-container')
+</script>
+    
+    
+  
+
+          </div>
         </div>
       </div>
     </div>
@@ -6624,7 +6824,6 @@ Foo.prototype.__proto__ === Object.prototype
 </script> -->
 
 <script src="/media/js/mouse/peace.js"></script>
-
 
 
 </html>
