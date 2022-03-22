@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://weidadeda.github.io</id>
     <title>大伟的博客</title>
-    <updated>2022-03-21T11:15:46.664Z</updated>
+    <updated>2022-03-22T06:24:13.450Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://weidadeda.github.io"/>
     <link rel="self" href="https://weidadeda.github.io/atom.xml"/>
@@ -16,7 +16,7 @@
         <link href="https://weidadeda.github.io/post/li-yong-imagedata-shi-xian-tu-pian-fan-zhuan-he-shi-pin-jing-xiang">
         </link>
         <updated>2022-03-09T11:21:10.000Z</updated>
-        <summary type="html"><![CDATA[<p>最近在搞视频直播，其中有一个功能是视频镜像，那么有两种实现方式，</p>
+        <summary type="html"><![CDATA[<p>最近在搞视频直播，其中有一个功能是视频镜像，那么有两种实现方式。</p>
 <ul>
 <li>一种是老师端点击镜像，通过css把自己的video标签镜像，然后发送信令给学生端，学生端收到消息之后也通过css去实现镜像</li>
 <li>第二种就是老师端对视频流做一个镜像处理，学生端无需操作，很显然第二种方法比较好</li>
@@ -27,7 +27,7 @@
 <blockquote>
 <p>ImageData 接口描述 canvas 元素的一个隐含像素数据的区域。使用 ImageData() 构造函数创建或者使用和 canvas 在一起的 CanvasRenderingContext2D 对象的创建方法： createImageData() 和 getImageData()。也可以使用 putImageData() 设置 canvas 的一部分。</p>
 </blockquote>
-<p>我们先以旋转图片为例子做个说明</p>
+<h2 id="我们先以旋转图片为例子做个说明">我们先以旋转图片为例子做个说明</h2>
 <h3 id="基本原理1像素矩阵变换">基本原理1——像素矩阵变换</h3>
 <p>ImageData对象中存储着canvas对象真实的像素数据，它包含以下几个只读属性：</p>
 <ul>
@@ -314,7 +314,7 @@ function rotateImage(direction = 'l') {
 <p>结果：<br>
 <img src="https://weidadeda.github.io/post-images/1647859629847.png" alt="" loading="lazy"></p>
 ]]></summary>
-        <content type="html"><![CDATA[<p>最近在搞视频直播，其中有一个功能是视频镜像，那么有两种实现方式，</p>
+        <content type="html"><![CDATA[<p>最近在搞视频直播，其中有一个功能是视频镜像，那么有两种实现方式。</p>
 <ul>
 <li>一种是老师端点击镜像，通过css把自己的video标签镜像，然后发送信令给学生端，学生端收到消息之后也通过css去实现镜像</li>
 <li>第二种就是老师端对视频流做一个镜像处理，学生端无需操作，很显然第二种方法比较好</li>
@@ -325,7 +325,7 @@ function rotateImage(direction = 'l') {
 <blockquote>
 <p>ImageData 接口描述 canvas 元素的一个隐含像素数据的区域。使用 ImageData() 构造函数创建或者使用和 canvas 在一起的 CanvasRenderingContext2D 对象的创建方法： createImageData() 和 getImageData()。也可以使用 putImageData() 设置 canvas 的一部分。</p>
 </blockquote>
-<p>我们先以旋转图片为例子做个说明</p>
+<h2 id="我们先以旋转图片为例子做个说明">我们先以旋转图片为例子做个说明</h2>
 <h3 id="基本原理1像素矩阵变换">基本原理1——像素矩阵变换</h3>
 <p>ImageData对象中存储着canvas对象真实的像素数据，它包含以下几个只读属性：</p>
 <ul>
