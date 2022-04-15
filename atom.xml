@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://weidadeda.github.io</id>
     <title>大伟的博客</title>
-    <updated>2022-04-15T03:18:38.337Z</updated>
+    <updated>2022-04-15T03:23:45.517Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://weidadeda.github.io"/>
     <link rel="self" href="https://weidadeda.github.io/atom.xml"/>
@@ -71,8 +71,8 @@ let x = x;
 <blockquote>
 <p>ImageData 接口描述 canvas 元素的一个隐含像素数据的区域。使用 ImageData() 构造函数创建或者使用和 canvas 在一起的 CanvasRenderingContext2D 对象的创建方法： createImageData() 和 getImageData()。也可以使用 putImageData() 设置 canvas 的一部分。</p>
 </blockquote>
-<h2 id="我们先以旋转图片为例子做个说明">我们先以旋转图片为例子做个说明</h2>
-<h3 id="基本原理1像素矩阵变换">基本原理1——像素矩阵变换</h3>
+<h4 id="我们先以旋转图片为例子做个说明">我们先以旋转图片为例子做个说明</h4>
+<h5 id="基本原理1像素矩阵变换">基本原理1——像素矩阵变换</h5>
 <p>ImageData对象中存储着canvas对象真实的像素数据，它包含以下几个只读属性：</p>
 <ul>
 <li>width  图片宽度，单位是像素</li>
@@ -92,7 +92,7 @@ data属性返回一个 Uint8ClampedArray，它可以被使用作为查看初始�
 <img src="https://weidadeda.github.io/post-images/1647858170777.png" alt="" loading="lazy"><br>
 这可以通过原矩阵一次 转置、与多次初等 行 变换（逆序排列各行）得到——<br>
 <img src="https://weidadeda.github.io/post-images/1647858177575.png" alt="" loading="lazy"></p>
-<h3 id="基本原理2像素数组与矩阵的对应关系">基本原理2——像素数组与矩阵的对应关系</h3>
+<h5 id="基本原理2像素数组与矩阵的对应关系">基本原理2——像素数组与矩阵的对应关系</h5>
 <p>由于 ImageData.data 对应一个数组，对于 4 × 3 的图片而言，ImageData.data 就是一个具有 48 个元素的数组 D，不妨每个元素的值就是其下标值，则：</p>
 <pre><code class="language-js">D=[0,1,2,3,4,5,6,7...44,45,46,47]
 </code></pre>
@@ -119,7 +119,7 @@ R(3, 1) = (3 + 1 × 4) × 4 = 28</p>
 Rw(x,y)=[(W−1−x)+W*y]*4 // 初等列变换
 Rd(x,y)=(y+H*x)*4
 </code></pre>
-<h3 id="具体实现">具体实现</h3>
+<h5 id="具体实现">具体实现</h5>
 <p>基本思路：</p>
 <ul>
 <li>通过 canvas 获取目标图片的 ImageData 对象；</li>
@@ -367,8 +367,8 @@ function rotateImage(direction = 'l') {
 <blockquote>
 <p>ImageData 接口描述 canvas 元素的一个隐含像素数据的区域。使用 ImageData() 构造函数创建或者使用和 canvas 在一起的 CanvasRenderingContext2D 对象的创建方法： createImageData() 和 getImageData()。也可以使用 putImageData() 设置 canvas 的一部分。</p>
 </blockquote>
-<h2 id="我们先以旋转图片为例子做个说明">我们先以旋转图片为例子做个说明</h2>
-<h3 id="基本原理1像素矩阵变换">基本原理1——像素矩阵变换</h3>
+<h4 id="我们先以旋转图片为例子做个说明">我们先以旋转图片为例子做个说明</h4>
+<h5 id="基本原理1像素矩阵变换">基本原理1——像素矩阵变换</h5>
 <p>ImageData对象中存储着canvas对象真实的像素数据，它包含以下几个只读属性：</p>
 <ul>
 <li>width  图片宽度，单位是像素</li>
@@ -388,7 +388,7 @@ data属性返回一个 Uint8ClampedArray，它可以被使用作为查看初始�
 <img src="https://weidadeda.github.io/post-images/1647858170777.png" alt="" loading="lazy"><br>
 这可以通过原矩阵一次 转置、与多次初等 行 变换（逆序排列各行）得到——<br>
 <img src="https://weidadeda.github.io/post-images/1647858177575.png" alt="" loading="lazy"></p>
-<h3 id="基本原理2像素数组与矩阵的对应关系">基本原理2——像素数组与矩阵的对应关系</h3>
+<h5 id="基本原理2像素数组与矩阵的对应关系">基本原理2——像素数组与矩阵的对应关系</h5>
 <p>由于 ImageData.data 对应一个数组，对于 4 × 3 的图片而言，ImageData.data 就是一个具有 48 个元素的数组 D，不妨每个元素的值就是其下标值，则：</p>
 <pre><code class="language-js">D=[0,1,2,3,4,5,6,7...44,45,46,47]
 </code></pre>
@@ -415,7 +415,7 @@ R(3, 1) = (3 + 1 × 4) × 4 = 28</p>
 Rw(x,y)=[(W−1−x)+W*y]*4 // 初等列变换
 Rd(x,y)=(y+H*x)*4
 </code></pre>
-<h3 id="具体实现">具体实现</h3>
+<h5 id="具体实现">具体实现</h5>
 <p>基本思路：</p>
 <ul>
 <li>通过 canvas 获取目标图片的 ImageData 对象；</li>
@@ -654,7 +654,7 @@ function rotateImage(direction = 'l') {
 <p>结果：<br>
 <img src="https://weidadeda.github.io/post-images/1647859629847.png" alt="" loading="lazy"></p>
 <!-- more -->
-<h4 id="大家看的可能有点懵没关系拿个纸画一下然后去套用公式就好了一次不懂就多试几次-看不懂一定要拿张纸画一下">大家看的可能有点懵，没关系，拿个纸画一下，然后去套用公式就好了，一次不懂就多试几次。看不懂一定要拿张纸画一下！</h4>
+<h5 id="大家看的可能有点懵没关系拿个纸画一下然后去套用公式就好了一次不懂就多试几次-看不懂一定要拿张纸画一下">大家看的可能有点懵，没关系，拿个纸画一下，然后去套用公式就好了，一次不懂就多试几次。看不懂一定要拿张纸画一下！</h5>
 <p>简单的增加美白效果（亮度），可给每个rgb通道加特定值。</p>
 <pre><code class="language-js">r1 = (x + W * y) * 4;
 r1 = (x + W * (H - 1 - y)) * 4;
