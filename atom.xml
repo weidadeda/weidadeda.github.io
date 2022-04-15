@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://weidadeda.github.io</id>
     <title>大伟的博客</title>
-    <updated>2022-04-15T03:15:02.984Z</updated>
+    <updated>2022-04-15T03:18:38.337Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://weidadeda.github.io"/>
     <link rel="self" href="https://weidadeda.github.io/atom.xml"/>
@@ -62,653 +62,606 @@ let x = x;
         <link href="https://weidadeda.github.io/post/li-yong-imagedata-shi-xian-tu-pian-fan-zhuan-he-shi-pin-jing-xiang">
         </link>
         <updated>2022-03-09T11:21:10.000Z</updated>
-        <summary type="html"><![CDATA[<pre><code>最近在搞视频直播，其中有一个功能是视频镜像，那么有两种实现方式。
-- 一种是老师端点击镜像，通过css把自己的video标签镜像，然后发送信令给学生端，学生端收到消息之后也通过css去实现镜像
-- 第二种就是老师端对视频流做一个镜像处理，学生端无需操作，很显然第二种方法比较好
-
-怎么实现对视频流的镜像呢，首先要知道的就是视频是由一帧帧的图片组合而成，我们要对视频流镜像，首先要对图片进行镜像。
-
-对图片镜像的话，就要对ImageData做处理
-首先了解一下什么是ImageData：
-&gt; ImageData 接口描述 canvas 元素的一个隐含像素数据的区域。使用 ImageData() 构造函数创建或者使用和 canvas 在一起的 CanvasRenderingContext2D 对象的创建方法： createImageData() 和 getImageData()。也可以使用 putImageData() 设置 canvas 的一部分。
-
-## 我们先以旋转图片为例子做个说明
-### 基本原理1——像素矩阵变换
-ImageData对象中存储着canvas对象真实的像素数据，它包含以下几个只读属性：
-
-- width  图片宽度，单位是像素
-- height  图片高度，单位是像素
-- data  [Uint8ClampedArray](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray)类型的一维数组，包含着RGBA格式的整型数据，范围在0至255之间（包括255）。
-data属性返回一个 Uint8ClampedArray，它可以被使用作为查看初始像素数据。每个像素用4个1bytes值(按照红，绿，蓝和透明值的顺序; 这就是&quot;RGBA&quot;格式) 来代表。每个颜色值部份用0至255来代表。每个部份被分配到一个在数组内连续的索引，左上角像素的红色部份在数组的索引0位置。像素从左到右被处理，然后往下，遍历整个数组。
-
-具体请看[像素操作](https://developer.mozilla.org/zh-CN/docs/Web/API/Canvas_API/Tutorial/Pixel_manipulation_with_canvas)
-
-我们通过ImageData可以对图片的每个像素点做操作。比如我们现在要将图片向右旋转90度
-
-一个 4 × 3 像素的原始图片，可以看作如下形式的像素矩阵 A：
-![](https://weidadeda.github.io/post-images/1647858122464.png)
-图片向右旋转 90°，实质就是设法将 A 变为 A’ ——
-![](https://weidadeda.github.io/post-images/1647858132107.png)
-这可以通过原矩阵一次 转置、与多次初等 列 变换（逆序排列各列）得到：
-![](https://weidadeda.github.io/post-images/1647858162556.png)
-同理，图片向左旋转 90°，实际上就是得到矩阵 A’' ：
-![](https://weidadeda.github.io/post-images/1647858170777.png)
-这可以通过原矩阵一次 转置、与多次初等 行 变换（逆序排列各行）得到——
-![](https://weidadeda.github.io/post-images/1647858177575.png)
-### 基本原理2——像素数组与矩阵的对应关系
-由于 ImageData.data 对应一个数组，对于 4 × 3 的图片而言，ImageData.data 就是一个具有 48 个元素的数组 D，不妨每个元素的值就是其下标值，则：
-```js
-D=[0,1,2,3,4,5,6,7...44,45,46,47]
-```
-
-其中：
-元组 (0, 1, 2, 3) 表示第 1(= 0 / 4 + 1) 个像素的颜色为 rgba(0, 1, 2, 3/255)；
-元组 (4, 5, 6, 7) 表示第 2(= 4 / 4 + 1) 个像素的颜色为 rgba(4, 5, 6, 7/255)；
-元组 (8, 9, 10, 11) 表示第 3(= 8 / 4 + 1) 个像素的颜色为 rgba(8, 9, 10, 11/255)；
-…
-
-元组 (i, i+1, i+2, i+3) 表示第 (i / 4 + 1) 个像素的颜色为 rgba(i, i+1, i+2, (i+3)/255)；
-…
-元组 (44, 45, 46, 47) 表示第 12(= 44 / 4 + 1) 个像素的颜色为 rgba(44, 45, 46, 47/255)。
-
-可见从 0 开始遍历 D 数组，每次递增 4 个单位，即可依次得到各个像素的红色值 R，再依次加1、加2、加3，即得到对应的绿色值 G、蓝色值 B、等效 α 通道值 A。
-
-反之，如果知道图片的像素尺寸为 4 × 3，则可以通过下图找到数组 D 的各个元素：
-![](https://weidadeda.github.io/post-images/1647858189293.png)
-
-可见各像素点是按照 从左至右、从上至下 的顺序排列的。设图片总宽度像素为 W，总高度像素为 H，任一像素点 P 的坐标为 (x, y)，P 的红色值在数组 D 的下标为 R(x, y)，则：
-```js
-R(x,y)=(x+W*y)×4
-```
-验证：（x 与 y 均从 0 开始计数）
-
-R(2, 1) = (2 + 1 × 4) × 4 = 24
-R(1, 2) = (1 + 2 × 4) × 4 = 36
-R(3, 1) = (3 + 1 × 4) × 4 = 28
-
-拿到了 R(x, y)，不难求出该像素的纵向中心对称像素 Rh(x, y)、横向中心对称像素 Rw(x, y)、以及主对角线对称像素 Rd(x, y)：
-```js
-Rh(x,y)=[x+W*(H−1−y)]*4 // 初等行变换
-Rw(x,y)=[(W−1−x)+W*y]*4 // 初等列变换
-Rd(x,y)=(y+H*x)*4
-```
-
-### 具体实现
-
-基本思路：
-
-- 通过 canvas 获取目标图片的 ImageData 对象；
-- 转置原图片数组，得到数组 AT；
-- 对 AT 执行一组初等行变换，使各行逆序排列，得到左旋 90° 效果；
-- 对 AT 执行一组初等列变换，使各列逆序排列，得到右旋 90° 效果；
-- 将新的像素数组写回图片源标签。
-
-HTML：
-```html
-&lt;!DOCTYPE html&gt;
-&lt;html lang=&quot;en&quot;&gt;
-&lt;head&gt;
-    &lt;meta charset=&quot;UTF-8&quot;&gt;
-    &lt;title&gt;Rotate by ImageData&lt;/title&gt;
-    &lt;style&gt;
-        .image{ margin-top: 5px; }
-    &lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;div class=&quot;btns&quot;&gt;
-        &lt;input type=&quot;button&quot; value=&quot;左转 90°&quot; id=&quot;turnLeft&quot; /&gt;
-        &lt;input type=&quot;button&quot; value=&quot;右转 90°&quot; id=&quot;turnRight&quot; /&gt;
-    &lt;/div&gt;
-    &lt;div class=&quot;image&quot;&gt;
-        &lt;img id=&quot;fruit&quot; src=&quot;fruit.jpg&quot; class=&quot;image&quot; alt=&quot;fruit&quot; title=&quot;fruit&quot; /&gt;
-    &lt;/div&gt;
-    &lt;script src=&quot;imageRotate.js&quot;&gt;&lt;/script&gt;
-&lt;/body&gt;
-
-&lt;/html&gt;
-```
-imageRotate.js：
-```js
-document.querySelector('#turnLeft' ).addEventListener('click', e =&gt; rotateImage('l'))
-document.querySelector('#turnRight').addEventListener('click', e =&gt; rotateImage('r'))
-
-function rotateImage(direction = 'l') {
-    // 1. Prepare ImageData
-    let img = document.querySelector('#fruit')
-    const { width: W, height: H } = img
-    let cvs = document.createElement('canvas')
-    cvs.width = W
-    cvs.height = H
-    let ctx = cvs.getContext('2d')
-    ctx.drawImage(img, 0, 0)
-    let imgDt0 = ctx.getImageData(0, 0, W, H)
-    let imgDt1 = new ImageData(H, W)
-    let imgDt2 = new ImageData(H, W)
-    let dt0 = imgDt0.data
-    let dt1 = imgDt1.data
-    let dt2 = imgDt2.data
-
-    // 2. Transpose
-    let r = r1 = 0  // index of red pixel in old and new ImageData, respectively
-    for (let y = 0, lenH = H; y &lt; lenH; y++) {
-        for (let x = 0, lenW = W; x &lt; lenW; x++) {
-            r  = (x + lenW * y) * 4
-            r1 = (y + lenH * x) * 4
-            dt1[r1 + 0] = dt0[r + 0]
-            dt1[r1 + 1] = dt0[r + 1]
-            dt1[r1 + 2] = dt0[r + 2]
-            dt1[r1 + 3] = dt0[r + 3]
-        }
-    }
-    
-    // 3. Reverse width / height
-    for (let y = 0, lenH = W; y &lt; lenH; y++) {
-        for (let x = 0, lenW = H; x &lt; lenW; x++) {
-            r  = (x + lenW * y) * 4
-            r1 = direction === 'l'
-                ? (x + lenW * (lenH - 1 - y)) * 4
-                : ((lenW - 1 - x) + lenW * y) * 4
-            dt2[r1 + 0] = dt1[r + 0]
-            dt2[r1 + 1] = dt1[r + 1]
-            dt2[r1 + 2] = dt1[r + 2]
-            dt2[r1 + 3] = dt1[r + 3]
-        }
-    }
-    
-    // 4. Redraw image
-    cvs.width = H
-    cvs.height = W
-    ctx.clearRect(0, 0, W, H)
-    ctx.putImageData(imgDt2, 0, 0, 0, 0, H, W)
-    img.src = cvs.toDataURL('image/jpeg', 1)
-}
-```
-
-运行结果：
-原始图片
-![](https://weidadeda.github.io/post-images/1647858200595.png)
-左转90度
-![](https://weidadeda.github.io/post-images/1647858207477.png)
-右转90度
-![](https://weidadeda.github.io/post-images/1647858214763.png)
-
-好了，现在实现了图片旋转，那么我们接着套用公式实现图片镜像和视频镜像
-
-html
-```html
-&lt;!DOCTYPE html&gt;
-&lt;html lang=&quot;en&quot;&gt;
-&lt;head&gt;
-    &lt;meta charset=&quot;UTF-8&quot; /&gt;
-    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
-    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;ie=edge&quot; /&gt;
-    &lt;title&gt;js通过浏览器调用摄像头&lt;/title&gt;
-    &lt;style&gt;
-    #video {
-        /* transform: rotate3d(1, 1, 1, 45deg); */
-    }
-    &lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;div class=&quot;banner&quot;&gt;
-    &lt;video id=&quot;video&quot; width=&quot;500px&quot; height=&quot;500px&quot; autoplay=&quot;autoplay&quot; /&gt;
-    &lt;/div&gt;
-    &lt;canvas width=&quot;500&quot; height=&quot;500&quot; id=&quot;canvas&quot;&gt;&lt;/canvas&gt;
-    &lt;video
-    id=&quot;video2&quot;
-    width=&quot;500px&quot;
-    height=&quot;500px&quot;
-    autoplay=&quot;autoplay&quot;
-    controls=&quot;controls&quot;
-    /&gt;
-&lt;/body&gt;
-&lt;!-- &lt;script src=&quot;./test.js&quot;&gt;&lt;/script&gt; --&gt;
-&lt;script&gt;
-    function getMedia() {
-    let video = document.getElementById(&quot;video&quot;);
-    let constraints = {
-        video: { width: 500, height: 500 },
-        audio: false,
-    };
-    navigator.getUserMedia =
-        navigator.getUserMedia ||
-        navigator.webkitGetUserMedia ||
-        navigator.mozGetUserMedia ||
-        navigator.msGetUserMedia;
-    let promise = navigator.mediaDevices.getUserMedia(
-        constraints,
-        function (stream) {
-        video.src = stream;
-        video.play();
-        },
-        function (error) {
-        console.log(error);
-        }
-    );
-    promise.then(function (MediaStream) {
-        video.srcObject = MediaStream;
-        video.play();
-    });
-    }
-
-    getMedia();
-    window.onload = () =&gt; {
-    const data = [];
-    var recorder;
-    // 获取视频流之后，用canvas对视频进行反转，然后使用captureStream获取视频流，此时可以通过声网自定义流获取视频轨道getVideoTracks。代码中为了测试canvas转视频可用，调用了MediaRecorder录制
-    function imageDataHRevert(sourceData, newData) {
-        for (var i = 0, h = sourceData.height; i &lt; h; i++) {
-        for (j = 0, w = sourceData.width; j &lt; w; j++) {
-            newData.data[i * w * 4 + j * 4 + 0] =
-            // (y*W+x)*4
-            sourceData.data[i * w * 4 + (w - j) * 4  -4+ 0];
-            // (y*W+(W-x-1))*4
-            newData.data[i * w * 4 + j * 4 + 1] =
-            sourceData.data[i * w * 4 + (w - j) * 4 -4+ 1];
-
-            newData.data[i * w * 4 + j * 4 + 2] =
-            sourceData.data[i * w * 4 + (w - j) * 4 -4+ 2];
-
-            newData.data[i * w * 4 + j * 4 + 3] =
-            sourceData.data[i * w * 4 + (w - j) * 4-4 + 3];
-        }
-        }
-        return newData;
-    }
-    function imageDataVRevert(sourceData, newData) {
-        for (var i = 0, h = sourceData.height; i &lt; h; i++) {
-        for (var j = 0, w = sourceData.width; j &lt; w; j++) {
-            newData.data[i * w * 4 + j * 4 + 0] =
-            sourceData.data[(h - i) * w * 4 + j * 4 + 0];
-
-            newData.data[i * w * 4 + j * 4 + 1] =
-            sourceData.data[(h - i) * w * 4 + j * 4 + 1];
-
-            newData.data[i * w * 4 + j * 4 + 2] =
-            sourceData.data[(h - i) * w * 4 + j * 4 + 2];
-
-            newData.data[i * w * 4 + j * 4 + 3] =
-            sourceData.data[(h - i) * w * 4 + j * 4 + 3];
-        }
-        }
-
-        return newData;
-    }
-
-    function render() {
-        var canvas = document.getElementById(&quot;canvas&quot;);
-        var video = document.getElementById(&quot;video&quot;);
-        var ctx1 = canvas.getContext(&quot;2d&quot;);
-        ctx1.drawImage(video, 0, 0, 500, 500);
-        var imgData = ctx1.getImageData(0, 0, 500, 500);
-        var newImgData = ctx1.getImageData(0, 0, 500, 500);
-        const HRevet = imageDataHRevert(newImgData, imgData);
-        console.error(HRevet, &quot;HRevet&quot;);
-        // 亮一点
-        for (var i = 0; i &lt; HRevet.data.length; i += 4) {
-        HRevet.data[i] += 5;
-        HRevet.data[i + 1] += 5;
-        HRevet.data[i + 2] += 5;
-        }
-        ctx1.putImageData(HRevet, 0, 0);
-        requestAnimationFrame(render);
-    }
-    requestAnimationFrame(render);
-    const stream = canvas.captureStream(30);
-    // todo 自定义视频 canvas.captureStream(30).getVideoTracks()[0]
-    console.error(stream, &quot;stream&quot;);
-    // 自己测试录制视频的，可以不用看
-    recorder = new MediaRecorder(stream, { mimeType: &quot;video/webm&quot; });
-    recorder.ondataavailable = function (event) {
-        if (event.data &amp;&amp; event.data.size) {
-        data.push(event.data);
-        }
-    };
-    recorder.onstop = () =&gt; {
-        const url = URL.createObjectURL(new Blob(data, { type: &quot;video/webm&quot; }));
-        document.getElementById(&quot;video2&quot;).src = url;
-    };
-    recorder.start();
-    setTimeout(() =&gt; {
-        recorder.stop();
-    }, 6000);
-    };
-&lt;/script&gt;
-&lt;/html&gt;
-```
-结果：
-![](https://weidadeda.github.io/post-images/1647859629847.png)</code></pre>
-]]></summary>
-        <content type="html"><![CDATA[<pre><code>最近在搞视频直播，其中有一个功能是视频镜像，那么有两种实现方式。
-- 一种是老师端点击镜像，通过css把自己的video标签镜像，然后发送信令给学生端，学生端收到消息之后也通过css去实现镜像
-- 第二种就是老师端对视频流做一个镜像处理，学生端无需操作，很显然第二种方法比较好
-
-怎么实现对视频流的镜像呢，首先要知道的就是视频是由一帧帧的图片组合而成，我们要对视频流镜像，首先要对图片进行镜像。
-
-对图片镜像的话，就要对ImageData做处理
-首先了解一下什么是ImageData：
-&gt; ImageData 接口描述 canvas 元素的一个隐含像素数据的区域。使用 ImageData() 构造函数创建或者使用和 canvas 在一起的 CanvasRenderingContext2D 对象的创建方法： createImageData() 和 getImageData()。也可以使用 putImageData() 设置 canvas 的一部分。
-
-## 我们先以旋转图片为例子做个说明
-### 基本原理1——像素矩阵变换
-ImageData对象中存储着canvas对象真实的像素数据，它包含以下几个只读属性：
-
-- width  图片宽度，单位是像素
-- height  图片高度，单位是像素
-- data  [Uint8ClampedArray](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray)类型的一维数组，包含着RGBA格式的整型数据，范围在0至255之间（包括255）。
-data属性返回一个 Uint8ClampedArray，它可以被使用作为查看初始像素数据。每个像素用4个1bytes值(按照红，绿，蓝和透明值的顺序; 这就是&quot;RGBA&quot;格式) 来代表。每个颜色值部份用0至255来代表。每个部份被分配到一个在数组内连续的索引，左上角像素的红色部份在数组的索引0位置。像素从左到右被处理，然后往下，遍历整个数组。
-
-具体请看[像素操作](https://developer.mozilla.org/zh-CN/docs/Web/API/Canvas_API/Tutorial/Pixel_manipulation_with_canvas)
-
-我们通过ImageData可以对图片的每个像素点做操作。比如我们现在要将图片向右旋转90度
-
-一个 4 × 3 像素的原始图片，可以看作如下形式的像素矩阵 A：
-![](https://weidadeda.github.io/post-images/1647858122464.png)
-图片向右旋转 90°，实质就是设法将 A 变为 A’ ——
-![](https://weidadeda.github.io/post-images/1647858132107.png)
-这可以通过原矩阵一次 转置、与多次初等 列 变换（逆序排列各列）得到：
-![](https://weidadeda.github.io/post-images/1647858162556.png)
-同理，图片向左旋转 90°，实际上就是得到矩阵 A’' ：
-![](https://weidadeda.github.io/post-images/1647858170777.png)
-这可以通过原矩阵一次 转置、与多次初等 行 变换（逆序排列各行）得到——
-![](https://weidadeda.github.io/post-images/1647858177575.png)
-### 基本原理2——像素数组与矩阵的对应关系
-由于 ImageData.data 对应一个数组，对于 4 × 3 的图片而言，ImageData.data 就是一个具有 48 个元素的数组 D，不妨每个元素的值就是其下标值，则：
-```js
-D=[0,1,2,3,4,5,6,7...44,45,46,47]
-```
-
-其中：
-元组 (0, 1, 2, 3) 表示第 1(= 0 / 4 + 1) 个像素的颜色为 rgba(0, 1, 2, 3/255)；
-元组 (4, 5, 6, 7) 表示第 2(= 4 / 4 + 1) 个像素的颜色为 rgba(4, 5, 6, 7/255)；
-元组 (8, 9, 10, 11) 表示第 3(= 8 / 4 + 1) 个像素的颜色为 rgba(8, 9, 10, 11/255)；
-…
-
-元组 (i, i+1, i+2, i+3) 表示第 (i / 4 + 1) 个像素的颜色为 rgba(i, i+1, i+2, (i+3)/255)；
-…
-元组 (44, 45, 46, 47) 表示第 12(= 44 / 4 + 1) 个像素的颜色为 rgba(44, 45, 46, 47/255)。
-
-可见从 0 开始遍历 D 数组，每次递增 4 个单位，即可依次得到各个像素的红色值 R，再依次加1、加2、加3，即得到对应的绿色值 G、蓝色值 B、等效 α 通道值 A。
-
-反之，如果知道图片的像素尺寸为 4 × 3，则可以通过下图找到数组 D 的各个元素：
-![](https://weidadeda.github.io/post-images/1647858189293.png)
-
-可见各像素点是按照 从左至右、从上至下 的顺序排列的。设图片总宽度像素为 W，总高度像素为 H，任一像素点 P 的坐标为 (x, y)，P 的红色值在数组 D 的下标为 R(x, y)，则：
-```js
-R(x,y)=(x+W*y)×4
-```
-验证：（x 与 y 均从 0 开始计数）
-
-R(2, 1) = (2 + 1 × 4) × 4 = 24
-R(1, 2) = (1 + 2 × 4) × 4 = 36
-R(3, 1) = (3 + 1 × 4) × 4 = 28
-
-拿到了 R(x, y)，不难求出该像素的纵向中心对称像素 Rh(x, y)、横向中心对称像素 Rw(x, y)、以及主对角线对称像素 Rd(x, y)：
-```js
-Rh(x,y)=[x+W*(H−1−y)]*4 // 初等行变换
-Rw(x,y)=[(W−1−x)+W*y]*4 // 初等列变换
-Rd(x,y)=(y+H*x)*4
-```
-
-### 具体实现
-
-基本思路：
-
-- 通过 canvas 获取目标图片的 ImageData 对象；
-- 转置原图片数组，得到数组 AT；
-- 对 AT 执行一组初等行变换，使各行逆序排列，得到左旋 90° 效果；
-- 对 AT 执行一组初等列变换，使各列逆序排列，得到右旋 90° 效果；
-- 将新的像素数组写回图片源标签。
-
-HTML：
-```html
-&lt;!DOCTYPE html&gt;
-&lt;html lang=&quot;en&quot;&gt;
-&lt;head&gt;
-    &lt;meta charset=&quot;UTF-8&quot;&gt;
-    &lt;title&gt;Rotate by ImageData&lt;/title&gt;
-    &lt;style&gt;
-        .image{ margin-top: 5px; }
-    &lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;div class=&quot;btns&quot;&gt;
-        &lt;input type=&quot;button&quot; value=&quot;左转 90°&quot; id=&quot;turnLeft&quot; /&gt;
-        &lt;input type=&quot;button&quot; value=&quot;右转 90°&quot; id=&quot;turnRight&quot; /&gt;
-    &lt;/div&gt;
-    &lt;div class=&quot;image&quot;&gt;
-        &lt;img id=&quot;fruit&quot; src=&quot;fruit.jpg&quot; class=&quot;image&quot; alt=&quot;fruit&quot; title=&quot;fruit&quot; /&gt;
-    &lt;/div&gt;
-    &lt;script src=&quot;imageRotate.js&quot;&gt;&lt;/script&gt;
-&lt;/body&gt;
-
-&lt;/html&gt;
-```
-imageRotate.js：
-```js
-document.querySelector('#turnLeft' ).addEventListener('click', e =&gt; rotateImage('l'))
-document.querySelector('#turnRight').addEventListener('click', e =&gt; rotateImage('r'))
-
-function rotateImage(direction = 'l') {
-    // 1. Prepare ImageData
-    let img = document.querySelector('#fruit')
-    const { width: W, height: H } = img
-    let cvs = document.createElement('canvas')
-    cvs.width = W
-    cvs.height = H
-    let ctx = cvs.getContext('2d')
-    ctx.drawImage(img, 0, 0)
-    let imgDt0 = ctx.getImageData(0, 0, W, H)
-    let imgDt1 = new ImageData(H, W)
-    let imgDt2 = new ImageData(H, W)
-    let dt0 = imgDt0.data
-    let dt1 = imgDt1.data
-    let dt2 = imgDt2.data
-
-    // 2. Transpose
-    let r = r1 = 0  // index of red pixel in old and new ImageData, respectively
-    for (let y = 0, lenH = H; y &lt; lenH; y++) {
-        for (let x = 0, lenW = W; x &lt; lenW; x++) {
-            r  = (x + lenW * y) * 4
-            r1 = (y + lenH * x) * 4
-            dt1[r1 + 0] = dt0[r + 0]
-            dt1[r1 + 1] = dt0[r + 1]
-            dt1[r1 + 2] = dt0[r + 2]
-            dt1[r1 + 3] = dt0[r + 3]
-        }
-    }
-    
-    // 3. Reverse width / height
-    for (let y = 0, lenH = W; y &lt; lenH; y++) {
-        for (let x = 0, lenW = H; x &lt; lenW; x++) {
-            r  = (x + lenW * y) * 4
-            r1 = direction === 'l'
-                ? (x + lenW * (lenH - 1 - y)) * 4
-                : ((lenW - 1 - x) + lenW * y) * 4
-            dt2[r1 + 0] = dt1[r + 0]
-            dt2[r1 + 1] = dt1[r + 1]
-            dt2[r1 + 2] = dt1[r + 2]
-            dt2[r1 + 3] = dt1[r + 3]
-        }
-    }
-    
-    // 4. Redraw image
-    cvs.width = H
-    cvs.height = W
-    ctx.clearRect(0, 0, W, H)
-    ctx.putImageData(imgDt2, 0, 0, 0, 0, H, W)
-    img.src = cvs.toDataURL('image/jpeg', 1)
-}
-```
-
-运行结果：
-原始图片
-![](https://weidadeda.github.io/post-images/1647858200595.png)
-左转90度
-![](https://weidadeda.github.io/post-images/1647858207477.png)
-右转90度
-![](https://weidadeda.github.io/post-images/1647858214763.png)
-
-好了，现在实现了图片旋转，那么我们接着套用公式实现图片镜像和视频镜像
-
-html
-```html
-&lt;!DOCTYPE html&gt;
-&lt;html lang=&quot;en&quot;&gt;
-&lt;head&gt;
-    &lt;meta charset=&quot;UTF-8&quot; /&gt;
-    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
-    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;ie=edge&quot; /&gt;
-    &lt;title&gt;js通过浏览器调用摄像头&lt;/title&gt;
-    &lt;style&gt;
-    #video {
-        /* transform: rotate3d(1, 1, 1, 45deg); */
-    }
-    &lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;div class=&quot;banner&quot;&gt;
-    &lt;video id=&quot;video&quot; width=&quot;500px&quot; height=&quot;500px&quot; autoplay=&quot;autoplay&quot; /&gt;
-    &lt;/div&gt;
-    &lt;canvas width=&quot;500&quot; height=&quot;500&quot; id=&quot;canvas&quot;&gt;&lt;/canvas&gt;
-    &lt;video
-    id=&quot;video2&quot;
-    width=&quot;500px&quot;
-    height=&quot;500px&quot;
-    autoplay=&quot;autoplay&quot;
-    controls=&quot;controls&quot;
-    /&gt;
-&lt;/body&gt;
-&lt;!-- &lt;script src=&quot;./test.js&quot;&gt;&lt;/script&gt; --&gt;
-&lt;script&gt;
-    function getMedia() {
-    let video = document.getElementById(&quot;video&quot;);
-    let constraints = {
-        video: { width: 500, height: 500 },
-        audio: false,
-    };
-    navigator.getUserMedia =
-        navigator.getUserMedia ||
-        navigator.webkitGetUserMedia ||
-        navigator.mozGetUserMedia ||
-        navigator.msGetUserMedia;
-    let promise = navigator.mediaDevices.getUserMedia(
-        constraints,
-        function (stream) {
-        video.src = stream;
-        video.play();
-        },
-        function (error) {
-        console.log(error);
-        }
-    );
-    promise.then(function (MediaStream) {
-        video.srcObject = MediaStream;
-        video.play();
-    });
-    }
-
-    getMedia();
-    window.onload = () =&gt; {
-    const data = [];
-    var recorder;
-    // 获取视频流之后，用canvas对视频进行反转，然后使用captureStream获取视频流，此时可以通过声网自定义流获取视频轨道getVideoTracks。代码中为了测试canvas转视频可用，调用了MediaRecorder录制
-    function imageDataHRevert(sourceData, newData) {
-        for (var i = 0, h = sourceData.height; i &lt; h; i++) {
-        for (j = 0, w = sourceData.width; j &lt; w; j++) {
-            newData.data[i * w * 4 + j * 4 + 0] =
-            // (y*W+x)*4
-            sourceData.data[i * w * 4 + (w - j) * 4  -4+ 0];
-            // (y*W+(W-x-1))*4
-            newData.data[i * w * 4 + j * 4 + 1] =
-            sourceData.data[i * w * 4 + (w - j) * 4 -4+ 1];
-
-            newData.data[i * w * 4 + j * 4 + 2] =
-            sourceData.data[i * w * 4 + (w - j) * 4 -4+ 2];
-
-            newData.data[i * w * 4 + j * 4 + 3] =
-            sourceData.data[i * w * 4 + (w - j) * 4-4 + 3];
-        }
-        }
-        return newData;
-    }
-    function imageDataVRevert(sourceData, newData) {
-        for (var i = 0, h = sourceData.height; i &lt; h; i++) {
-        for (var j = 0, w = sourceData.width; j &lt; w; j++) {
-            newData.data[i * w * 4 + j * 4 + 0] =
-            sourceData.data[(h - i) * w * 4 + j * 4 + 0];
-
-            newData.data[i * w * 4 + j * 4 + 1] =
-            sourceData.data[(h - i) * w * 4 + j * 4 + 1];
-
-            newData.data[i * w * 4 + j * 4 + 2] =
-            sourceData.data[(h - i) * w * 4 + j * 4 + 2];
-
-            newData.data[i * w * 4 + j * 4 + 3] =
-            sourceData.data[(h - i) * w * 4 + j * 4 + 3];
-        }
-        }
-
-        return newData;
-    }
-
-    function render() {
-        var canvas = document.getElementById(&quot;canvas&quot;);
-        var video = document.getElementById(&quot;video&quot;);
-        var ctx1 = canvas.getContext(&quot;2d&quot;);
-        ctx1.drawImage(video, 0, 0, 500, 500);
-        var imgData = ctx1.getImageData(0, 0, 500, 500);
-        var newImgData = ctx1.getImageData(0, 0, 500, 500);
-        const HRevet = imageDataHRevert(newImgData, imgData);
-        console.error(HRevet, &quot;HRevet&quot;);
-        // 亮一点
-        for (var i = 0; i &lt; HRevet.data.length; i += 4) {
-        HRevet.data[i] += 5;
-        HRevet.data[i + 1] += 5;
-        HRevet.data[i + 2] += 5;
-        }
-        ctx1.putImageData(HRevet, 0, 0);
-        requestAnimationFrame(render);
-    }
-    requestAnimationFrame(render);
-    const stream = canvas.captureStream(30);
-    // todo 自定义视频 canvas.captureStream(30).getVideoTracks()[0]
-    console.error(stream, &quot;stream&quot;);
-    // 自己测试录制视频的，可以不用看
-    recorder = new MediaRecorder(stream, { mimeType: &quot;video/webm&quot; });
-    recorder.ondataavailable = function (event) {
-        if (event.data &amp;&amp; event.data.size) {
-        data.push(event.data);
-        }
-    };
-    recorder.onstop = () =&gt; {
-        const url = URL.createObjectURL(new Blob(data, { type: &quot;video/webm&quot; }));
-        document.getElementById(&quot;video2&quot;).src = url;
-    };
-    recorder.start();
-    setTimeout(() =&gt; {
-        recorder.stop();
-    }, 6000);
-    };
-&lt;/script&gt;
-&lt;/html&gt;
-```
-结果：
-![](https://weidadeda.github.io/post-images/1647859629847.png)
-&lt;!-- more --&gt;
-
-#### 大家看的可能有点懵，没关系，拿个纸画一下，然后去套用公式就好了，一次不懂就多试几次。看不懂一定要拿张纸画一下！
-
-简单的增加美白效果（亮度），可给每个rgb通道加特定值。
-```js
-r1 = (x + W * y) * 4;
-r1 = (x + W * (H - 1 - y)) * 4;
-```
-推荐一个美颜库：opencvjs  
-推荐一个人脸识别库：face-api.js https://www.cnblogs.com/neozhu/p/11771148.html
-
-部分内容参考自 https://blog.csdn.net/frgod/article/details/106055830
+        <summary type="html"><![CDATA[<p>最近在搞视频直播，其中有一个功能是视频镜像，那么有两种实现方式。<br>
+一种是老师端点击镜像，通过css把自己的video标签镜像，然后发送信令给学生端，学生端收到消息之后也通过css去实现镜像；<br>
+第二种就是老师端对视频流做一个镜像处理，学生端无需操作，很显然第二种方法比较好；</p>
+<p>怎么实现对视频流的镜像呢，首先要知道的就是视频是由一帧帧的图片组合而成，我们要对视频流镜像，首先要对图片进行镜像。</p>
+<p>对图片镜像的话，就要对ImageData做处理<br>
+首先了解一下什么是ImageData：</p>
+<blockquote>
+<p>ImageData 接口描述 canvas 元素的一个隐含像素数据的区域。使用 ImageData() 构造函数创建或者使用和 canvas 在一起的 CanvasRenderingContext2D 对象的创建方法： createImageData() 和 getImageData()。也可以使用 putImageData() 设置 canvas 的一部分。</p>
+</blockquote>
+<h2 id="我们先以旋转图片为例子做个说明">我们先以旋转图片为例子做个说明</h2>
+<h3 id="基本原理1像素矩阵变换">基本原理1——像素矩阵变换</h3>
+<p>ImageData对象中存储着canvas对象真实的像素数据，它包含以下几个只读属性：</p>
+<ul>
+<li>width  图片宽度，单位是像素</li>
+<li>height  图片高度，单位是像素</li>
+<li>data  <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray">Uint8ClampedArray</a>类型的一维数组，包含着RGBA格式的整型数据，范围在0至255之间（包括255）。<br>
+data属性返回一个 Uint8ClampedArray，它可以被使用作为查看初始像素数据。每个像素用4个1bytes值(按照红，绿，蓝和透明值的顺序; 这就是&quot;RGBA&quot;格式) 来代表。每个颜色值部份用0至255来代表。每个部份被分配到一个在数组内连续的索引，左上角像素的红色部份在数组的索引0位置。像素从左到右被处理，然后往下，遍历整个数组。</li>
+</ul>
+<p>具体请看<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Canvas_API/Tutorial/Pixel_manipulation_with_canvas">像素操作</a></p>
+<p>我们通过ImageData可以对图片的每个像素点做操作。比如我们现在要将图片向右旋转90度</p>
+<p>一个 4 × 3 像素的原始图片，可以看作如下形式的像素矩阵 A：<br>
+<img src="https://weidadeda.github.io/post-images/1647858122464.png" alt="" loading="lazy"><br>
+图片向右旋转 90°，实质就是设法将 A 变为 A’ ——<br>
+<img src="https://weidadeda.github.io/post-images/1647858132107.png" alt="" loading="lazy"><br>
+这可以通过原矩阵一次 转置、与多次初等 列 变换（逆序排列各列）得到：<br>
+<img src="https://weidadeda.github.io/post-images/1647858162556.png" alt="" loading="lazy"><br>
+同理，图片向左旋转 90°，实际上就是得到矩阵 A’' ：<br>
+<img src="https://weidadeda.github.io/post-images/1647858170777.png" alt="" loading="lazy"><br>
+这可以通过原矩阵一次 转置、与多次初等 行 变换（逆序排列各行）得到——<br>
+<img src="https://weidadeda.github.io/post-images/1647858177575.png" alt="" loading="lazy"></p>
+<h3 id="基本原理2像素数组与矩阵的对应关系">基本原理2——像素数组与矩阵的对应关系</h3>
+<p>由于 ImageData.data 对应一个数组，对于 4 × 3 的图片而言，ImageData.data 就是一个具有 48 个元素的数组 D，不妨每个元素的值就是其下标值，则：</p>
+<pre><code class="language-js">D=[0,1,2,3,4,5,6,7...44,45,46,47]
 </code></pre>
+<p>其中：<br>
+元组 (0, 1, 2, 3) 表示第 1(= 0 / 4 + 1) 个像素的颜色为 rgba(0, 1, 2, 3/255)；<br>
+元组 (4, 5, 6, 7) 表示第 2(= 4 / 4 + 1) 个像素的颜色为 rgba(4, 5, 6, 7/255)；<br>
+元组 (8, 9, 10, 11) 表示第 3(= 8 / 4 + 1) 个像素的颜色为 rgba(8, 9, 10, 11/255)；<br>
+…</p>
+<p>元组 (i, i+1, i+2, i+3) 表示第 (i / 4 + 1) 个像素的颜色为 rgba(i, i+1, i+2, (i+3)/255)；<br>
+…<br>
+元组 (44, 45, 46, 47) 表示第 12(= 44 / 4 + 1) 个像素的颜色为 rgba(44, 45, 46, 47/255)。</p>
+<p>可见从 0 开始遍历 D 数组，每次递增 4 个单位，即可依次得到各个像素的红色值 R，再依次加1、加2、加3，即得到对应的绿色值 G、蓝色值 B、等效 α 通道值 A。</p>
+<p>反之，如果知道图片的像素尺寸为 4 × 3，则可以通过下图找到数组 D 的各个元素：<br>
+<img src="https://weidadeda.github.io/post-images/1647858189293.png" alt="" loading="lazy"></p>
+<p>可见各像素点是按照 从左至右、从上至下 的顺序排列的。设图片总宽度像素为 W，总高度像素为 H，任一像素点 P 的坐标为 (x, y)，P 的红色值在数组 D 的下标为 R(x, y)，则：</p>
+<pre><code class="language-js">R(x,y)=(x+W*y)×4
+</code></pre>
+<p>验证：（x 与 y 均从 0 开始计数）</p>
+<p>R(2, 1) = (2 + 1 × 4) × 4 = 24<br>
+R(1, 2) = (1 + 2 × 4) × 4 = 36<br>
+R(3, 1) = (3 + 1 × 4) × 4 = 28</p>
+<p>拿到了 R(x, y)，不难求出该像素的纵向中心对称像素 Rh(x, y)、横向中心对称像素 Rw(x, y)、以及主对角线对称像素 Rd(x, y)：</p>
+<pre><code class="language-js">Rh(x,y)=[x+W*(H−1−y)]*4 // 初等行变换
+Rw(x,y)=[(W−1−x)+W*y]*4 // 初等列变换
+Rd(x,y)=(y+H*x)*4
+</code></pre>
+<h3 id="具体实现">具体实现</h3>
+<p>基本思路：</p>
+<ul>
+<li>通过 canvas 获取目标图片的 ImageData 对象；</li>
+<li>转置原图片数组，得到数组 AT；</li>
+<li>对 AT 执行一组初等行变换，使各行逆序排列，得到左旋 90° 效果；</li>
+<li>对 AT 执行一组初等列变换，使各列逆序排列，得到右旋 90° 效果；</li>
+<li>将新的像素数组写回图片源标签。</li>
+</ul>
+<p>HTML：</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;Rotate by ImageData&lt;/title&gt;
+    &lt;style&gt;
+        .image{ margin-top: 5px; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class=&quot;btns&quot;&gt;
+        &lt;input type=&quot;button&quot; value=&quot;左转 90°&quot; id=&quot;turnLeft&quot; /&gt;
+        &lt;input type=&quot;button&quot; value=&quot;右转 90°&quot; id=&quot;turnRight&quot; /&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;image&quot;&gt;
+        &lt;img id=&quot;fruit&quot; src=&quot;fruit.jpg&quot; class=&quot;image&quot; alt=&quot;fruit&quot; title=&quot;fruit&quot; /&gt;
+    &lt;/div&gt;
+    &lt;script src=&quot;imageRotate.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+<p>imageRotate.js：</p>
+<pre><code class="language-js">document.querySelector('#turnLeft' ).addEventListener('click', e =&gt; rotateImage('l'))
+document.querySelector('#turnRight').addEventListener('click', e =&gt; rotateImage('r'))
+
+function rotateImage(direction = 'l') {
+    // 1. Prepare ImageData
+    let img = document.querySelector('#fruit')
+    const { width: W, height: H } = img
+    let cvs = document.createElement('canvas')
+    cvs.width = W
+    cvs.height = H
+    let ctx = cvs.getContext('2d')
+    ctx.drawImage(img, 0, 0)
+    let imgDt0 = ctx.getImageData(0, 0, W, H)
+    let imgDt1 = new ImageData(H, W)
+    let imgDt2 = new ImageData(H, W)
+    let dt0 = imgDt0.data
+    let dt1 = imgDt1.data
+    let dt2 = imgDt2.data
+
+    // 2. Transpose
+    let r = r1 = 0  // index of red pixel in old and new ImageData, respectively
+    for (let y = 0, lenH = H; y &lt; lenH; y++) {
+        for (let x = 0, lenW = W; x &lt; lenW; x++) {
+            r  = (x + lenW * y) * 4
+            r1 = (y + lenH * x) * 4
+            dt1[r1 + 0] = dt0[r + 0]
+            dt1[r1 + 1] = dt0[r + 1]
+            dt1[r1 + 2] = dt0[r + 2]
+            dt1[r1 + 3] = dt0[r + 3]
+        }
+    }
+    
+    // 3. Reverse width / height
+    for (let y = 0, lenH = W; y &lt; lenH; y++) {
+        for (let x = 0, lenW = H; x &lt; lenW; x++) {
+            r  = (x + lenW * y) * 4
+            r1 = direction === 'l'
+                ? (x + lenW * (lenH - 1 - y)) * 4
+                : ((lenW - 1 - x) + lenW * y) * 4
+            dt2[r1 + 0] = dt1[r + 0]
+            dt2[r1 + 1] = dt1[r + 1]
+            dt2[r1 + 2] = dt1[r + 2]
+            dt2[r1 + 3] = dt1[r + 3]
+        }
+    }
+    
+    // 4. Redraw image
+    cvs.width = H
+    cvs.height = W
+    ctx.clearRect(0, 0, W, H)
+    ctx.putImageData(imgDt2, 0, 0, 0, 0, H, W)
+    img.src = cvs.toDataURL('image/jpeg', 1)
+}
+</code></pre>
+<p>运行结果：<br>
+原始图片<br>
+<img src="https://weidadeda.github.io/post-images/1647858200595.png" alt="" loading="lazy"><br>
+左转90度<br>
+<img src="https://weidadeda.github.io/post-images/1647858207477.png" alt="" loading="lazy"><br>
+右转90度<br>
+<img src="https://weidadeda.github.io/post-images/1647858214763.png" alt="" loading="lazy"></p>
+<p>好了，现在实现了图片旋转，那么我们接着套用公式实现图片镜像和视频镜像</p>
+<p>html</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot; /&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;ie=edge&quot; /&gt;
+    &lt;title&gt;js通过浏览器调用摄像头&lt;/title&gt;
+    &lt;style&gt;
+    #video {
+        /* transform: rotate3d(1, 1, 1, 45deg); */
+    }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class=&quot;banner&quot;&gt;
+    &lt;video id=&quot;video&quot; width=&quot;500px&quot; height=&quot;500px&quot; autoplay=&quot;autoplay&quot; /&gt;
+    &lt;/div&gt;
+    &lt;canvas width=&quot;500&quot; height=&quot;500&quot; id=&quot;canvas&quot;&gt;&lt;/canvas&gt;
+    &lt;video
+    id=&quot;video2&quot;
+    width=&quot;500px&quot;
+    height=&quot;500px&quot;
+    autoplay=&quot;autoplay&quot;
+    controls=&quot;controls&quot;
+    /&gt;
+&lt;/body&gt;
+&lt;!-- &lt;script src=&quot;./test.js&quot;&gt;&lt;/script&gt; --&gt;
+&lt;script&gt;
+    function getMedia() {
+    let video = document.getElementById(&quot;video&quot;);
+    let constraints = {
+        video: { width: 500, height: 500 },
+        audio: false,
+    };
+    navigator.getUserMedia =
+        navigator.getUserMedia ||
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia ||
+        navigator.msGetUserMedia;
+    let promise = navigator.mediaDevices.getUserMedia(
+        constraints,
+        function (stream) {
+        video.src = stream;
+        video.play();
+        },
+        function (error) {
+        console.log(error);
+        }
+    );
+    promise.then(function (MediaStream) {
+        video.srcObject = MediaStream;
+        video.play();
+    });
+    }
+
+    getMedia();
+    window.onload = () =&gt; {
+    const data = [];
+    var recorder;
+    // 获取视频流之后，用canvas对视频进行反转，然后使用captureStream获取视频流，此时可以通过声网自定义流获取视频轨道getVideoTracks。代码中为了测试canvas转视频可用，调用了MediaRecorder录制
+    function imageDataHRevert(sourceData, newData) {
+        for (var i = 0, h = sourceData.height; i &lt; h; i++) {
+        for (j = 0, w = sourceData.width; j &lt; w; j++) {
+            newData.data[i * w * 4 + j * 4 + 0] =
+            // (y*W+x)*4
+            sourceData.data[i * w * 4 + (w - j) * 4  -4+ 0];
+            // (y*W+(W-x-1))*4
+            newData.data[i * w * 4 + j * 4 + 1] =
+            sourceData.data[i * w * 4 + (w - j) * 4 -4+ 1];
+
+            newData.data[i * w * 4 + j * 4 + 2] =
+            sourceData.data[i * w * 4 + (w - j) * 4 -4+ 2];
+
+            newData.data[i * w * 4 + j * 4 + 3] =
+            sourceData.data[i * w * 4 + (w - j) * 4-4 + 3];
+        }
+        }
+        return newData;
+    }
+    function imageDataVRevert(sourceData, newData) {
+        for (var i = 0, h = sourceData.height; i &lt; h; i++) {
+        for (var j = 0, w = sourceData.width; j &lt; w; j++) {
+            newData.data[i * w * 4 + j * 4 + 0] =
+            sourceData.data[(h - i) * w * 4 + j * 4 + 0];
+
+            newData.data[i * w * 4 + j * 4 + 1] =
+            sourceData.data[(h - i) * w * 4 + j * 4 + 1];
+
+            newData.data[i * w * 4 + j * 4 + 2] =
+            sourceData.data[(h - i) * w * 4 + j * 4 + 2];
+
+            newData.data[i * w * 4 + j * 4 + 3] =
+            sourceData.data[(h - i) * w * 4 + j * 4 + 3];
+        }
+        }
+
+        return newData;
+    }
+
+    function render() {
+        var canvas = document.getElementById(&quot;canvas&quot;);
+        var video = document.getElementById(&quot;video&quot;);
+        var ctx1 = canvas.getContext(&quot;2d&quot;);
+        ctx1.drawImage(video, 0, 0, 500, 500);
+        var imgData = ctx1.getImageData(0, 0, 500, 500);
+        var newImgData = ctx1.getImageData(0, 0, 500, 500);
+        const HRevet = imageDataHRevert(newImgData, imgData);
+        console.error(HRevet, &quot;HRevet&quot;);
+        // 亮一点
+        for (var i = 0; i &lt; HRevet.data.length; i += 4) {
+        HRevet.data[i] += 5;
+        HRevet.data[i + 1] += 5;
+        HRevet.data[i + 2] += 5;
+        }
+        ctx1.putImageData(HRevet, 0, 0);
+        requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+    const stream = canvas.captureStream(30);
+    // todo 自定义视频 canvas.captureStream(30).getVideoTracks()[0]
+    console.error(stream, &quot;stream&quot;);
+    // 自己测试录制视频的，可以不用看
+    recorder = new MediaRecorder(stream, { mimeType: &quot;video/webm&quot; });
+    recorder.ondataavailable = function (event) {
+        if (event.data &amp;&amp; event.data.size) {
+        data.push(event.data);
+        }
+    };
+    recorder.onstop = () =&gt; {
+        const url = URL.createObjectURL(new Blob(data, { type: &quot;video/webm&quot; }));
+        document.getElementById(&quot;video2&quot;).src = url;
+    };
+    recorder.start();
+    setTimeout(() =&gt; {
+        recorder.stop();
+    }, 6000);
+    };
+&lt;/script&gt;
+&lt;/html&gt;
+</code></pre>
+<p>结果：<br>
+<img src="https://weidadeda.github.io/post-images/1647859629847.png" alt="" loading="lazy"></p>
+]]></summary>
+        <content type="html"><![CDATA[<p>最近在搞视频直播，其中有一个功能是视频镜像，那么有两种实现方式。<br>
+一种是老师端点击镜像，通过css把自己的video标签镜像，然后发送信令给学生端，学生端收到消息之后也通过css去实现镜像；<br>
+第二种就是老师端对视频流做一个镜像处理，学生端无需操作，很显然第二种方法比较好；</p>
+<p>怎么实现对视频流的镜像呢，首先要知道的就是视频是由一帧帧的图片组合而成，我们要对视频流镜像，首先要对图片进行镜像。</p>
+<p>对图片镜像的话，就要对ImageData做处理<br>
+首先了解一下什么是ImageData：</p>
+<blockquote>
+<p>ImageData 接口描述 canvas 元素的一个隐含像素数据的区域。使用 ImageData() 构造函数创建或者使用和 canvas 在一起的 CanvasRenderingContext2D 对象的创建方法： createImageData() 和 getImageData()。也可以使用 putImageData() 设置 canvas 的一部分。</p>
+</blockquote>
+<h2 id="我们先以旋转图片为例子做个说明">我们先以旋转图片为例子做个说明</h2>
+<h3 id="基本原理1像素矩阵变换">基本原理1——像素矩阵变换</h3>
+<p>ImageData对象中存储着canvas对象真实的像素数据，它包含以下几个只读属性：</p>
+<ul>
+<li>width  图片宽度，单位是像素</li>
+<li>height  图片高度，单位是像素</li>
+<li>data  <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray">Uint8ClampedArray</a>类型的一维数组，包含着RGBA格式的整型数据，范围在0至255之间（包括255）。<br>
+data属性返回一个 Uint8ClampedArray，它可以被使用作为查看初始像素数据。每个像素用4个1bytes值(按照红，绿，蓝和透明值的顺序; 这就是&quot;RGBA&quot;格式) 来代表。每个颜色值部份用0至255来代表。每个部份被分配到一个在数组内连续的索引，左上角像素的红色部份在数组的索引0位置。像素从左到右被处理，然后往下，遍历整个数组。</li>
+</ul>
+<p>具体请看<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Canvas_API/Tutorial/Pixel_manipulation_with_canvas">像素操作</a></p>
+<p>我们通过ImageData可以对图片的每个像素点做操作。比如我们现在要将图片向右旋转90度</p>
+<p>一个 4 × 3 像素的原始图片，可以看作如下形式的像素矩阵 A：<br>
+<img src="https://weidadeda.github.io/post-images/1647858122464.png" alt="" loading="lazy"><br>
+图片向右旋转 90°，实质就是设法将 A 变为 A’ ——<br>
+<img src="https://weidadeda.github.io/post-images/1647858132107.png" alt="" loading="lazy"><br>
+这可以通过原矩阵一次 转置、与多次初等 列 变换（逆序排列各列）得到：<br>
+<img src="https://weidadeda.github.io/post-images/1647858162556.png" alt="" loading="lazy"><br>
+同理，图片向左旋转 90°，实际上就是得到矩阵 A’' ：<br>
+<img src="https://weidadeda.github.io/post-images/1647858170777.png" alt="" loading="lazy"><br>
+这可以通过原矩阵一次 转置、与多次初等 行 变换（逆序排列各行）得到——<br>
+<img src="https://weidadeda.github.io/post-images/1647858177575.png" alt="" loading="lazy"></p>
+<h3 id="基本原理2像素数组与矩阵的对应关系">基本原理2——像素数组与矩阵的对应关系</h3>
+<p>由于 ImageData.data 对应一个数组，对于 4 × 3 的图片而言，ImageData.data 就是一个具有 48 个元素的数组 D，不妨每个元素的值就是其下标值，则：</p>
+<pre><code class="language-js">D=[0,1,2,3,4,5,6,7...44,45,46,47]
+</code></pre>
+<p>其中：<br>
+元组 (0, 1, 2, 3) 表示第 1(= 0 / 4 + 1) 个像素的颜色为 rgba(0, 1, 2, 3/255)；<br>
+元组 (4, 5, 6, 7) 表示第 2(= 4 / 4 + 1) 个像素的颜色为 rgba(4, 5, 6, 7/255)；<br>
+元组 (8, 9, 10, 11) 表示第 3(= 8 / 4 + 1) 个像素的颜色为 rgba(8, 9, 10, 11/255)；<br>
+…</p>
+<p>元组 (i, i+1, i+2, i+3) 表示第 (i / 4 + 1) 个像素的颜色为 rgba(i, i+1, i+2, (i+3)/255)；<br>
+…<br>
+元组 (44, 45, 46, 47) 表示第 12(= 44 / 4 + 1) 个像素的颜色为 rgba(44, 45, 46, 47/255)。</p>
+<p>可见从 0 开始遍历 D 数组，每次递增 4 个单位，即可依次得到各个像素的红色值 R，再依次加1、加2、加3，即得到对应的绿色值 G、蓝色值 B、等效 α 通道值 A。</p>
+<p>反之，如果知道图片的像素尺寸为 4 × 3，则可以通过下图找到数组 D 的各个元素：<br>
+<img src="https://weidadeda.github.io/post-images/1647858189293.png" alt="" loading="lazy"></p>
+<p>可见各像素点是按照 从左至右、从上至下 的顺序排列的。设图片总宽度像素为 W，总高度像素为 H，任一像素点 P 的坐标为 (x, y)，P 的红色值在数组 D 的下标为 R(x, y)，则：</p>
+<pre><code class="language-js">R(x,y)=(x+W*y)×4
+</code></pre>
+<p>验证：（x 与 y 均从 0 开始计数）</p>
+<p>R(2, 1) = (2 + 1 × 4) × 4 = 24<br>
+R(1, 2) = (1 + 2 × 4) × 4 = 36<br>
+R(3, 1) = (3 + 1 × 4) × 4 = 28</p>
+<p>拿到了 R(x, y)，不难求出该像素的纵向中心对称像素 Rh(x, y)、横向中心对称像素 Rw(x, y)、以及主对角线对称像素 Rd(x, y)：</p>
+<pre><code class="language-js">Rh(x,y)=[x+W*(H−1−y)]*4 // 初等行变换
+Rw(x,y)=[(W−1−x)+W*y]*4 // 初等列变换
+Rd(x,y)=(y+H*x)*4
+</code></pre>
+<h3 id="具体实现">具体实现</h3>
+<p>基本思路：</p>
+<ul>
+<li>通过 canvas 获取目标图片的 ImageData 对象；</li>
+<li>转置原图片数组，得到数组 AT；</li>
+<li>对 AT 执行一组初等行变换，使各行逆序排列，得到左旋 90° 效果；</li>
+<li>对 AT 执行一组初等列变换，使各列逆序排列，得到右旋 90° 效果；</li>
+<li>将新的像素数组写回图片源标签。</li>
+</ul>
+<p>HTML：</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;Rotate by ImageData&lt;/title&gt;
+    &lt;style&gt;
+        .image{ margin-top: 5px; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class=&quot;btns&quot;&gt;
+        &lt;input type=&quot;button&quot; value=&quot;左转 90°&quot; id=&quot;turnLeft&quot; /&gt;
+        &lt;input type=&quot;button&quot; value=&quot;右转 90°&quot; id=&quot;turnRight&quot; /&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;image&quot;&gt;
+        &lt;img id=&quot;fruit&quot; src=&quot;fruit.jpg&quot; class=&quot;image&quot; alt=&quot;fruit&quot; title=&quot;fruit&quot; /&gt;
+    &lt;/div&gt;
+    &lt;script src=&quot;imageRotate.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+<p>imageRotate.js：</p>
+<pre><code class="language-js">document.querySelector('#turnLeft' ).addEventListener('click', e =&gt; rotateImage('l'))
+document.querySelector('#turnRight').addEventListener('click', e =&gt; rotateImage('r'))
+
+function rotateImage(direction = 'l') {
+    // 1. Prepare ImageData
+    let img = document.querySelector('#fruit')
+    const { width: W, height: H } = img
+    let cvs = document.createElement('canvas')
+    cvs.width = W
+    cvs.height = H
+    let ctx = cvs.getContext('2d')
+    ctx.drawImage(img, 0, 0)
+    let imgDt0 = ctx.getImageData(0, 0, W, H)
+    let imgDt1 = new ImageData(H, W)
+    let imgDt2 = new ImageData(H, W)
+    let dt0 = imgDt0.data
+    let dt1 = imgDt1.data
+    let dt2 = imgDt2.data
+
+    // 2. Transpose
+    let r = r1 = 0  // index of red pixel in old and new ImageData, respectively
+    for (let y = 0, lenH = H; y &lt; lenH; y++) {
+        for (let x = 0, lenW = W; x &lt; lenW; x++) {
+            r  = (x + lenW * y) * 4
+            r1 = (y + lenH * x) * 4
+            dt1[r1 + 0] = dt0[r + 0]
+            dt1[r1 + 1] = dt0[r + 1]
+            dt1[r1 + 2] = dt0[r + 2]
+            dt1[r1 + 3] = dt0[r + 3]
+        }
+    }
+    
+    // 3. Reverse width / height
+    for (let y = 0, lenH = W; y &lt; lenH; y++) {
+        for (let x = 0, lenW = H; x &lt; lenW; x++) {
+            r  = (x + lenW * y) * 4
+            r1 = direction === 'l'
+                ? (x + lenW * (lenH - 1 - y)) * 4
+                : ((lenW - 1 - x) + lenW * y) * 4
+            dt2[r1 + 0] = dt1[r + 0]
+            dt2[r1 + 1] = dt1[r + 1]
+            dt2[r1 + 2] = dt1[r + 2]
+            dt2[r1 + 3] = dt1[r + 3]
+        }
+    }
+    
+    // 4. Redraw image
+    cvs.width = H
+    cvs.height = W
+    ctx.clearRect(0, 0, W, H)
+    ctx.putImageData(imgDt2, 0, 0, 0, 0, H, W)
+    img.src = cvs.toDataURL('image/jpeg', 1)
+}
+</code></pre>
+<p>运行结果：<br>
+原始图片<br>
+<img src="https://weidadeda.github.io/post-images/1647858200595.png" alt="" loading="lazy"><br>
+左转90度<br>
+<img src="https://weidadeda.github.io/post-images/1647858207477.png" alt="" loading="lazy"><br>
+右转90度<br>
+<img src="https://weidadeda.github.io/post-images/1647858214763.png" alt="" loading="lazy"></p>
+<p>好了，现在实现了图片旋转，那么我们接着套用公式实现图片镜像和视频镜像</p>
+<p>html</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot; /&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;ie=edge&quot; /&gt;
+    &lt;title&gt;js通过浏览器调用摄像头&lt;/title&gt;
+    &lt;style&gt;
+    #video {
+        /* transform: rotate3d(1, 1, 1, 45deg); */
+    }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class=&quot;banner&quot;&gt;
+    &lt;video id=&quot;video&quot; width=&quot;500px&quot; height=&quot;500px&quot; autoplay=&quot;autoplay&quot; /&gt;
+    &lt;/div&gt;
+    &lt;canvas width=&quot;500&quot; height=&quot;500&quot; id=&quot;canvas&quot;&gt;&lt;/canvas&gt;
+    &lt;video
+    id=&quot;video2&quot;
+    width=&quot;500px&quot;
+    height=&quot;500px&quot;
+    autoplay=&quot;autoplay&quot;
+    controls=&quot;controls&quot;
+    /&gt;
+&lt;/body&gt;
+&lt;!-- &lt;script src=&quot;./test.js&quot;&gt;&lt;/script&gt; --&gt;
+&lt;script&gt;
+    function getMedia() {
+    let video = document.getElementById(&quot;video&quot;);
+    let constraints = {
+        video: { width: 500, height: 500 },
+        audio: false,
+    };
+    navigator.getUserMedia =
+        navigator.getUserMedia ||
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia ||
+        navigator.msGetUserMedia;
+    let promise = navigator.mediaDevices.getUserMedia(
+        constraints,
+        function (stream) {
+        video.src = stream;
+        video.play();
+        },
+        function (error) {
+        console.log(error);
+        }
+    );
+    promise.then(function (MediaStream) {
+        video.srcObject = MediaStream;
+        video.play();
+    });
+    }
+
+    getMedia();
+    window.onload = () =&gt; {
+    const data = [];
+    var recorder;
+    // 获取视频流之后，用canvas对视频进行反转，然后使用captureStream获取视频流，此时可以通过声网自定义流获取视频轨道getVideoTracks。代码中为了测试canvas转视频可用，调用了MediaRecorder录制
+    function imageDataHRevert(sourceData, newData) {
+        for (var i = 0, h = sourceData.height; i &lt; h; i++) {
+        for (j = 0, w = sourceData.width; j &lt; w; j++) {
+            newData.data[i * w * 4 + j * 4 + 0] =
+            // (y*W+x)*4
+            sourceData.data[i * w * 4 + (w - j) * 4  -4+ 0];
+            // (y*W+(W-x-1))*4
+            newData.data[i * w * 4 + j * 4 + 1] =
+            sourceData.data[i * w * 4 + (w - j) * 4 -4+ 1];
+
+            newData.data[i * w * 4 + j * 4 + 2] =
+            sourceData.data[i * w * 4 + (w - j) * 4 -4+ 2];
+
+            newData.data[i * w * 4 + j * 4 + 3] =
+            sourceData.data[i * w * 4 + (w - j) * 4-4 + 3];
+        }
+        }
+        return newData;
+    }
+    function imageDataVRevert(sourceData, newData) {
+        for (var i = 0, h = sourceData.height; i &lt; h; i++) {
+        for (var j = 0, w = sourceData.width; j &lt; w; j++) {
+            newData.data[i * w * 4 + j * 4 + 0] =
+            sourceData.data[(h - i) * w * 4 + j * 4 + 0];
+
+            newData.data[i * w * 4 + j * 4 + 1] =
+            sourceData.data[(h - i) * w * 4 + j * 4 + 1];
+
+            newData.data[i * w * 4 + j * 4 + 2] =
+            sourceData.data[(h - i) * w * 4 + j * 4 + 2];
+
+            newData.data[i * w * 4 + j * 4 + 3] =
+            sourceData.data[(h - i) * w * 4 + j * 4 + 3];
+        }
+        }
+
+        return newData;
+    }
+
+    function render() {
+        var canvas = document.getElementById(&quot;canvas&quot;);
+        var video = document.getElementById(&quot;video&quot;);
+        var ctx1 = canvas.getContext(&quot;2d&quot;);
+        ctx1.drawImage(video, 0, 0, 500, 500);
+        var imgData = ctx1.getImageData(0, 0, 500, 500);
+        var newImgData = ctx1.getImageData(0, 0, 500, 500);
+        const HRevet = imageDataHRevert(newImgData, imgData);
+        console.error(HRevet, &quot;HRevet&quot;);
+        // 亮一点
+        for (var i = 0; i &lt; HRevet.data.length; i += 4) {
+        HRevet.data[i] += 5;
+        HRevet.data[i + 1] += 5;
+        HRevet.data[i + 2] += 5;
+        }
+        ctx1.putImageData(HRevet, 0, 0);
+        requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+    const stream = canvas.captureStream(30);
+    // todo 自定义视频 canvas.captureStream(30).getVideoTracks()[0]
+    console.error(stream, &quot;stream&quot;);
+    // 自己测试录制视频的，可以不用看
+    recorder = new MediaRecorder(stream, { mimeType: &quot;video/webm&quot; });
+    recorder.ondataavailable = function (event) {
+        if (event.data &amp;&amp; event.data.size) {
+        data.push(event.data);
+        }
+    };
+    recorder.onstop = () =&gt; {
+        const url = URL.createObjectURL(new Blob(data, { type: &quot;video/webm&quot; }));
+        document.getElementById(&quot;video2&quot;).src = url;
+    };
+    recorder.start();
+    setTimeout(() =&gt; {
+        recorder.stop();
+    }, 6000);
+    };
+&lt;/script&gt;
+&lt;/html&gt;
+</code></pre>
+<p>结果：<br>
+<img src="https://weidadeda.github.io/post-images/1647859629847.png" alt="" loading="lazy"></p>
+<!-- more -->
+<h4 id="大家看的可能有点懵没关系拿个纸画一下然后去套用公式就好了一次不懂就多试几次-看不懂一定要拿张纸画一下">大家看的可能有点懵，没关系，拿个纸画一下，然后去套用公式就好了，一次不懂就多试几次。看不懂一定要拿张纸画一下！</h4>
+<p>简单的增加美白效果（亮度），可给每个rgb通道加特定值。</p>
+<pre><code class="language-js">r1 = (x + W * y) * 4;
+r1 = (x + W * (H - 1 - y)) * 4;
+</code></pre>
+<p>推荐一个美颜库：opencvjs<br>
+推荐一个人脸识别库：face-api.js https://www.cnblogs.com/neozhu/p/11771148.html</p>
+<p>部分内容参考自 https://blog.csdn.net/frgod/article/details/106055830</p>
 ]]></content>
     </entry>
     <entry>
